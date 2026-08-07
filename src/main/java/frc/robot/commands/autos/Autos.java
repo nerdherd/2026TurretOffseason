@@ -1,0 +1,37 @@
+package frc.robot.commands.autos;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.NerdDrivetrain;
+import frc.robot.subsystems.SuperSystem;
+import frc.robot.util.logging.NerdLog;
+import frc.robot.util.logging.Reportable.LOG_LEVEL;
+
+import static frc.robot.Constants.LoggingConstants.kAutosTab;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+public final class Autos {
+    public static SendableChooser<Command> autoChooser = new SendableChooser<>();
+
+    public static void initAutoChooser() {
+        // EXAMPLE
+        // autoChooser.addOption("Auto Name", AutoBuilder.buildAuto("PathPlanner Auto Name"));
+
+        // TOP
+        // autoChooser.addOption("Top-S1MidDepot", AutoBuilder.buildAuto("Top-S1MidDepot"));
+
+        // MID
+        
+
+        // BOT
+        
+    }
+
+    public static void initNamedCommands(SuperSystem superSystem, NerdDrivetrain swerveDrive) {
+        
+    }
+    
+}
