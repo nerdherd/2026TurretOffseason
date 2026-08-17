@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.Commands;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.logging.Reportable;
 

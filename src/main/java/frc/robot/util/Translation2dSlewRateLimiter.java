@@ -1,7 +1,7 @@
 package frc.robot.util;
 
-import edu.wpi.first.math.MathSharedStore;
-import edu.wpi.first.math.geometry.Translation2d;
+import org.wpilib.math.util.MathSharedStore;
+import org.wpilib.math.geometry.Translation2d;
 
 public class Translation2dSlewRateLimiter {
     private final double rateLimit;

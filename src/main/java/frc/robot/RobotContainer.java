@@ -2,14 +2,14 @@ package frc.robot;
 
 import dev.doglog.DogLog;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.hardware.power.PowerDistribution;
+import org.wpilib.system.RobotController;
+import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.generated.TunerConstants;

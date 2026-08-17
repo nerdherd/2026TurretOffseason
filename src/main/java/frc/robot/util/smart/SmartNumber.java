@@ -3,7 +3,7 @@ package frc.robot.util.smart;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 /**
  * Create a number bound to a SmartDashboard value.

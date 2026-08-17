@@ -4,13 +4,13 @@
 
 package frc.robot.util.controller;
 
-import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.PS5Controller;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.wpilib.driverstation.PS4Controller;
+import org.wpilib.driverstation.PS5Controller;
+import org.wpilib.driverstation.XboxController;
+import org.wpilib.command2.button.CommandPS4Controller;
+import org.wpilib.command2.button.CommandPS5Controller;
+import org.wpilib.command2.button.CommandXboxController;
+import org.wpilib.command2.button.Trigger;
 
 // thank you william
 // you're welcome mason

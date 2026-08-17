@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import org.wpilib.math.controller.ProfiledPIDController;
+import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import frc.robot.util.logging.NerdLog;
 
 /**
