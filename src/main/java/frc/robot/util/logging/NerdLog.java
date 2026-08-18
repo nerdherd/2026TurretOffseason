@@ -11,12 +11,12 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import dev.doglog.DogLog;
+import org.wpilib.util.Alert.Level;
 import org.wpilib.util.sendable.Sendable;
 import org.wpilib.util.sendable.SendableBuilder;
 import org.wpilib.util.struct.StructSerializable;
 import org.wpilib.driverstation.DriverStation;
 import org.wpilib.system.Timer;
-import org.wpilib.util.Alert.AlertType;
 import org.wpilib.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.LoggingConstants;
@@ -52,7 +52,7 @@ public class NerdLog {
 			BaseStatusSignal.refreshAll(signals);
 		
 		// Updates logs on a certain interval.
-		double currentTime = Timer.getFPGATimestamp();
+		double currentTime = Timer.getMonotonicTimestamp();
 		if (currentTime - timeLastPublished >= LoggingConstants.LOGGING_INTERVAL) {
 			
 			// Updates only the logs with the right LOG_LEVEL.
@@ -81,8 +81,6 @@ public class NerdLog {
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, supplier.get(), unit);} :
 			() -> {DogLog.log(name, supplier.get(), unit);};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -99,8 +97,6 @@ public class NerdLog {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, signal.getValueAsDouble(), signal.getUnits());} :
 			() -> {DogLog.log(name, signal.getValueAsDouble(), signal.getUnits());};
 		logSuppliers.get(loggingLevel).add(logger);
 		if (!refreshList.containsKey(networkName)) refreshList.put(networkName, new ArrayList<>());
@@ -311,7 +307,7 @@ public class NerdLog {
 	 * @param message
 	 */
 	public void reportInfo(String message) {
-		DogLog.logFault(message, AlertType.kInfo);
+		DogLog.logFault(message, Level.LOW);
 		DriverStation.reportWarning(message, false);
 	}
 	
@@ -320,7 +316,7 @@ public class NerdLog {
 	 * @param message
 	 */
 	public void reportWarning(String message) {
-		DogLog.logFault(message, AlertType.kWarning);
+		DogLog.logFault(message, Level.MEDIUM);
 		DriverStation.reportWarning(message, true);
 	}
 	
@@ -329,7 +325,7 @@ public class NerdLog {
 	 * @param message
 	 */
 	public void reportError(String message) {
-		DogLog.logFault(message, AlertType.kError);
+		DogLog.logFault(message, Level.HIGH);
 		DriverStation.reportWarning(message, true);
 	}
 

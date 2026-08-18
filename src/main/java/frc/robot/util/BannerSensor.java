@@ -1,6 +1,9 @@
 package frc.robot.util;
 
 import org.wpilib.hardware.discrete.DigitalInput;
+
+import frc.robot.util.logging.NerdLog;
+
 import org.wpilib.driverstation.DriverStation;
 
 public class BannerSensor {
@@ -32,7 +35,7 @@ public class BannerSensor {
             detected = false;
         }
         else{
-            DriverStation.reportError("Fault in banner sensor, error code: ", true);
+            NerdLog.reportError("Fault in banner sensor, error code: ", true);
             detected = false;
         }
         return detected;

@@ -30,10 +30,12 @@ import org.wpilib.math.linalg.VecBuilder;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
-import org.wpilib.math.kinematics.ChassisSpeeds;
+import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.util.sendable.Sendable;
 import org.wpilib.util.sendable.SendableBuilder;
-import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
+import org.wpilib.driverstation.RobotState;
 import org.wpilib.smartdashboard.Field2d;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
@@ -66,9 +68,9 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         AutoBuilder.configure(
             this::getPose,
             this::resetPose,
-            this::getChassisSpeeds,
+            this::getChassisVelocities,
             (speeds, feedforwards) -> setControl(
-                kApplyRobotSpeedsRequest.withSpeeds(speeds)
+                kApplyRobotSpeedsRequest.withVelocity(speeds)
                     .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
                 ),
@@ -77,8 +79,8 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
                 kPPRotationPIDConstants),  
             robotConfig,
             () -> {
-                var alliance = DriverStation.getAlliance();
-                return alliance.isPresent() ? (alliance.get() == DriverStation.Alliance.Red) : false;
+                var alliance = MatchState.getAlliance();
+                return alliance.isPresent() ? (alliance.get() == Alliance.RED) : false;
             },
             this
         );
@@ -96,7 +98,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         if (USE_VISION) {
             // visionUpdate(Camera.Example);
             visionUpdate(Camera.Front, true);
-            visionUpdate(Camera.Back, DriverStation.isTeleop());
+            visionUpdate(Camera.Back, RobotState.isTeleop());
         }
     }
 
@@ -158,9 +160,9 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
      * resets the target drive controller for {@link #driveToTarget(Pose2d)}
      */
     public void resetTargetDrive() {
-        kTargetDriveController.reset("x", getPose().getX(), getFieldOrientedSpeeds().vxMetersPerSecond * 0.1);
-        kTargetDriveController.reset("y", getPose().getY(), getFieldOrientedSpeeds().vyMetersPerSecond * 0.1);
-        kTargetDriveController.reset("r", getSwerveHeadingRadians(), getFieldOrientedSpeeds().omegaRadiansPerSecond * 0.1);
+        kTargetDriveController.reset("x", getPose().getX(), getFieldOrientedVelocities().vx * 0.1);
+        kTargetDriveController.reset("y", getPose().getY(), getFieldOrientedVelocities().vy * 0.1);
+        kTargetDriveController.reset("r", getSwerveHeadingRadians(), getFieldOrientedVelocities().omega * 0.1);
     }
 
     // ----------------------------------------- Helper Functions ----------------------------------------- //
@@ -180,17 +182,17 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
 
     /** the position we will be one step in time */
     public Pose2d getLookAheadPose(double factor) {
-        ChassisSpeeds speeds = getFieldOrientedSpeeds();
-        return getPose().plus(new Transform2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, Rotation2d.kZero).times(factor));
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, Rotation2d.kZero).times(factor));
     }
 
     /** gets the ChassisSpeeds from odometry */
-    public ChassisSpeeds getChassisSpeeds() {
-        return getState().Speeds;
+    public ChassisVelocities getChassisVelocities() {
+        return getState().Velocity;
     }
 
-    public ChassisSpeeds getFieldOrientedSpeeds() {
-        return getChassisSpeeds();
+    public ChassisVelocities getFieldOrientedVelocities() {
+        return getChassisVelocities();
     }
 
     public void setBrake(boolean brake) {
@@ -361,7 +363,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         for (Camera camera : Camera.values())
             NerdLog.get().logBoolean(kSwerveTab + "/" + camera.name + " detecting", () -> LimelightHelpers.getTV(camera.name), LOG_LEVEL.ALL);
 
-        NerdLog.get().logStructSerializable(kSwerveTab + "/Field Chassis Speeds", () -> getFieldOrientedSpeeds(), LOG_LEVEL.ALL);
+        NerdLog.get().logStructSerializable(kSwerveTab + "/Field Chassis Speeds", () -> getFieldOrientedVelocities(), LOG_LEVEL.ALL);
         NerdLog.get().logSwerveModules(kSwerveTab + "/Swerve Module States", this::getState, LOG_LEVEL.ALL);
 
         //////////////

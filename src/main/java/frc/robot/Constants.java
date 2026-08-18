@@ -129,7 +129,7 @@ public final class Constants {
     ////////////////////////////////////////////
  
     /** Used for AutoBuilder configuration */
-    public static final SwerveRequest.ApplyRobotSpeeds  kApplyRobotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds();
+    public static final SwerveRequest.ApplyRobotVelocity  kApplyRobotSpeedsRequest = new SwerveRequest.ApplyRobotVelocity();
     /** Robot oriented controller */
     public static final SwerveRequest.RobotCentric      kRobotOrientedSwerveRequest = 
       new SwerveRequest.RobotCentric()
@@ -139,7 +139,7 @@ public final class Constants {
     /** Field oriented controller - use @see NerdDrivertrain#resetFieldOrientation() */
     public static final SwerveRequest.FieldCentric      kFieldOrientedSwerveRequest = 
       new SwerveRequest.FieldCentric()
-        .withDesaturateWheelSpeeds(true)
+        .withDesaturateWheelVelocities(true)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         .withSteerRequestType(SteerRequestType.Position)
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
