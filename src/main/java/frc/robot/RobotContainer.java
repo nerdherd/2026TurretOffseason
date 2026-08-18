@@ -2,7 +2,8 @@ package frc.robot;
 
 import dev.doglog.DogLog;
 
-import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.RobotController;
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
@@ -30,7 +31,7 @@ public class RobotContainer {
     public SuperSystem superSystem;
 
     public PowerDistribution pdp =
-        new PowerDistribution(1, ModuleType.kRev);
+        new PowerDistribution(0,1, ModuleType.REV);
 
 
     private final Controller driverController =
@@ -135,11 +136,11 @@ public class RobotContainer {
 
     public static void refreshAlliance() {
 
-        var alliance = DriverStation.getAlliance();
+        var alliance = MatchState.getAlliance();
 
         if(alliance.isPresent()) {
             isRedSide =
-                alliance.get() == DriverStation.Alliance.Red;
+                alliance.get() == Alliance.RED;
         }
 
     }

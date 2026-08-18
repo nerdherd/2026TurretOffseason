@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
@@ -25,7 +26,6 @@ import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
@@ -191,12 +191,17 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	 * @return the found motor
 	 */
 	private static TalonFX getMotor(int id) {
-		TalonFX motor = new TalonFX(id);
-		if (!motor.isConnected()) {
+		TalonFX motor;
+
+		for (int i=0; i<5; i++) {
+			motor = new TalonFX(id, CANBus.systemcore(i));
+			if(motor.isConnected()) {
+				return motor;
+			}
 			motor.close();
-			motor = new TalonFX(id, TunerConstants.kCANBus);
-		}
-		return motor;
+		} 
+	
+		return null;
 	}
 
 	/** used for logging, essentially returns the subsystem mode in string form */
@@ -230,8 +235,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	
 	/** sets and applies a {@link NeutralModeValue} to motors */
 	public void setNeutralMode(NeutralModeValue mode){
-		primaryMotor.setNeutralMode(mode);
-		applySecondaryMotors((motor, id) -> motor.setNeutralMode(mode));
+		// primaryMotor.setNeutralMode(mode);
+		// applySecondaryMotors((motor, id) -> motor.setNeutralMode(mode));
 	}
 	
 	/** brake or coast depending on current {@link NeutralModeValue} */
