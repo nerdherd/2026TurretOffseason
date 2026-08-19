@@ -3,8 +3,10 @@
 
 package frc.robot.util.controller;
 
+import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.Trigger;
+import org.wpilib.smartdashboard.SmartDashboard;
 
 // thank you william
 // you're welcome mason
@@ -81,5 +83,61 @@ public class Controller {
      */
     public double getTriggerRightAxis() {
         return gamepad.getRightTriggerAxis();
+    }
+
+    public static void configureDebugBindings(Controller testController) {
+        testController.buttonRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "bye")));
+        testController.buttonDown()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "bye")));
+        testController.buttonUp()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "bye")));
+        testController.buttonLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "bye")));
+
+        testController.bumperLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "bye")));
+        testController.bumperRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "bye")));
+        
+        testController.triggerLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "bye")));
+        testController.triggerRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "bye")));
+
+        testController.dpadUp()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "bye")));
+        testController.dpadRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "bye")));
+        testController.dpadDown()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "bye")));
+        testController.dpadLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "bye")));
+
+        testController.controllerLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "bye")));
+        testController.controllerRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "bye")));
+        
+        testController.joystickLeft()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "bye")));
+        testController.joystickRight()
+            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "hi")))
+            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "bye")));
     }
 }

@@ -11,10 +11,8 @@ import dev.doglog.DogLog;
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.networktables.StringSubscriber;
-import org.wpilib.smartdashboard.SmartDashboard;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
-import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Subsystems;
@@ -25,7 +23,6 @@ import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
 
 import frc.robot.util.controller.Controller;
-import frc.robot.util.controller.Controller.Type;
 
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable.LOG_LEVEL;
@@ -34,26 +31,11 @@ import frc.robot.util.logging.Reportable.LOG_LEVEL;
 public class RobotContainer {
     public NerdDrivetrain swerveDrive;
     public SuperSystem superSystem;
-    public PowerDistribution pdp =
-        new PowerDistribution(0,1, ModuleType.REV);
+    public PowerDistribution pdp = new PowerDistribution(0,1, ModuleType.REV);
 
-    private final Controller driverController =
-        new Controller(
-            ControllerConstants.kDriverControllerPort,
-            Type.PS4
-        );
-
-    private final Controller operatorController =
-        new Controller(
-            ControllerConstants.kOperatorControllerPort,
-            Type.PS4
-        );
-
-    private final Controller testController =
-        new Controller(
-            ControllerConstants.kTestControllerPort,
-            Type.Xbox360
-        );
+    private final Controller driverController = new Controller(ControllerConstants.kDriverControllerPort);
+    private final Controller operatorController = new Controller(ControllerConstants.kOperatorControllerPort);
+    private final Controller testController = new Controller(ControllerConstants.kTestControllerPort);
 
     private static boolean isRedSide = false;
 
@@ -133,60 +115,7 @@ public class RobotContainer {
     }
 
     public void configureBindings_test() {
-        // TODO move these into Controller later
-        testController.buttonRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "bye")));
-        testController.buttonDown()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "bye")));
-        testController.buttonUp()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "bye")));
-        testController.buttonLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "bye")));
-
-        testController.bumperLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "bye")));
-        testController.bumperRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "bye")));
-        
-        testController.triggerLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "bye")));
-        testController.triggerRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "bye")));
-
-    testController.dpadUp()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "bye")));
-        testController.dpadRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "bye")));
-        testController.dpadDown()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "bye")));
-        testController.dpadLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "bye")));
-
-        testController.controllerLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "bye")));
-        testController.controllerRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "bye")));
-        
-        testController.joystickLeft()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "bye")));
-        testController.joystickRight()
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "hi")))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "bye")));
+        Controller.configureDebugBindings(testController);
     }
 
     public Command getAutonomousCommand() {
