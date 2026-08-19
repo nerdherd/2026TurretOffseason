@@ -1,14 +1,17 @@
 package frc.robot.subsystems;
 
-
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.template.TemplateSubsystem;
+import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
 
 public class SuperSystem implements Reportable {
@@ -52,6 +55,7 @@ public class SuperSystem implements Reportable {
     //         stopIntakeHold()
     //     );
     // }
+
     public void setNeutralMode(NeutralModeValue neutralMode) {
         applySubsystems((s) -> s.setNeutralMode(neutralMode));
     }
@@ -74,11 +78,10 @@ public class SuperSystem implements Reportable {
         applySubsystems((s) -> s.setDesiredValue(s.getDefaultValue()));
     }
 
-
     // ------------------------------------ logging ------------------------------------ //
     @Override
     public void initializeLogging() {
         applySubsystems((s) -> s.initializeLogging());
-        
+        NerdLog.logData(LoggingConstants.kSupersystemTab + "/Command Scheduler", CommandScheduler.getInstance(), LOG_LEVEL.ALL);
     }
 }
