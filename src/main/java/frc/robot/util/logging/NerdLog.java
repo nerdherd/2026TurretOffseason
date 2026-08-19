@@ -5,17 +5,20 @@ import static frc.robot.Constants.ROBOT_LOG_LEVEL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import dev.doglog.DogLog;
-import org.wpilib.util.Alert.Level;
 import org.wpilib.util.sendable.Sendable;
 import org.wpilib.util.sendable.SendableBuilder;
 import org.wpilib.util.struct.StructSerializable;
-import org.wpilib.driverstation.DriverStation;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.wpilib.driverstation.Alert;
+import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
 import org.wpilib.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
@@ -23,31 +26,17 @@ import frc.robot.Constants.LoggingConstants;
 import frc.robot.util.logging.Reportable.LOG_LEVEL;
 
 public class NerdLog {
-	private static NerdLog main = new NerdLog(false);
-	private static NerdLog logNT = new NerdLog(true);
-	public static NerdLog get() {return main;}
-	/**
-	 * use to log to network tables during a match
-	 */
-	public static NerdLog getNT() {return logNT;}
-
 	/** Contains the Runnables associated with each LOG_LEVEL. */
-    private HashMap<Reportable.LOG_LEVEL, ArrayList<Runnable>> logSuppliers = new HashMap<>();
+    private static HashMap<Reportable.LOG_LEVEL, ArrayList<Runnable>> logSuppliers = new HashMap<>();
 	/** Contains the BaseStatusSignals associated with each network name. */
-	private HashMap<String, ArrayList<BaseStatusSignal>> refreshList = new HashMap<>();
+	private static HashMap<String, ArrayList<BaseStatusSignal>> refreshList = new HashMap<>();
 
 	/** The time, in seconds, since the last update. */
-	private double timeLastPublished = 0.0;
+	private static double timeLastPublished = 0.0;
 	/** The number of loops processed. */
-	private int publishCount = 0;
-
-	private boolean forceNT = false;
-
-	private NerdLog(boolean forceNT) {
-		this.forceNT = forceNT;
-	}
+	private static int publishCount = 0;
 	
-	public void periodic() {
+	public static void periodic() {
 		for (ArrayList<BaseStatusSignal> signals : refreshList.values())
 			BaseStatusSignal.refreshAll(signals);
 		
@@ -76,7 +65,7 @@ public class NerdLog {
 	 * @param unit
 	 * @param loggingLevel
 	 */
-    public void logNumber(String name, Supplier<Double> supplier, String unit, LOG_LEVEL loggingLevel) {
+    public static void logNumber(@NonNull String name, Supplier<Double> supplier, String unit, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
@@ -93,7 +82,7 @@ public class NerdLog {
 	 * @param networkName
 	 * @param loggingLevel
 	 */
-    public void logSignal(String name, BaseStatusSignal signal, String networkName, LOG_LEVEL loggingLevel) {
+    public static void logSignal(@NonNull String name, BaseStatusSignal signal, String networkName, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 		Runnable logger = 
@@ -110,13 +99,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logNumber(String name, Supplier<Double> supplier, LOG_LEVEL loggingLevel) {
+	public static void logNumber(@NonNull String name, Supplier<Double> supplier, LOG_LEVEL loggingLevel) {
 		if (Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, supplier.get());} :
 			() -> {DogLog.log(name, supplier.get());};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -128,13 +115,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logNumberArray(String name, Supplier<Double[]> supplier, LOG_LEVEL loggingLevel) {
+	public static void logNumberArray(@NonNull String name, Supplier<Double[]> supplier, LOG_LEVEL loggingLevel) {
 		if (Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray());} :
 			() -> {DogLog.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray());};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -147,13 +132,11 @@ public class NerdLog {
 	 * @param unit
 	 * @param loggingLevel
 	 */
-	public void logNumberArray(String name, Supplier<Double[]> supplier, String unit, LOG_LEVEL loggingLevel) {
+	public static void logNumberArray(@NonNull String name, Supplier<Double[]> supplier, String unit, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray(), unit);} :
 			() -> {DogLog.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray(), unit);};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -165,13 +148,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logBoolean(String name, Supplier<Boolean> supplier, LOG_LEVEL loggingLevel) {
+	public static void logBoolean(@NonNull String name, Supplier<Boolean> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger =
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, supplier.get());} :
 			() -> {DogLog.log(name, supplier.get());};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -183,18 +164,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logBooleanArray(String name, Supplier<Boolean[]> supplier, LOG_LEVEL loggingLevel) {
+	public static void logBooleanArray(@NonNull String name, Supplier<Boolean[]> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {
-				Boolean[] objectArray = supplier.get();
-				boolean[] array = new boolean[objectArray.length];
-				for (int i = 0; i < objectArray.length; i++) array[i] = objectArray[i].booleanValue();
-				DogLog.forceNt.log(name, array);
-			} :
 			() -> {
 				Boolean[] objectArray = supplier.get();
 				boolean[] array = new boolean[objectArray.length];
@@ -211,13 +185,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logString(String name, Supplier<String> supplier, LOG_LEVEL loggingLevel) {
+	public static void logString(@NonNull String name, Supplier<String> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, supplier.get());} : 
 			() -> {DogLog.log(name, supplier.get());};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
@@ -229,14 +201,12 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logStringArray(String name, Supplier<String[]> supplier, LOG_LEVEL loggingLevel) {
+	public static void logStringArray(@NonNull String name, Supplier<@Nullable String[]> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			(forceNT) ?
-			() -> {DogLog.forceNt.log(name, supplier.get());} : 
-			() -> {DogLog.log(name, supplier.get());};
+			() -> {DogLog.log(name, Objects.requireNonNull(supplier.get()));};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
 
@@ -247,7 +217,7 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logData(String path, Sendable supplier, LOG_LEVEL loggingLevel) {
+	public static void logData(String path, Sendable supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		SmartDashboard.putData(path, supplier);
 	}
@@ -259,11 +229,11 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logStructSerializable(String path, Supplier<StructSerializable> supplier, LOG_LEVEL loggingLevel) {
+	public static void logStructSerializable(@NonNull String path, Supplier<StructSerializable> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 		Runnable logger = 
-			() -> {DogLog.forceNt.log(path, supplier.get());};
+			() -> {DogLog.log(path, supplier.get());};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
 
@@ -274,28 +244,28 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public void logSwerveModules(String path, Supplier<SwerveDriveState> supplier, LOG_LEVEL loggingLevel) {
+	public static void logSwerveModules(String path, Supplier<SwerveDriveState> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
 		SmartDashboard.putData(path, generateModuleSendable(supplier));
 	}
 
-	private Sendable generateModuleSendable(Supplier<SwerveDriveState> state) {
+	private static Sendable generateModuleSendable(Supplier<SwerveDriveState> state) {
 		return new Sendable() {
 			@Override
 			public void initSendable(SendableBuilder builder) {
 				builder.setSmartDashboardType("SwerveDrive");
 
-				builder.addDoubleProperty("Front Left Angle", () -> state.get().ModuleStates[0].angle.getRadians(), null);
-				builder.addDoubleProperty("Front Left Velocity", () -> state.get().ModuleStates[0].speedMetersPerSecond, null);
+				builder.addDoubleProperty("Front Left Angle", () -> state.get().ModuleVelocities[0].angle.getRadians(), null);
+				builder.addDoubleProperty("Front Left Velocity", () -> state.get().ModuleVelocities[0].velocity, null);
 
-				builder.addDoubleProperty("Front Right Angle", () -> state.get().ModuleStates[1].angle.getRadians(), null);
-				builder.addDoubleProperty("Front Right Velocity", () -> state.get().ModuleStates[1].speedMetersPerSecond, null);
+				builder.addDoubleProperty("Front Right Angle", () -> state.get().ModuleVelocities[1].angle.getRadians(), null);
+				builder.addDoubleProperty("Front Right Velocity", () -> state.get().ModuleVelocities[1].velocity, null);
 
-				builder.addDoubleProperty("Back Left Angle", () -> state.get().ModuleStates[2].angle.getRadians(), null);
-				builder.addDoubleProperty("Back Left Velocity", () -> state.get().ModuleStates[2].speedMetersPerSecond, null);
+				builder.addDoubleProperty("Back Left Angle", () -> state.get().ModuleVelocities[2].angle.getRadians(), null);
+				builder.addDoubleProperty("Back Left Velocity", () -> state.get().ModuleVelocities[2].velocity, null);
 
-				builder.addDoubleProperty("Back Right Angle", () -> state.get().ModuleStates[3].angle.getRadians(), null);
-				builder.addDoubleProperty("Back Right Velocity", () -> state.get().ModuleStates[3].speedMetersPerSecond, null);
+				builder.addDoubleProperty("Back Right Angle", () -> state.get().ModuleVelocities[3].angle.getRadians(), null);
+				builder.addDoubleProperty("Back Right Velocity", () -> state.get().ModuleVelocities[3].velocity, null);
 
 				builder.addDoubleProperty("Robot Angle", () -> state.get().Pose.getRotation().getRadians(), null);
 			}
@@ -306,33 +276,33 @@ public class NerdLog {
 	 * Reports an info statement through DogLog and DriverStation.
 	 * @param message
 	 */
-	public void reportInfo(String message) {
-		DogLog.logFault(message, Level.LOW);
-		DriverStation.reportWarning(message, false);
+	public static void reportInfo(String message) {
+		DogLog.logFault(message, Alert.Level.LOW);
+		DriverStationErrors.reportWarning(message, false);
 	}
 	
 	/**
 	 * Reports a warning through DogLog and DriverStation.
 	 * @param message
 	 */
-	public void reportWarning(String message) {
-		DogLog.logFault(message, Level.MEDIUM);
-		DriverStation.reportWarning(message, true);
+	public static void reportWarning(String message) {
+		DogLog.logFault(message, Alert.Level.MEDIUM);
+		DriverStationErrors.reportWarning(message, true);
 	}
 	
 	/**
 	 * Reports an error message through DogLog and DriverStation.
 	 * @param message
 	 */
-	public void reportError(String message) {
-		DogLog.logFault(message, Level.HIGH);
-		DriverStation.reportWarning(message, true);
+	public static void reportError(String message) {
+		DogLog.logFault(message, Alert.Level.HIGH);
+		DriverStationErrors.reportWarning(message, true);
 	}
 
 	/**
 	 * Reports the number of values and StatusSignals logged.
 	 */
-	public void reportLogCount() {
+	public static void reportLogCount() {
 		String output = "";
 		for (LOG_LEVEL level : LOG_LEVEL.values()) {
 			if (logSuppliers.containsKey(level)) {

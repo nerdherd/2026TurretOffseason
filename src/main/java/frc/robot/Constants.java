@@ -25,8 +25,6 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
-import frc.robot.subsystems.template.TemplateSubsystem;
-import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
 import frc.robot.util.MultiProfiledPIDController;
 import frc.robot.util.NerdyMath;
 import frc.robot.util.Translation2dSlewRateLimiter;
@@ -108,21 +106,21 @@ public final class Constants {
     /// -- Drive Speeds -- ///
     //////////////////////////
     
-    public static final double kDriveMaxVelocity = 0.0; // m/s TODO: tune
+    public static final double kDriveMaxVelocity = 5.0; // m/s
     public static final double kDrivePrecisionMultiplier = 0.5; // fractional
- 
-    public static final double kTurnMaxVelocity = 0.0; // rad/s TODO: tune
+    
+    public static final double kTurnMaxVelocity = 4.5; // rad/s
     public static final double kTurnPrecisionMultiplier = 0.5; // fractional
- 
-    public static final double kRobotOrientedVelocity = 0.0; // m/s TODO: tune
- 
+    
+    public static final double kRobotOrientedVelocity = 2.0; // m/s
+    
     ///////////////////////////
     /// -- Turn to Angle -- ///
     ///////////////////////////
- 
-    public static final double kTurnToAngleMaxVelocity = 0.0; // rad/s TODO: tune
-    public static final PIDConstants kTurnToAnglePIDConstants = new PIDConstants(0.0, 0.0, 0.0); // TODO: tune
-    public static final Constraints kTurnToAngleTolerances = new Constraints(0.0, 0.0); // TODO: tune
+    
+    public static final double kTurnToAngleMaxVelocity = 6.25; // rad/s
+    public static final PIDConstants kTurnToAnglePIDConstants = new PIDConstants(12.0, 0.0, 0.25);
+    public static final Constraints kTurnToAngleTolerances = new Constraints(0.017, 0.05); 
  
     ////////////////////////////////////////////
     /// -- NerdDrivetrain Swerve Requests -- ///
@@ -155,13 +153,13 @@ public final class Constants {
     ////////////////////////////////////////////
  
     /** @see NerdDrivetrain.driveToTarget() */
-    public static final double kTargetDriveMaxLateralVelocity = 0.0; // TODO: tune
-    public static final PIDConstants kTargetDriveLateralPID = new PIDConstants(0.0, 0.0, 0.0); // TODO: tune
- 
+    public static final double kTargetDriveMaxLateralVelocity = 5.0;
+    public static final PIDConstants kTargetDriveLateralPID = new PIDConstants(5.0, 0.0, 0.5);
+
     /** m/s and m/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveLateralConstraints = new Constraints(kTargetDriveMaxLateralVelocity, kTargetDriveMaxLateralVelocity);
-    public static final double kTargetDriveMaxRotationalVelocity = 0.0; // TODO: tune
-    public static final PIDConstants kTargetDriveRotationalPID = new PIDConstants(0.0, 0.0, 0.0); // TODO: tune
+    public static final double kTargetDriveMaxRotationalVelocity = 9.4;
+    public static final PIDConstants kTargetDriveRotationalPID = new PIDConstants(4.0, 0.0, 0.2);
  
     /** rad/s and rad/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveRotationalConstraints = new Constraints(kTargetDriveMaxRotationalVelocity, kTargetDriveMaxRotationalVelocity);
@@ -174,7 +172,7 @@ public final class Constants {
  
     public static enum FieldPositions {
       // Add field positions
-      HUB_CENTER(4.626, 4.035, 0.0);
+      ;
       
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
@@ -189,24 +187,16 @@ public final class Constants {
     }
   }
 
-  public static final class RingDriveConstants {
-    public static final double kInitialDistance = 0.2; // m
-    public static final double kDriveVelocity = 1.0; // m/s
-    public static final double kMaximumDistance = 1.0; // m
-    public static final double kMinimumDistance = 0.2; // m
-    public static final double kRobotRotationOffset = Math.PI; // rad
-  }
-
   public static final class PathPlannerConstants {
-    public static final double kPP_P = 0.0; // TODO: tune
+    public static final double kPP_P = 5.0;
     public static final double kPP_I = 0.0;
     public static final double kPP_D = 0.0;
  
     public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
 
-    public static final double kPP_ThetaP = 0.0; // TODO: tune
-    public static final double kPP_ThetaI = 0;
-    public static final double kPP_ThetaD = 0.0; // TODO: tune
+    public static final double kPP_ThetaP = 4.0;
+    public static final double kPP_ThetaI = 0.0;
+    public static final double kPP_ThetaD = 0.1;
  
     public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
   }
@@ -242,8 +232,6 @@ public final class Constants {
 // Replicate for every subsystem
 //e.g. IndexerConstants
   public static final class MechanismConstants {
-
-  
     public static final int kMotor1ID = 0;
     //public static final int kMotor2ID = 0;
 

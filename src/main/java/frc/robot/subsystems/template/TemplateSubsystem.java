@@ -157,21 +157,21 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		switch (mode) {
 			case POSITION:
 				primaryMotor.setControl(positionController.withPosition(this.desiredValue));
-				if (configuration.MotionMagic.MotionMagicCruiseVelocity == 0.0) NerdLog.get().reportWarning(name + ": MM Cruise Velocity is 0.0");
-				if (configuration.MotionMagic.MotionMagicAcceleration == 0.0) NerdLog.get().reportWarning(name + ": MM Acceleration is 0.0");
+				if (configuration.MotionMagic.MotionMagicCruiseVelocity == 0.0) NerdLog.reportWarning(name + ": MM Cruise Velocity is 0.0");
+				if (configuration.MotionMagic.MotionMagicAcceleration == 0.0) NerdLog.reportWarning(name + ": MM Acceleration is 0.0");
 				break;
 			case VELOCITY:
 				if (Math.abs(this.desiredValue) <= 0.1) brake();
 				else primaryMotor.setControl(velocityController.withVelocity(this.desiredValue));
 				break;
 			case VOLTAGE:
-				if (Math.abs(this.desiredValue) > 12) NerdLog.get().reportWarning(name + ": voltage > 12");
+				if (Math.abs(this.desiredValue) > 12) NerdLog.reportWarning(name + ": voltage > 12");
 				primaryMotor.setControl(voltageController.withOutput(this.desiredValue));
 				break;
 			case PROFILED_VELOCITY:
 				if (Math.abs(this.desiredValue) <= 0.1) brake();
 				else primaryMotor.setControl(profiledVelocityController.withVelocity(this.desiredValue).withAcceleration(configuration.MotionMagic.MotionMagicAcceleration));
-				if (configuration.MotionMagic.MotionMagicAcceleration == 0.0) NerdLog.get().reportWarning(name + ": MM Acceleration is 0.0");
+				if (configuration.MotionMagic.MotionMagicAcceleration == 0.0) NerdLog.reportWarning(name + ": MM Acceleration is 0.0");
 			default:
 				break;
 		}
@@ -235,8 +235,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	
 	/** sets and applies a {@link NeutralModeValue} to motors */
 	public void setNeutralMode(NeutralModeValue mode){
-		// primaryMotor.setNeutralMode(mode);
-		// applySecondaryMotors((motor, id) -> motor.setNeutralMode(mode));
+		this.configuration.MotorOutput.NeutralMode = mode;
+		applyMotorConfigs();
 	}
 	
 	/** brake or coast depending on current {@link NeutralModeValue} */
@@ -379,34 +379,34 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
         ///////////
         /// ALL ///
         ///////////
-		NerdLog.get().logData(kSubsystemTab + name + "/Commands", this, LOG_LEVEL.ALL); 
+		NerdLog.logData(kSubsystemTab + name + "/Commands", this, LOG_LEVEL.ALL); 
 		
-        NerdLog.get().logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.ALL);
-		NerdLog.get().logBoolean(kSubsystemTab + name + "/Has Error", () -> _hasError, LOG_LEVEL.ALL);
+        NerdLog.logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.ALL);
+		NerdLog.logBoolean(kSubsystemTab + name + "/Has Error", () -> _hasError, LOG_LEVEL.ALL);
 
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL);
+		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL);
 		applySecondaryMotors((motor, i) -> 
-			NerdLog.get().logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL));
+			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL));
 
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Supply Current", primaryMotor.getSupplyCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.ALL);
+		NerdLog.logSignal(kSubsystemTab + name + "/Supply Current", primaryMotor.getSupplyCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.ALL);
 
 		//////////////
 		/// MEDIUM ///
         //////////////
-        NerdLog.get().logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Motor Voltage", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+        NerdLog.logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
+		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
         
         //////////////
 		/// MINIMAL //
         //////////////
-        NerdLog.getNT().logSignal(kSubsystemTab + name + "/" + getFlavorText(), getCurrentValue(), primaryMotor.getNetwork().getName(), LOG_LEVEL.MINIMAL);
-        NerdLog.get().logSignal(kSubsystemTab + name + "/Temperature/Primary Motor", primaryMotor.getDeviceTemp(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+        NerdLog.logSignal(kSubsystemTab + name + "/" + getFlavorText(), getCurrentValue(), primaryMotor.getNetwork().getName(), LOG_LEVEL.MINIMAL);
+        NerdLog.logSignal(kSubsystemTab + name + "/Temperature/Primary Motor", primaryMotor.getDeviceTemp(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		applySecondaryMotors((motor, i) -> 
-			NerdLog.get().logSignal(kSubsystemTab + name + "/Temperature/Secondary Motor " + i, motor.getDeviceTemp(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM)
+			NerdLog.logSignal(kSubsystemTab + name + "/Temperature/Secondary Motor " + i, motor.getDeviceTemp(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM)
 		);
-		NerdLog.getNT().logBoolean(kSubsystemTab + name + "/Connected/Primary Motor", primaryMotor::isConnected, LOG_LEVEL.MINIMAL);
+		NerdLog.logBoolean(kSubsystemTab + name + "/Connected/Primary Motor", primaryMotor::isConnected, LOG_LEVEL.MINIMAL);
 		applySecondaryMotors((motor, i) -> 
-			NerdLog.getNT().logBoolean(kSubsystemTab + name + "/Connected/Secondary Motor " + i, motor::isConnected, LOG_LEVEL.MINIMAL)
+			NerdLog.logBoolean(kSubsystemTab + name + "/Connected/Secondary Motor " + i, motor::isConnected, LOG_LEVEL.MINIMAL)
 		);
     }
 }
