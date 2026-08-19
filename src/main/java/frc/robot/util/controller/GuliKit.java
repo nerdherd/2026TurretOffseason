@@ -3,6 +3,7 @@
 package frc.robot.util.controller;
 
 import org.wpilib.driverstation.Joystick;
+import org.wpilib.driverstation.POVDirection;
 import org.wpilib.command2.button.JoystickButton;
 import org.wpilib.command2.button.Trigger;
 
@@ -69,10 +70,10 @@ public class GuliKit {
     public boolean getLeftJoy()  { return buttonLeftJoy.getAsBoolean(); }
     public boolean getRightJoy() { return buttonRightJoy.getAsBoolean(); }
 
-    public boolean getDpadUp()    { return (controller.getPOV() >= 300 || controller.getPOV() <= 60) && controller.getPOV() != -1; }
-    public boolean getDpadRight() { return controller.getPOV() >= 30 && controller.getPOV() <= 150; }
-    public boolean getDpadDown()  { return controller.getPOV() >= 120 && controller.getPOV() <= 240; }
-    public boolean getDpadLeft()  { return controller.getPOV() >= 210 && controller.getPOV() <= 330; }
+    public boolean getDpadUp()    { return ((controller.getPOV().value & POVDirection.UP.value) != 0); }
+    public boolean getDpadRight() { return ((controller.getPOV().value & POVDirection.RIGHT.value) != 0); }
+    public boolean getDpadDown()  { return ((controller.getPOV().value & POVDirection.DOWN.value) != 0); }
+    public boolean getDpadLeft()  { return ((controller.getPOV().value & POVDirection.LEFT.value) != 0); }
 
     // OBJECT METHODS \\
     public JoystickButton buttonB() { return buttonB; }
