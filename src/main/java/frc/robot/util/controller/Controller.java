@@ -1,4 +1,4 @@
-// VERSION 3.0
+// VERSION 3.1
 // Uses the generic CommandGamepad class
 
 package frc.robot.util.controller;
@@ -10,6 +10,9 @@ import org.wpilib.smartdashboard.SmartDashboard;
 
 // thank you william
 // you're welcome mason
+
+// im wheler and i love duenas
+// im also here hello
 public class Controller {
     private final CommandGamepad gamepad;
     private static final double triggerDeadband = 0.65;
@@ -40,7 +43,7 @@ public class Controller {
     public Trigger dpadLeft()           { return gamepad.dpadLeft();     }
     public Trigger joystickLeft()       { return gamepad.leftStick();    }
     public Trigger joystickRight()      { return gamepad.rightStick();   }
-    public Trigger controllerLeft()     { return gamepad.guide();        } // TODO: this is probably wrong
+    public Trigger controllerLeft()     { return gamepad.back();        } // TODO: this is probably wrong
     public Trigger controllerRight()    { return gamepad.start();        } // TODO: this is probably wrong
 
     public double getLeftX()            { return gamepad.getLeftX();  }
@@ -63,7 +66,7 @@ public class Controller {
     public boolean getDpadLeft()        { return gamepad.getHID().getDpadLeftButton();    }
     public boolean getJoystickLeft()    { return gamepad.getHID().getLeftStickButton();   }
     public boolean getJoystickRight()   { return gamepad.getHID().getRightStickButton();  }
-    public boolean getControllerLeft()  { return gamepad.getHID().getGuideButton();       } // TODO: this is probably wrong
+    public boolean getControllerLeft()  { return gamepad.getHID().getBackButton();       } // TODO: this is probably wrong
     public boolean getControllerRight() { return gamepad.getHID().getStartButton();       } // TODO: this is probably wrong
     
 
@@ -139,5 +142,17 @@ public class Controller {
         testController.joystickRight()
             .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "hi")))
             .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "bye")));
+    }
+
+    public void logAnalogValues() {
+        SmartDashboard.putNumber("Controller Joy Left X", getLeftX());
+        SmartDashboard.putNumber("Controller Joy Left Y", getLeftY());
+        SmartDashboard.putNumber("Controller Joy Right X", getRightX());
+        SmartDashboard.putNumber("Controller Joy Right Y", getRightY());
+
+        SmartDashboard.putNumber("Controller Left Trigger", getTriggerLeftAxis());
+        SmartDashboard.putNumber("Controller Right Trigger", getTriggerRightAxis());
+
+        SmartDashboard.putBoolean("Right Button", getControllerRight());
     }
 }
