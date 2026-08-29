@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -25,6 +26,9 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
+
+import frc.robot.subsystems.template.TemplateSubsystem;
+import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
 import frc.robot.util.MultiProfiledPIDController;
 import frc.robot.util.NerdyMath;
 import frc.robot.util.Translation2dSlewRateLimiter;
@@ -187,6 +191,37 @@ public final class Constants {
     }
   }
 
+  public static final class TurretConstants {
+    public static final int kMotor1ID = 0;
+
+    private static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0)
+        .withKD(0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive); // placeholder, but based on CAD, CW should move the hood up
+      
+    public static final CurrentLimitsConfigs kMotorCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(30)
+        .withStatorCurrentLimitEnable(true);
+
+    private static final MotionMagicConfigs kMotionMagicConfigs = 
+      new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(10)
+        .withMotionMagicAcceleration(25);
+    
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withCurrentLimits(kMotorCurrentLimitsConfigs)
+        .withMotionMagic(kMotionMagicConfigs)
+        .withMotorOutput(kMotorOutputConfigs);
+  }
+
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
     public static final double kPP_I = 0.0;
@@ -286,6 +321,17 @@ public final class Constants {
       //         0.0,
       //         useExample)
       //     .configureMotors(ExampleConstants.kSubsystemConfiguration);
+
+      public static final boolean useTurret = true;
+
+      public static final TemplateSubsystem turret = 
+        (!USE_SUBSYSTEMS) ? null:
+        new TemplateSubsystem(
+          "Turret", 
+          TurretConstants.kMotor1ID, 
+          SubsystemMode.POSITION, 
+          0.0, 
+          useTurret);
 
       public static void init() {}
   }
