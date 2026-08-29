@@ -193,7 +193,7 @@ public final class Constants {
     }
   }
 
-  public static final class TurretConstants {
+  public static final class TurretSwivelConstants {
     public static final int kMotor1ID = 0;
 
     private static final Slot0Configs kSlot0Configs = 
@@ -322,37 +322,38 @@ public final class Constants {
 // Template for subsystem based constants
 // Replicate for every subsystem
 //e.g. IndexerConstants
-  public static final class MechanismConstants {
-    public static final int kMotor1ID = 0;
-    //public static final int kMotor2ID = 0;
+  // public static final class MechanismConstants {
+  //   public static final int kMotor1ID = 0;
+  //   //public static final int kMotor2ID = 0;
 
 
-    private static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-        .withKP(0.0)
-        .withKI(0.0)
-        .withKD(0.0);
-        // .withKV(0.0)
-        // .withKS(0.0)
+  //   private static final Slot0Configs kSlot0Configs = 
+  //     new Slot0Configs()
+  //       .withKP(0.0)
+  //       .withKI(0.0)
+  //       .withKD(0.0);
+  //       // .withKV(0.0)
+  //       // .withKS(0.0)
 
 
-    private static final MotorOutputConfigs kMotorOutputConfigs =
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
+  //   private static final MotorOutputConfigs kMotorOutputConfigs =
+  //     new MotorOutputConfigs()
+  //       .withInverted(InvertedValue.CounterClockwise_Positive)
+  //       .withNeutralMode(NeutralModeValue.Brake);
 
-    private static final CurrentLimitsConfigs kCurrentLimitsConfigs =
-      new CurrentLimitsConfigs()
-        .withStatorCurrentLimit(40)
-        .withStatorCurrentLimitEnable(true);
+  //   private static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+  //     new CurrentLimitsConfigs()
+  //       .withStatorCurrentLimit(40)
+  //       .withStatorCurrentLimitEnable(true);
 
-    public static final TalonFXConfiguration kSubsystemConfiguration = 
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        // .withMotionMagic(kMotionMagicConfigs)
-        .withCurrentLimits(kCurrentLimitsConfigs);
-  }
+  //   public static final TalonFXConfiguration kSubsystemConfiguration = 
+  //     new TalonFXConfiguration()
+  //       .withSlot0(kSlot0Configs)
+  //       .withMotorOutput(kMotorOutputConfigs)
+  //       // .withMotionMagic(kMotionMagicConfigs)
+  //       .withCurrentLimits(kCurrentLimitsConfigs);
+  // }
+
   /**
  * Stores all robot subsystem instances.
  *
@@ -378,16 +379,15 @@ public final class Constants {
       //         useExample)
       //     .configureMotors(ExampleConstants.kSubsystemConfiguration);
 
-      public static final boolean useTurret = true;
-
-      public static final TemplateSubsystem turret = 
+      public static final boolean useTurretSwivel = true;
+      public static final TemplateSubsystem turretSwivel = 
         (!USE_SUBSYSTEMS) ? null:
         new TemplateSubsystem(
           "Turret", 
-          TurretConstants.kMotor1ID, 
+          TurretSwivelConstants.kMotor1ID, 
           SubsystemMode.POSITION, 
           0.0, 
-          useTurret);
+          useTurretSwivel);
 
       public static final boolean useIntakeRoller = true;
       public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
@@ -408,7 +408,6 @@ public final class Constants {
           SubsystemMode.VOLTAGE, 
           0.0,
           useIndexer)
-        .addMotor(IndexerConstants.kMotor2ID, MotorAlignmentValue.Opposed)
         .configureMotors(IndexerConstants.kSubsystemConfiguration)
         .logTorqueCurrent();
 
