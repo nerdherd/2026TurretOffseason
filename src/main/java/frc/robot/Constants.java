@@ -8,11 +8,13 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
@@ -222,6 +224,60 @@ public final class Constants {
         .withMotorOutput(kMotorOutputConfigs);
   }
 
+  public static final class IntakeRollerConstants {
+    public static final int kMotor1ID = 15;
+
+    private static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+
+    private static final CurrentLimitsConfigs kCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(80)
+        .withStatorCurrentLimitEnable(true);
+
+    private static final FeedbackConfigs kFeedbackConfigs = 
+      new FeedbackConfigs()
+        .withRotorToSensorRatio(1.0)
+      ;
+
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withCurrentLimits(kCurrentLimitsConfigs)
+        .withFeedback(kFeedbackConfigs);
+    
+  }
+
+  public static final class IndexerConstants {
+    public static final int kMotor1ID = 25;
+    public static final int kMotor2ID = 24;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs =
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+        
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
     public static final double kPP_I = 0.0;
@@ -332,6 +388,29 @@ public final class Constants {
           SubsystemMode.POSITION, 
           0.0, 
           useTurret);
+
+      public static final boolean useIntakeRoller = true;
+      public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+          "Intake Roller", 
+          IntakeRollerConstants.kMotor1ID, 
+          SubsystemMode.VOLTAGE, 
+          0.0,
+          useIntakeRoller)
+        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration)
+        .logTorqueCurrent();
+
+      public static final boolean useIndexer = true;
+      public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+          "Indexer", 
+          IndexerConstants.kMotor1ID, 
+          SubsystemMode.VOLTAGE, 
+          0.0,
+          useIndexer)
+        .addMotor(IndexerConstants.kMotor2ID, MotorAlignmentValue.Opposed)
+        .configureMotors(IndexerConstants.kSubsystemConfiguration)
+        .logTorqueCurrent();
 
       public static void init() {}
   }
