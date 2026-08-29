@@ -11,9 +11,8 @@ import dev.doglog.DogLog;
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.networktables.StringSubscriber;
-import org.wpilib.command3.Command;
-import org.wpilib.command3.*;
-import org.wpilib.command3.Coroutine;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Subsystems;

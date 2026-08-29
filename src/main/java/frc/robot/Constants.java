@@ -13,7 +13,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -277,130 +276,6 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
-  }
-
-  public static final class ConveyerConstants {
-    Follower followRequest = new Follower(kMotor2ID, MotorAlignmentValue.Opposed);
-
-    //TODO
-    public static final int kMotor1ID = 0;
-    public static final int kMotor2ID = 1;
-
-    public static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-      //TODO
-        .withKP(0.5)
-        .withKI(0.0)
-        .withKD(0.0);
-        
-    public static final MotorOutputConfigs kMotorOutputConfigs = 
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
-        
-
-    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
-      new CurrentLimitsConfigs()
-      //TODO
-        .withStatorCurrentLimit(50)
-        .withStatorCurrentLimitEnable(true);
-
-    public static final TalonFXConfiguration kSubsystemConfiguration =
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        .withCurrentLimits(kCurrentLimitsConfigs);
-  }
-
-
-  public static final class ShooterConstants {
-    Follower followRequest = new Follower(kMotor2ID, MotorAlignmentValue.Opposed);
-
-    //TODO
-    public static final int kMotor1ID = 0;
-    public static final int kMotor2ID = 1;
-
-    public static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-      //TODO
-        .withKP(0.5)
-        .withKI(0.0)
-        .withKD(0.0);
-        
-    public static final MotorOutputConfigs kMotorOutputConfigs = 
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
-        
-    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
-      new CurrentLimitsConfigs()
-      //TODO
-        .withStatorCurrentLimit(50)
-        .withStatorCurrentLimitEnable(true);
-
-    public static final TalonFXConfiguration kSubsystemConfiguration =
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        .withCurrentLimits(kCurrentLimitsConfigs);
-  }
-
-  public static final class HoodConstants {
-    //TODO
-    public static final int kMotor1ID = 0;
-
-    public static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-      //TODO
-        .withKP(0.5)
-        .withKI(0.0)
-        .withKD(0.0);
-        
-    public static final MotorOutputConfigs kMotorOutputConfigs = 
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
-        
-    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
-      new CurrentLimitsConfigs()
-      //TODO
-        .withStatorCurrentLimit(50)
-        .withStatorCurrentLimitEnable(true);
-
-    public static final TalonFXConfiguration kSubsystemConfiguration =
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        .withCurrentLimits(kCurrentLimitsConfigs);
-  }
-
-  public static final class IntakeSlideConstants {
-    //TODO
-    public static final int kMotor1ID = 0;
-
-    public static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-      //TODO
-      .withKP(0.5)
-      .withKI(0.0)
-      .withKD(0.0);
-
-    public static final MotorOutputConfigs kMotorOutputConfigs =
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
-    
-    public static final CurrentLimitsConfigs kCurrentLmitsConfigs = 
-      new CurrentLimitsConfigs()
-      //TODO
-        .withStatorCurrentLimit(50)
-        .withStatorCurrentLimitEnable(true);
-
-    public static final TalonFXConfiguration kSubsystemConfiguraion = 
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        .withCurrentLimits(kCurrentLmitsConfigs);
   }
 
   public static final class PathPlannerConstants {
