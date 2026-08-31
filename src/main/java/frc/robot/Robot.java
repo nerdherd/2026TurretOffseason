@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
             .withNtTunables(true)  
         );
         DogLog.setEnabled(true);
-        RobotController.setBrownoutVoltage(RobotController.getBrownoutVoltage());
+        //RobotController.setBrownoutVoltage(RobotController.getBrownoutVoltage());
     }
 
     /**
@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().cancelAll();
         
         if (Constants.USE_SUBSYSTEMS){
-            m_robotContainer.superSystem.stop();
+            CommandScheduler.getInstance().schedule(m_robotContainer.superSystem.stop());
             m_robotContainer.superSystem.resetSubsystemValues();
             m_robotContainer.superSystem.reConfigureMotors();
         }
