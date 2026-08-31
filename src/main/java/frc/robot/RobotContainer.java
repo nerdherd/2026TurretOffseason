@@ -170,13 +170,11 @@ public class RobotContainer {
    * Displays a countdown for alliance shifts. NOT 100% ACCURATE
    * @return the number of seconds in the current phase, and the phase name
    */
-     public static double allianceShiftTime() {
+    public static double allianceShiftTime() {
         // if (!DriverStation.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
         boolean wonAuto = true;
         if (Constants.ROBOT_LOG_LEVEL == LOG_LEVEL.MEDIUM) {
-            
-            String data = MatchState.getGameData().orElse("");
-            
+            String data = MatchState.getGameData().get();
             if (!data.isEmpty()) switch (data.charAt(0)) {
                 case 'B': wonAuto = !isRedSide; break;
                 case 'R': wonAuto = isRedSide; break;
@@ -184,6 +182,7 @@ public class RobotContainer {
             } 
             DogLog.log("Match Info/Won Auto?", wonAuto);
         }
+
         double time = MatchState.getMatchTime();
         DogLog.log("Match Info/time", time);
 
