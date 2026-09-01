@@ -279,12 +279,41 @@ public final class Constants {
         .withCurrentLimits(kCurrentLimitsConfigs);
   }
 
-  public static final class ConveyerConstants {
-    Follower followRequest = new Follower(kMotor2ID, MotorAlignmentValue.Opposed);
+  public static final class ConveyorBeltConstants {
 
     //TODO
     public static final int kMotor1ID = 0;
-    public static final int kMotor2ID = 1;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+        
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+        
+
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguration =
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+    public static final class ConveyorRollerConstants {
+
+    //TODO
+    public static final int kMotor1ID = 0;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -510,7 +539,20 @@ public static final class ShooterConstants {
           TurretSwivelConstants.kMotor1ID, 
           SubsystemMode.POSITION, 
           0.0, 
-          useTurretSwivel);
+          useTurretSwivel)
+        .configureMotors(TurretSwivelConstants.kSubsystemConfiguration);
+
+      public static final boolean useShooter = true;
+      public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Shooter", 
+        ShooterConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+        useShooter)
+      .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
+      .configureMotors(ShooterConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
 
       public static final boolean useIntakeRoller = true;
       public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
@@ -523,6 +565,17 @@ public static final class ShooterConstants {
         .configureMotors(IntakeRollerConstants.kSubsystemConfiguration)
         .logTorqueCurrent();
 
+      public static final boolean useIntakeSlide = true;
+      public static final TemplateSubsystem intakeSlide = (!USE_SUBSYSTEMS) ? null:
+      new TemplateSubsystem(
+        "Intake Slide", 
+        IntakeSlideConstants.kMotor1ID, 
+        SubsystemMode.VOLTAGE, 
+        0.0, 
+        useIntakeRoller)
+      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion)
+      .logTorqueCurrent();
+
       public static final boolean useIndexer = true;
       public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
       new TemplateSubsystem(
@@ -533,6 +586,39 @@ public static final class ShooterConstants {
           useIndexer)
         .configureMotors(IndexerConstants.kSubsystemConfiguration)
         .logTorqueCurrent();
+
+      public static final boolean useHood = true;
+      public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Hood", 
+        HoodConstants.kMotor1ID, 
+        SubsystemMode.POSITION,
+        0.0, 
+        useHood)
+      .configureMotors(HoodConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
+
+      public static final boolean useConveyorBelt = true;
+      public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Conveyor Belt", 
+        ConveyorBeltConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+      useConveyorBelt)
+      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
+
+      public static final boolean useConveyorRoller = true;
+      public static final TemplateSubsystem conveyorRoller = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Conveyor Roller", 
+        ConveyorRollerConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+      useConveyorBelt)
+      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
 
       public static void init() {}
   }
