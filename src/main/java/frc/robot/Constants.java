@@ -8,10 +8,14 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
@@ -25,6 +29,9 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
+
+import frc.robot.subsystems.template.TemplateSubsystem;
+import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
 import frc.robot.util.MultiProfiledPIDController;
 import frc.robot.util.NerdyMath;
 import frc.robot.util.Translation2dSlewRateLimiter;
@@ -187,6 +194,242 @@ public final class Constants {
     }
   }
 
+  public static final class TurretSwivelConstants {
+    public static final int kMotor1ID = 0;
+
+    private static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0)
+        .withKD(0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive); // placeholder, but based on CAD, CW should move the hood up
+      
+    public static final CurrentLimitsConfigs kMotorCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(30)
+        .withStatorCurrentLimitEnable(true);
+
+    private static final MotionMagicConfigs kMotionMagicConfigs = 
+      new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(10)
+        .withMotionMagicAcceleration(25);
+    
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withCurrentLimits(kMotorCurrentLimitsConfigs)
+        .withMotionMagic(kMotionMagicConfigs)
+        .withMotorOutput(kMotorOutputConfigs);
+  }
+
+  public static final class IntakeRollerConstants {
+    public static final int kMotor1ID = 15;
+
+    private static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+
+    private static final CurrentLimitsConfigs kCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(80)
+        .withStatorCurrentLimitEnable(true);
+
+    private static final FeedbackConfigs kFeedbackConfigs = 
+      new FeedbackConfigs()
+        .withRotorToSensorRatio(1.0)
+      ;
+
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withCurrentLimits(kCurrentLimitsConfigs)
+        .withFeedback(kFeedbackConfigs);
+    
+  }
+
+  public static final class IndexerConstants {
+    public static final int kMotor1ID = 25;
+    public static final int kMotor2ID = 24;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs =
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs = 
+      new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+        
+    public static final TalonFXConfiguration kSubsystemConfiguration = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+  public static final class ConveyorBeltConstants {
+
+    //TODO
+    public static final int kMotor1ID = 0;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+        
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+        
+
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguration =
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+    public static final class ConveyorRollerConstants {
+
+    //TODO
+    public static final int kMotor1ID = 0;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+        
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+        
+
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguration =
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+public static final class ShooterConstants {
+    Follower followRequest = new Follower(kMotor2ID, MotorAlignmentValue.Opposed);
+
+    //TODO
+    public static final int kMotor1ID = 0;
+    public static final int kMotor2ID = 1;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+        
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+        
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguration =
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+  public static final class HoodConstants {
+    //TODO
+    public static final int kMotor1ID = 0;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+        .withKP(0.5)
+        .withKI(0.0)
+        .withKD(0.0);
+        
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+        
+    public static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguration =
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLimitsConfigs);
+  }
+
+  public static final class IntakeSlideConstants {
+    //TODO
+    public static final int kMotor1ID = 0;
+
+    public static final Slot0Configs kSlot0Configs = 
+      new Slot0Configs()
+      //TODO
+      .withKP(0.5)
+      .withKI(0.0)
+      .withKD(0.0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs =
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.Clockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+    
+    public static final CurrentLimitsConfigs kCurrentLmitsConfigs = 
+      new CurrentLimitsConfigs()
+      //TODO
+        .withStatorCurrentLimit(50)
+        .withStatorCurrentLimitEnable(true);
+
+    public static final TalonFXConfiguration kSubsystemConfiguraion = 
+      new TalonFXConfiguration()
+        .withSlot0(kSlot0Configs)
+        .withMotorOutput(kMotorOutputConfigs)
+        .withCurrentLimits(kCurrentLmitsConfigs);
+  }
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
     public static final double kPP_I = 0.0;
@@ -231,37 +474,38 @@ public final class Constants {
 // Template for subsystem based constants
 // Replicate for every subsystem
 //e.g. IndexerConstants
-  public static final class MechanismConstants {
-    public static final int kMotor1ID = 0;
-    //public static final int kMotor2ID = 0;
+  // public static final class MechanismConstants {
+  //   public static final int kMotor1ID = 0;
+  //   //public static final int kMotor2ID = 0;
 
 
-    private static final Slot0Configs kSlot0Configs = 
-      new Slot0Configs()
-        .withKP(0.0)
-        .withKI(0.0)
-        .withKD(0.0);
-        // .withKV(0.0)
-        // .withKS(0.0)
+  //   private static final Slot0Configs kSlot0Configs = 
+  //     new Slot0Configs()
+  //       .withKP(0.0)
+  //       .withKI(0.0)
+  //       .withKD(0.0);
+  //       // .withKV(0.0)
+  //       // .withKS(0.0)
 
 
-    private static final MotorOutputConfigs kMotorOutputConfigs =
-      new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
+  //   private static final MotorOutputConfigs kMotorOutputConfigs =
+  //     new MotorOutputConfigs()
+  //       .withInverted(InvertedValue.CounterClockwise_Positive)
+  //       .withNeutralMode(NeutralModeValue.Brake);
 
-    private static final CurrentLimitsConfigs kCurrentLimitsConfigs =
-      new CurrentLimitsConfigs()
-        .withStatorCurrentLimit(40)
-        .withStatorCurrentLimitEnable(true);
+  //   private static final CurrentLimitsConfigs kCurrentLimitsConfigs =
+  //     new CurrentLimitsConfigs()
+  //       .withStatorCurrentLimit(40)
+  //       .withStatorCurrentLimitEnable(true);
 
-    public static final TalonFXConfiguration kSubsystemConfiguration = 
-      new TalonFXConfiguration()
-        .withSlot0(kSlot0Configs)
-        .withMotorOutput(kMotorOutputConfigs)
-        // .withMotionMagic(kMotionMagicConfigs)
-        .withCurrentLimits(kCurrentLimitsConfigs);
-  }
+  //   public static final TalonFXConfiguration kSubsystemConfiguration = 
+  //     new TalonFXConfiguration()
+  //       .withSlot0(kSlot0Configs)
+  //       .withMotorOutput(kMotorOutputConfigs)
+  //       // .withMotionMagic(kMotionMagicConfigs)
+  //       .withCurrentLimits(kCurrentLimitsConfigs);
+  // }
+
   /**
  * Stores all robot subsystem instances.
  *
@@ -286,6 +530,95 @@ public final class Constants {
       //         0.0,
       //         useExample)
       //     .configureMotors(ExampleConstants.kSubsystemConfiguration);
+
+      public static final boolean useTurretSwivel = true;
+      public static final TemplateSubsystem turretSwivel = 
+        (!USE_SUBSYSTEMS) ? null:
+        new TemplateSubsystem(
+          "Turret", 
+          TurretSwivelConstants.kMotor1ID, 
+          SubsystemMode.POSITION, 
+          0.0, 
+          useTurretSwivel)
+        .configureMotors(TurretSwivelConstants.kSubsystemConfiguration);
+
+      public static final boolean useShooter = true;
+      public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Shooter", 
+        ShooterConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+        useShooter)
+      .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
+      .configureMotors(ShooterConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
+
+      public static final boolean useIntakeRoller = true;
+      public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+          "Intake Roller", 
+          IntakeRollerConstants.kMotor1ID, 
+          SubsystemMode.VOLTAGE, 
+          0.0,
+          useIntakeRoller)
+        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration)
+        .logTorqueCurrent();
+
+      public static final boolean useIntakeSlide = true;
+      public static final TemplateSubsystem intakeSlide = (!USE_SUBSYSTEMS) ? null:
+      new TemplateSubsystem(
+        "Intake Slide", 
+        IntakeSlideConstants.kMotor1ID, 
+        SubsystemMode.VOLTAGE, 
+        0.0, 
+        useIntakeRoller)
+      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion)
+      .logTorqueCurrent();
+
+      public static final boolean useIndexer = true;
+      public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+          "Indexer", 
+          IndexerConstants.kMotor1ID, 
+          SubsystemMode.VOLTAGE, 
+          0.0,
+          useIndexer)
+        .configureMotors(IndexerConstants.kSubsystemConfiguration)
+        .logTorqueCurrent();
+
+      public static final boolean useHood = true;
+      public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Hood", 
+        HoodConstants.kMotor1ID, 
+        SubsystemMode.POSITION,
+        0.0, 
+        useHood)
+      .configureMotors(HoodConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
+
+      public static final boolean useConveyorBelt = true;
+      public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Conveyor Belt", 
+        ConveyorBeltConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+      useConveyorBelt)
+      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
+
+      public static final boolean useConveyorRoller = true;
+      public static final TemplateSubsystem conveyorRoller = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Conveyor Roller", 
+        ConveyorRollerConstants.kMotor1ID, 
+        SubsystemMode.VELOCITY, 
+        0.0, 
+      useConveyorBelt)
+      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration)
+      .logTorqueCurrent();
 
       public static void init() {}
   }
