@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
+import org.wpilib.command2.Subsystem;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -13,6 +14,7 @@ import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
+import static frc.robot.Constants.Subsystems.intakeSlide;
 
 public class SuperSystem implements Reportable {
     public static final ArrayList<TemplateSubsystem> subsystems = new ArrayList<>();
@@ -35,6 +37,13 @@ public class SuperSystem implements Reportable {
     public void reConfigureMotors() {
         applySubsystems((s) -> s.applyMotorConfigs());
     }
+
+    public Command intakeOutOnly() {
+        return intakeSlide.setDesiredValueCommand(-10); // test actual number
+    }
+
+    
+
     // /**
     //  * Drives to the scoring position and raises the arm at the same time.
     //  *
@@ -84,6 +93,10 @@ public class SuperSystem implements Reportable {
         applySubsystems((s) -> s.initializeLogging());
         NerdLog.logData(LoggingConstants.kSupersystemTab + "/Command Scheduler", CommandScheduler.getInstance(), LOG_LEVEL.ALL);
     }
+
+      // ------------------------------------ subsystems ------------------------------------ //
+    
+
 
     
 }
