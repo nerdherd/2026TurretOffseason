@@ -12,8 +12,15 @@ import org.wpilib.math.geometry.Pose2d;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import frc.robot.Constants.ConveyorBeltConstants;
+import frc.robot.Constants.ConveyorRollerConstants;
 import frc.robot.Constants.HoodConstants;
+import frc.robot.Constants.IndexerConstants;
+import frc.robot.Constants.IntakeRollerConstants;
+import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
@@ -51,11 +58,11 @@ public class SuperSystem implements Reportable {
     }
 
     public Command intakeOutOnly() {
-        return intakeSlide.setDesiredValueCommand(-10); // test actual number
+        return intakeSlide.setDesiredValueCommand(IntakeSlideConstants.kOutVoltage); // test actual number
     }
 
     public Command intakeHold() {
-        return intakeSlide.setDesiredValueCommand(-1); 
+        return intakeSlide.setDesiredValueCommand(IntakeSlideConstants.kHoldVoltage); 
     }
 
     public Command stopIntakeHold(){
@@ -64,13 +71,13 @@ public class SuperSystem implements Reportable {
     
     public Command intake() {
         return Commands.parallel(
-            intakeRoller.setDesiredValueCommand(11),
+            intakeRoller.setDesiredValueCommand(IntakeRollerConstants.kIntakeVoltage),
             stopIntakeHold()
         );
     }
 
     public Command outtake(){
-        return intakeRoller.setDesiredValueCommand(-9.5);
+        return intakeRoller.setDesiredValueCommand(IntakeRollerConstants.kOuttakeVoltage);
     }
 
     public Command stopIntaking() {
@@ -80,15 +87,15 @@ public class SuperSystem implements Reportable {
         );
     } 
 
-    public Command shoot() {
+    public Command spinConveyorForward() {
         return Commands.parallel(
-            conveyorRoller.setDesiredValueCommand(10),
-            conveyorBelt.setDesiredValueCommand(8),
-            indexer.setDesiredValueCommand(5)
+            conveyorRoller.setDesiredValueCommand(ConveyorRollerConstants.kConveyorVoltage),
+            conveyorBelt.setDesiredValueCommand(ConveyorBeltConstants.kConveyorVoltage),
+            indexer.setDesiredValueCommand(IndexerConstants.kConveyorVoltage)
         );
     }
     
-    public Command stopShooting() {
+    public Command stopConveyor() {
         return Commands.parallel(
             conveyorRoller.setDesiredValueCommand(0),
             conveyorBelt.setDesiredValueCommand(0),
@@ -96,21 +103,21 @@ public class SuperSystem implements Reportable {
         );
     }
     
-    public Command  reverseConveyor() {
+    public Command spinConveyorBackward() {
         return Commands.parallel(
-            conveyorRoller.setDesiredValueCommand(-10),
-            conveyorBelt.setDesiredValueCommand(-8),
-            indexer.setDesiredValueCommand(-5)
+            conveyorRoller.setDesiredValueCommand(-ConveyorRollerConstants.kConveyorVoltage),
+            conveyorBelt.setDesiredValueCommand(-ConveyorBeltConstants.kConveyorVoltage),
+            indexer.setDesiredValueCommand(-IndexerConstants.kConveyorVoltage)
         );
     }
     
     public Command spinUpFlywheel() {
-        return shooter.setDesiredValueCommand(37);
+        return shooter.setDesiredValueCommand(ShooterConstants.kShootVoltage);
     }
     
     
     public Command spinUpFlywheelFeeding() {
-        return shooter.setDesiredValueCommand(45);
+        return shooter.setDesiredValueCommand(ShooterConstants.kFeedingVoltage);
     }
     
     public Command stopFlywheel() {
