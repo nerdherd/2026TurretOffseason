@@ -179,7 +179,7 @@ public final class Constants {
  
     public static enum FieldPositions {
       // Add field positions
-      ;
+      HUB_CENTER(4.626, 4.035, 0.0);
       
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
@@ -249,7 +249,10 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withCurrentLimits(kCurrentLimitsConfigs)
         .withFeedback(kFeedbackConfigs);
-    
+
+    // TODO test actual numbers
+    public static final double kIntakeVoltage = 11;
+    public static final double kOuttakeVoltage = -9.5;
   }
 
   public static final class IndexerConstants {
@@ -277,6 +280,9 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+
+    // TODO test actual numbers
+    public static double kConveyorVoltage = 5;
   }
 
   public static final class ConveyorBeltConstants {
@@ -308,6 +314,9 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+
+    // TODO test actual numbers
+    public static double kConveyorVoltage = 8;
   }
 
     public static final class ConveyorRollerConstants {
@@ -339,6 +348,9 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+    
+    // TODO test actual numbers
+    public static double kConveyorVoltage = 10;
   }
 
 public static final class ShooterConstants {
@@ -371,6 +383,8 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+    
+    // TODO test actual numbers
   }
 
   public static final class HoodConstants {
@@ -400,6 +414,9 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+    
+    public static final double kDownPos = 0.0;
+    public static final double kUpPos = 1.0; 
   }
 
   public static final class IntakeSlideConstants {
@@ -429,6 +446,10 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLmitsConfigs);
+    
+    // TODO test actual numbers
+    public static final double kOutVoltage  = -10;
+    public static final double kHoldVoltage = -1;
   }
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
