@@ -112,6 +112,18 @@ public class RobotContainer {
         
         // Add operator controls here
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
+
+        operatorController.triggerRight()
+            .whileTrue(superSystem.shoot());
+        operatorController.bumperLeft()
+            .onTrue(superSystem.intake())
+            .onFalse(superSystem.stopIntaking());
+        operatorController.buttonRight()
+            .onTrue(superSystem.outtake())
+            .onFalse(superSystem.stopIntaking());
+        operatorController.controllerLeft()
+            .onTrue(superSystem.intakeHold())
+            .onFalse(superSystem.stopIntakeHold());
     }
 
     public void configureBindings_test() {
