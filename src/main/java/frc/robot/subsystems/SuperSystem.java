@@ -10,11 +10,18 @@ import org.wpilib.command2.Subsystem;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
 import static frc.robot.Constants.Subsystems.intakeSlide;
+import static frc.robot.Constants.Subsystems.intakeRoller;
+import static frc.robot.Constants.Subsystems.indexer;
+import static frc.robot.Constants.Subsystems.conveyorBelt;
+import static frc.robot.Constants.Subsystems.conveyorRoller;
+import static frc.robot.Constants.Subsystems.shooter;
+import static frc.robot.Constants.Subsystems.hood;
 
 public class SuperSystem implements Reportable {
     public static final ArrayList<TemplateSubsystem> subsystems = new ArrayList<>();
@@ -42,7 +49,83 @@ public class SuperSystem implements Reportable {
         return intakeSlide.setDesiredValueCommand(-10); // test actual number
     }
 
+    public Command intakeHold() {
+        return intakeSlide.setDesiredValueCommand(-1); 
+    }
+
+    public Command stopIntakeHold(){
+        return intakeSlide.setDesiredValueCommand(0);
+    }
     
+    public Command intake() {
+        return Commands.parallel(
+            intakeRoller.setDesiredValueCommand(11),
+            stopIntakeHold()
+        );
+    }
+
+    public Command outtake(){
+        return intakeRoller.setDesiredValueCommand(-9.5);
+    }
+
+    public Command stopIntaking() {
+        return Commands.parallel (
+        intakeRoller.setDesiredValueCommand(0),
+        stopIntakeHold()
+        );
+    } 
+
+    public Command shoot() {
+        return Commands.parallel(
+            conveyorRoller.setDesiredValueCommand(10),
+            conveyorBelt.setDesiredValueCommand(8),
+            indexer.setDesiredValueCommand(5)
+        );
+    }
+    
+    public Command stopShooting() {
+        return Commands.parallel(
+            conveyorRoller.setDesiredValueCommand(0),
+            conveyorBelt.setDesiredValueCommand(0),
+            indexer.setDesiredValueCommand(0)
+        );
+    }
+    
+    public Command  reverseConveyor() {
+        return Commands.parallel(
+            conveyorRoller.setDesiredValueCommand(-10),
+            conveyorBelt.setDesiredValueCommand(-8),
+            indexer.setDesiredValueCommand(-5)
+        );
+    }
+    
+    public Command spinUpFlywheel() {
+        return shooter.setDesiredValueCommand(37);
+    }
+    
+    
+    public Command spinUpFlywheelFeeding() {
+        return shooter.setDesiredValueCommand(45);
+    }
+    
+    public Command stopFlywheel() {
+        return shooter.setDesiredValueCommand(0);
+    }
+
+    public Command setHood(double value) {
+        value = (HoodConstants.kUpPos-HoodConstants.kDownPos) * value + HoodConstants.kDownPos;
+        return hood.setDesiredValueCommand(value);
+    }
+
+    public Command hoodDown() {
+        return setHood(0.0);
+    }
+    
+    public Command hoodUp() {
+        return setHood(1.0);
+    }
+
+
 
     // /**
     //  * Drives to the scoring position and raises the arm at the same time.
@@ -86,6 +169,8 @@ public class SuperSystem implements Reportable {
     public void resetSubsystemValues() {
         applySubsystems((s) -> s.setDesiredValue(s.getDefaultValue()));
     }
+
+    
 
     // ------------------------------------ logging ------------------------------------ //
     @Override

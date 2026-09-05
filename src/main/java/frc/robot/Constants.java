@@ -400,6 +400,9 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
+    
+    public static final double kDownPos = 0.0;
+    public static final double kUpPos = 1.0; 
   }
 
   public static final class IntakeSlideConstants {
