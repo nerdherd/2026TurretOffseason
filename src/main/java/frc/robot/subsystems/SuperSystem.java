@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
@@ -7,6 +8,7 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.Subsystem;
+import org.wpilib.math.geometry.Pose2d;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -15,12 +17,15 @@ import frc.robot.Constants.LoggingConstants;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
+import frc.robot.util.NerdyMath;
+import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import static frc.robot.Constants.Subsystems.intakeSlide;
 import static frc.robot.Constants.Subsystems.intakeRoller;
 import static frc.robot.Constants.Subsystems.indexer;
 import static frc.robot.Constants.Subsystems.conveyorBelt;
 import static frc.robot.Constants.Subsystems.conveyorRoller;
 import static frc.robot.Constants.Subsystems.shooter;
+import static frc.robot.Constants.Subsystems.turretSwivel;
 import static frc.robot.Constants.Subsystems.hood;
 
 public class SuperSystem implements Reportable {
@@ -123,6 +128,12 @@ public class SuperSystem implements Reportable {
     
     public Command hoodUp() {
         return setHood(1.0);
+    }
+
+    public Command setTurretSwivel(){
+        double angle = NerdyMath.angleToPose(swerveDrivetrain.getPose(), FieldPositions.HUB_CENTER.get());
+        double value = 360-angle;
+        return turretSwivel.setDesiredValueCommand(value);
     }
 
 

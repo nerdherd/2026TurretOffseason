@@ -179,7 +179,7 @@ public final class Constants {
  
     public static enum FieldPositions {
       // Add field positions
-      ;
+      HUB_CENTER(4.626, 4.035, 0.0);
       
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
