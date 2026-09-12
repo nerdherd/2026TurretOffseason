@@ -48,37 +48,39 @@ public class LInTable {
 
         if (x < table[0][0]){
             switch (boundBehavior) {
-                case EXCEPTION:
-                    throw new IllegalArgumentException("X too low");
-                case HOLD:
+                case EXCEPTION -> throw new IllegalArgumentException("X too low");
+                case HOLD -> {
                     for (int i = 0; i < yIndex.length; i++){
                         result[i] = table[0][yIndex[i]];
                     }
                     return result;
-                case LINEAR:
+                }
+                case LINEAR -> {
                     for (int j = 0; j < yIndex.length; j++){
                         double m = mTable[0][yIndex[j]-1];
                         result[j] = m * (x-table[0][0]) + table[0][yIndex[j]];
                     }
                     return result;
+                }
             }
         }
 
         if (x > table[table.length - 1][0]){
             switch (boundBehavior) {
-                case EXCEPTION:
-                    throw new IllegalArgumentException("X too high");
-                case HOLD:
+                case EXCEPTION -> throw new IllegalArgumentException("X too high");
+                case HOLD -> {
                     for (int i = 0; i < yIndex.length; i++){
                         result[i] = table[table.length - 1][yIndex[i]];
                     }
                     return result;
-                case LINEAR:
+                }
+                case LINEAR -> {
                     for (int j = 0; j < yIndex.length; j++){
                         double m = mTable[mTable.length-1][yIndex[j]-1];
                         result[j] = m * (x-table[table.length - 1][0]) + table[table.length - 1][yIndex[j]];
                     }
                     return result;
+                }
             }
         }
 
