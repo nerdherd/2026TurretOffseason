@@ -10,20 +10,32 @@ public class LInTable {
 
     private final BoundBehavior boundBehavior;
 
+    private double[][] copy2dArray(double[][] original){
+        double[][] copy = new double[original.length][original[0].length];
+        for (int i = 0; i < original.length; i++){
+            copy[i] = original[i].clone();
+        }
+        return copy;
+    }
+
     public LInTable(double[][] table, BoundBehavior boundBehavior){
         if (table.length == 0){
             throw new IllegalArgumentException("Table is too small.");
         }
 
         double previousNumber = table[0][0] - 1;
+        int innerLength = table[0].length;
         for (double[] item : table){
             if (item[0] <= previousNumber){
                 throw new IllegalArgumentException("X values must be in order and not repeat.");
             }
+            if (item.length != innerLength){
+                throw new IllegalArgumentException("All rows must be of equal length.");
+            }
             previousNumber = item[0];
         }
 
-        this.table = table;
+        this.table = copy2dArray(table);
         this.boundBehavior = boundBehavior;
 
         double[][] mTable = new double[table.length - 1][table[0].length - 1];
@@ -82,26 +94,41 @@ public class LInTable {
                     return result;
                 }
             }
+        } else if (x == table[table.length - 1][0]){
+            for (int i = 0; i < yIndex.length; i++){
+                result[i] = table[table.length - 1][yIndex[i]];
+            }
+            return result;
         }
 
-        for (int i = 1; i < table.length; i++){
-            if (x <= table[i][0]){
-                for (int j = 0; j < yIndex.length; j++){
-                    double m = mTable[i-1][yIndex[j]-1];
-                    result[j] = m * (x-table[i][0]) + table[i][yIndex[j]];
-                }
-                return result;
+        int left = 0;
+        int right = table.length - 1;
+        int resultIndex = -1;
+
+        while (left <= right){
+            int mid = (left + right) / 2;
+
+            double midX = table[mid][0];
+
+            if (x < midX){
+                right = mid - 1;
+                resultIndex = mid;
+            } else {
+                left = mid + 1;
             }
         }
 
-        throw new IllegalArgumentException("Somehow guardrails failed.");
+        if (resultIndex == -1) throw new IllegalArgumentException("Somehow failed to find x.");
+
+        for (int j = 0; j < yIndex.length; j++){
+            double m = mTable[resultIndex-1][yIndex[j]-1];
+            result[j] = m * (x-table[resultIndex][0]) + table[resultIndex][yIndex[j]];
+        }
+        return result;
+        
     }
 
     public double[][] getTable(){
-        double[][] copy = new double[table.length][table[0].length];
-        for (int i = 0; i < table.length; i++){
-            copy[i] = table[i].clone();
-        }
-        return copy;
+        return copy2dArray(table);
     }
 }
