@@ -385,6 +385,8 @@ public static final class ShooterConstants {
         .withCurrentLimits(kCurrentLimitsConfigs);
     
     // TODO test actual numbers
+    public static final double kShootVelocity = 55;
+    public static final double kFeedingVelocity = 65;
   }
 
   public static final class HoodConstants {
