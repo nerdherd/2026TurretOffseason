@@ -20,6 +20,7 @@ public class LInTable {
             if (item[0] <= previousNumber){
                 throw new IllegalArgumentException("X values must be in order and not repeat.");
             }
+            previousNumber = item[0];
         }
 
         this.table = table;
@@ -33,20 +34,33 @@ public class LInTable {
         }
 
         this.mTable = mTable;
-    }
+    } 
 
-    public double interpolate(double x, int yIndex){
-        if (table.length == 1) return table[0][yIndex];
+    public double[] interpolate(double x, int[] yIndex){
+        double[] result = new double[yIndex.length];
+        
+        if (table.length == 1){
+            for (int i = 0; i < yIndex.length; i++){
+                result[i] = table[0][yIndex[i]];
+            }
+            return result;
+        }
 
         if (x < table[0][0]){
             switch (boundBehavior) {
                 case EXCEPTION:
                     throw new IllegalArgumentException("X too low");
                 case HOLD:
-                    return table[0][yIndex];
+                    for (int i = 0; i < yIndex.length; i++){
+                        result[i] = table[0][yIndex[i]];
+                    }
+                    return result;
                 case LINEAR:
-                    double m = mTable[0][yIndex-1];
-                    return m * (x-table[0][0]) + table[0][yIndex];
+                    for (int j = 0; j < yIndex.length; j++){
+                        double m = mTable[0][yIndex[j]-1];
+                        result[j] = m * (x-table[0][0]) + table[0][yIndex[j]];
+                    }
+                    return result;
             }
         }
 
@@ -55,20 +69,30 @@ public class LInTable {
                 case EXCEPTION:
                     throw new IllegalArgumentException("X too high");
                 case HOLD:
-                    return table[table.length - 1][yIndex];
+                    for (int i = 0; i < yIndex.length; i++){
+                        result[i] = table[table.length - 1][yIndex[i]];
+                    }
+                    return result;
                 case LINEAR:
-                    double m = mTable[mTable.length-1][yIndex-1];
-                    return m * (x-table[table.length - 2][0]) + table[table.length - 2][yIndex];
+                    for (int j = 0; j < yIndex.length; j++){
+                        double m = mTable[mTable.length-1][yIndex[j]-1];
+                        result[j] = m * (x-table[table.length - 1][0]) + table[table.length - 1][yIndex[j]];
+                    }
+                    return result;
             }
         }
 
         for (int i = 1; i < table.length; i++){
-            if (x < table[i][0]){
-                double m = (table[i][yIndex]-table[i-1][yIndex]) / (table[i][0]-table[i-1][0]);
-                return m * (x-table[i][0]) + table[i][yIndex];
+            if (x <= table[i][0]){
+                for (int j = 0; j < yIndex.length; j++){
+                    double m = mTable[i-1][yIndex[j]-1];
+                    result[j] = m * (x-table[i][0]) + table[i][yIndex[j]];
+                }
+                return result;
             }
         }
-        return 0;
+
+        throw new IllegalArgumentException("Somehow guardrails failed.");
     }
 
     public double[][] getTable(){
