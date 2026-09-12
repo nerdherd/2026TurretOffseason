@@ -114,7 +114,7 @@ public class RobotContainer {
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
 
         operatorController.triggerRight()
-            .whileTrue(superSystem.shoot());
+            .whileTrue(superSystem.spinConveyorForward());
         operatorController.bumperLeft()
             .onTrue(superSystem.intake())
             .onFalse(superSystem.stopIntaking());
