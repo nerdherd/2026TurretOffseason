@@ -100,7 +100,7 @@ public class RobotContainer {
 
         driverController.buttonA()
             .whileTrue(new SomeCommand());
-        */
+        *
 
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
     }
@@ -114,7 +114,9 @@ public class RobotContainer {
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
 
         operatorController.triggerRight()
-            .whileTrue(superSystem.spinConveyorForward());
+            .whileTrue(superSystem.spinUpFlywheel());
+        operatorController.triggerLeft()
+            .whileTrue(superSystem.spinUpFlywheelFeeding());
         operatorController.bumperLeft()
             .onTrue(superSystem.intake())
             .onFalse(superSystem.stopIntaking());
@@ -124,6 +126,9 @@ public class RobotContainer {
         operatorController.controllerLeft()
             .onTrue(superSystem.intakeHold())
             .onFalse(superSystem.stopIntakeHold());
+        operatorController.buttonDown()
+            .whileTrue(superSystem.spinConveyorBackward())
+            .whileFalse(superSystem.stopConveyor());
     }
 
     public void configureBindings_test() {

@@ -111,13 +111,13 @@ public class SuperSystem implements Reportable {
         );
     }
     
-    public Command spinUpFlywheelMax() {
-        return shooter.setDesiredValueCommand(ShooterConstants.kShootMaxVel);
+    public Command spinUpFlywheel() {
+        return shooter.setDesiredValueCommand(ShooterConstants.kShootVelocity);
     }
     
     
     public Command spinUpFlywheelFeeding() {
-        return shooter.setDesiredValueCommand(ShooterConstants.kFeedingVel);
+        return shooter.setDesiredValueCommand(ShooterConstants.kFeedingVelocity);
     }
     
     public Command stopFlywheel() {
