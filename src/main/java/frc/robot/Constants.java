@@ -223,6 +223,7 @@ public final class Constants {
         .withCurrentLimits(kMotorCurrentLimitsConfigs)
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
+    
   }
 
   public static final class IntakeRollerConstants {
