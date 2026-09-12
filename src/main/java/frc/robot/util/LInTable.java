@@ -2,6 +2,7 @@ package frc.robot.util;
 
 public class LInTable {
     private final double[][] table;
+    private final double[][] mTable;
 
     public static enum BoundBehavior {
         EXCEPTION, HOLD, LINEAR
@@ -23,6 +24,15 @@ public class LInTable {
 
         this.table = table;
         this.boundBehavior = boundBehavior;
+
+        double[][] mTable = new double[table.length - 1][table[0].length - 1];
+        for (int i = 1; i < table.length; i++){
+            for (int yIndex = 0; yIndex < table[0].length - 1; yIndex++){
+                mTable[i-1][yIndex] = (table[i-1][yIndex+1]-table[i][yIndex+1]) / (table[i-1][0]-table[i][0]);
+            }
+        }
+
+        this.mTable = mTable;
     }
 
     public double interpolate(double x, int yIndex){
@@ -35,7 +45,7 @@ public class LInTable {
                 case HOLD:
                     return table[0][yIndex];
                 case LINEAR:
-                    double m = (table[0][yIndex]-table[1][yIndex]) / (table[0][0]-table[1][0]);
+                    double m = mTable[0][yIndex-1];
                     return m * (x-table[0][0]) + table[0][yIndex];
             }
         }
@@ -47,7 +57,7 @@ public class LInTable {
                 case HOLD:
                     return table[table.length - 1][yIndex];
                 case LINEAR:
-                    double m = (table[table.length - 2][yIndex]-table[table.length - 1][yIndex]) / (table[table.length - 2][0]-table[table.length - 1][0]);
+                    double m = mTable[mTable.length-1][yIndex-1];
                     return m * (x-table[table.length - 2][0]) + table[table.length - 2][yIndex];
             }
         }
