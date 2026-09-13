@@ -140,7 +140,7 @@ public class SuperSystem implements Reportable {
     }
 
     public Command setTurretSwivel(){
-        double angle = NerdyMath.angleToPose(swerveDrivetrain.getPose(), FieldPositions.HUB_CENTER.get());
+        double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
         double value = 360-angle;
         return turretSwivel.goToAngleCommand(value);
     }

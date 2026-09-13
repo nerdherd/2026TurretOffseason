@@ -390,6 +390,9 @@ public static final class ShooterConstants {
     public static final double kShootWithDistanceB = 1.0;
     public static final double kShootVelocity = 55;
     public static final double kFeedingVelocity = 65;
+    
+    public static final double kLookAheadFactor = 1.35; //TODO test this
+
   }
 
   public static final class HoodConstants {
