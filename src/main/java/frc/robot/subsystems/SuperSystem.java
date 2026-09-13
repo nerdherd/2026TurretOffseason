@@ -22,6 +22,7 @@ import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
+import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
 import frc.robot.util.NerdyMath;
@@ -34,6 +35,7 @@ import static frc.robot.Constants.Subsystems.conveyorRoller;
 import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 import static frc.robot.Constants.Subsystems.hood;
+
 
 public class SuperSystem implements Reportable {
     public static final ArrayList<TemplateSubsystem> subsystems = new ArrayList<>();
@@ -140,7 +142,7 @@ public class SuperSystem implements Reportable {
     public Command setTurretSwivel(){
         double angle = NerdyMath.angleToPose(swerveDrivetrain.getPose(), FieldPositions.HUB_CENTER.get());
         double value = 360-angle;
-        return turretSwivel.setDesiredValueCommand(value);
+        return turretSwivel.goToAngleCommand(value);
     }
 
 

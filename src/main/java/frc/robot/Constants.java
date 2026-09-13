@@ -23,7 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.util.FlippingUtil;
- 
+import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
@@ -558,15 +558,16 @@ public static final class ShooterConstants {
       //     .configureMotors(ExampleConstants.kSubsystemConfiguration);
 
       public static final boolean useTurretSwivel = true;
-      public static final TemplateSubsystem turretSwivel = 
-        (!USE_SUBSYSTEMS) ? null:
-        new TemplateSubsystem(
-          "Turret", 
-          TurretSwivelConstants.kMotor1ID, 
-          SubsystemMode.POSITION, 
-          0.0, 
-          useTurretSwivel)
-        .configureMotors(TurretSwivelConstants.kSubsystemConfiguration);
+      public static final TurretSwivel turretSwivel =
+        (!USE_SUBSYSTEMS) ? null :
+        (TurretSwivel) new TurretSwivel(
+            "Turret",
+            TurretSwivelConstants.kMotor1ID,
+            SubsystemMode.POSITION,
+            0.0,
+            useTurretSwivel)
+          .configureMotors(TurretSwivelConstants.kSubsystemConfiguration)
+          .logTorqueCurrent();
 
       public static final boolean useShooter = true;
       public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
