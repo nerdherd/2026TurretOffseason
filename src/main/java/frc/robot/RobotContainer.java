@@ -100,7 +100,7 @@ public class RobotContainer {
 
         driverController.buttonA()
             .whileTrue(new SomeCommand());
-        *
+        */
 
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
     }
