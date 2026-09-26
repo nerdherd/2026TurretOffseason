@@ -5,8 +5,10 @@
 package frc.robot;
 
 import org.wpilib.framework.TimedRobot;
+import org.wpilib.system.Notifier;
 import org.wpilib.system.RobotController;
 
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import dev.doglog.DogLog;
@@ -154,8 +156,25 @@ public class Robot extends TimedRobot {
     public void utilityPeriodic() {}
 
     /** This function is called once when the robot is first started up. */
+    private static final double kSimLoopPeriod = 0.004; // 4 ms
+    private Notifier m_simNotifier = null;
+    private double m_lastSimTime;
+
     @Override
-    public void simulationInit() {}
+    public void simulationInit() {
+    m_lastSimTime = Utils.getCurrentTimeSeconds();
+
+    /* Run simulation at a faster rate so PID gains behave more reasonably */
+    m_simNotifier = new Notifier(() -> {
+        final double currentTime = Utils.getCurrentTimeSeconds();
+        double deltaTime = currentTime - m_lastSimTime;
+        m_lastSimTime = currentTime;
+
+        /* Use the measured time delta, get battery voltage from WPILib */
+        m_robotContainer.swerveDrive.updateSimState(deltaTime, RobotController.getBatteryVoltage());
+    });
+    m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
 
     /** This function is called periodically whilst in simulation. */
     @Override

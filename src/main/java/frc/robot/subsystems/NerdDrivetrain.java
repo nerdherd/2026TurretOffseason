@@ -402,6 +402,6 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
 
     @Override
     public void simulationPeriodic(){
-        this.updateSimState(0.020, RobotController.getBatteryVoltage());
+        field.setRobotPose(getPose());
     }
 }
