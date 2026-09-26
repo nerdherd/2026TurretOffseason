@@ -8,7 +8,7 @@ import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.geometry.Translation2d;
 
 import frc.robot.subsystems.template.TemplateSubsystem;
-import frc.robot.util.NerdyMath;
+import frc.robot.util.nerd_math.NerdyMath;
 
 public class TurretSwivel extends TemplateSubsystem {
     private TurretSwivelConfiguration turretSwivelConfiguration;
@@ -21,7 +21,7 @@ public class TurretSwivel extends TemplateSubsystem {
     }
     public Pose2d getPose(Pose2d swervePosition, double headingDegrees) {
         Translation2d translation = turretSwivelConfiguration.relativePosition().getTranslation().rotateBy(Rotation2d.fromDegrees(headingDegrees));
-        return swervePosition.transformBy(new Transform2d(translation, Rotation2d.kZero));
+        return swervePosition.transformBy(new Transform2d(translation, Rotation2d.ZERO));
     }
     public static double getRobotRelativeAngle(double robotHeading, double desiredAngle) {
         return desiredAngle - robotHeading;

@@ -6,7 +6,8 @@ package frc.robot.util.controller;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.Trigger;
-import org.wpilib.smartdashboard.SmartDashboard;
+
+import frc.robot.util.logging.NerdLog;
 
 // thank you william
 // you're welcome mason
@@ -90,69 +91,69 @@ public class Controller {
 
     public static void configureDebugBindings(Controller testController) {
         testController.buttonRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")));
         testController.buttonDown()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Down Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Down Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Down Test")));
         testController.buttonUp()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Up Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Up Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Up Test")));
         testController.buttonLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Test")));
 
         testController.bumperLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper L Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Bumper L Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Bumper L Test")));
         testController.bumperRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Bumper R Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Bumper R Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Bumper R Test")));
         
         testController.triggerLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger L Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Trigger L Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Trigger L Test")));
         testController.triggerRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Trigger R Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Trigger R Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Trigger R Test")));
 
         testController.dpadUp()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Up Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Up Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Up Test")));
         testController.dpadRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Right Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Right Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Right Test")));
         testController.dpadDown()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Down Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Down Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Down Test")));
         testController.dpadLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Dpad Left Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Left Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Left Test")));
 
         testController.controllerLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Left Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Controller Left Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Controller Left Test")));
         testController.controllerRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Controller Right Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Controller Right Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Controller Right Test")));
         
         testController.joystickLeft()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Left Joy Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Joy Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Joy Test")));
         testController.joystickRight()
-            .onTrue(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "hi")))
-            .onFalse(Commands.runOnce(() -> SmartDashboard.putString("Button Right Joy Test", "bye")));
+            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Joy Test")))
+            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Joy Test")));
     }
 
     public void logAnalogValues() {
-        SmartDashboard.putNumber("Controller Joy Left X", getLeftX());
-        SmartDashboard.putNumber("Controller Joy Left Y", getLeftY());
-        SmartDashboard.putNumber("Controller Joy Right X", getRightX());
-        SmartDashboard.putNumber("Controller Joy Right Y", getRightY());
+        // NerdLog.logNumber("Controller Joy Left X", getLeftX());
+        // NerdLog.logNumber("Controller Joy Left Y", getLeftY());
+        // NerdLog.logNumber("Controller Joy Right X", getRightX());
+        // NerdLog.logNumber("Controller Joy Right Y", getRightY());
 
-        SmartDashboard.putNumber("Controller Left Trigger", getTriggerLeftAxis());
-        SmartDashboard.putNumber("Controller Right Trigger", getTriggerRightAxis());
+        // SmartDashboard.putNumber("Controller Left Trigger", getTriggerLeftAxis());
+        // SmartDashboard.putNumber("Controller Right Trigger", getTriggerRightAxis());
 
-        SmartDashboard.putBoolean("Right Button", getControllerRight());
+        // SmartDashboard.putBoolean("Right Button", getControllerRight());
     }
 }

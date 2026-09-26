@@ -3,6 +3,7 @@ package frc.robot;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.RobotController;
 
@@ -31,7 +32,7 @@ import frc.robot.util.logging.Reportable.LOG_LEVEL;
 public class RobotContainer {
     public NerdDrivetrain swerveDrive;
     public SuperSystem superSystem;
-    public PowerDistribution pdp = new PowerDistribution(0,1, ModuleType.REV);
+    public PowerDistribution pdp = new PowerDistribution(CANPort.CAN_D0, 1, ModuleType.REV);
 
     private final Controller driverController = new Controller(ControllerConstants.kDriverControllerPort);
     private final Controller operatorController = new Controller(ControllerConstants.kOperatorControllerPort);
@@ -44,11 +45,11 @@ public class RobotContainer {
 
         if (Constants.USE_SUBSYSTEMS) {
             superSystem = new SuperSystem(swerveDrive);
-            Autos.initNamedCommands(superSystem, swerveDrive);
+            // Autos.initNamedCommands(superSystem, swerveDrive);
         }
 
         Subsystems.init(); // required to initialize the class or else java lazy loading just doesn't
-        Autos.initAutoChooser();
+        // Autos.initAutoChooser();
         initializeLogging();
 
         NerdLog.reportInfo("Initialization Complete");
@@ -188,7 +189,7 @@ public class RobotContainer {
    * @return the number of seconds in the current phase, and the phase name
    */
     public static double allianceShiftTime() {
-        // if (!DriverStation.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
+        // if (!RobotState.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
         boolean wonAuto = true;
         if (Constants.ROBOT_LOG_LEVEL == LOG_LEVEL.MEDIUM) {
             String data = MatchState.getGameData().get();

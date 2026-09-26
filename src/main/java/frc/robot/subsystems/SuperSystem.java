@@ -25,7 +25,8 @@ import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
-import frc.robot.util.NerdyMath;
+import frc.robot.util.nerd_math.NerdyMath;
+
 import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import static frc.robot.Constants.Subsystems.intakeSlide;
 import static frc.robot.Constants.Subsystems.intakeRoller;

@@ -17,7 +17,7 @@ import org.wpilib.util.sendable.SendableBuilder;
 import org.wpilib.util.struct.StructSerializable;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.wpilib.driverstation.Alert;
+import org.wpilib.util.Alert;
 import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
 import org.wpilib.smartdashboard.SmartDashboard;

@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
             .withNtTunables(true)  
         );
         DogLog.setEnabled(true);
-        RobotController.setBrownoutVoltage(RobotController.getBrownoutVoltage());
+        RobotController.setBrownoutVoltages(6.0,6.0);
     }
 
     /**

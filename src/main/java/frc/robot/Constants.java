@@ -21,8 +21,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.util.FlippingUtil;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
@@ -32,10 +30,12 @@ import org.wpilib.math.util.Units;
 
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
-import frc.robot.util.MultiProfiledPIDController;
-import frc.robot.util.NerdyMath;
-import frc.robot.util.Translation2dSlewRateLimiter;
 import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_constants.PIDVSAGConstants;
+import frc.robot.util.nerd_math.MultiProfiledPIDController;
+import frc.robot.util.nerd_math.NerdFlippingUtil;
+import frc.robot.util.nerd_math.NerdyMath;
+import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -86,7 +86,7 @@ public final class Constants {
         y = NerdyMath.deadband(y, kTranslationDeadband);
         if (x == 0.0 && y == 0.0) {
           kTranslationInputRateLimiter.reset();
-          return Translation2d.kZero;
+          return Translation2d.ZERO;
         }
         Translation2d dir = new Translation2d(x, y);
         double length = dir.getNorm();
@@ -126,7 +126,7 @@ public final class Constants {
     ///////////////////////////
     
     public static final double kTurnToAngleMaxVelocity = 6.25; // rad/s
-    public static final PIDConstants kTurnToAnglePIDConstants = new PIDConstants(12.0, 0.0, 0.25);
+    public static final PIDVSAGConstants kTurnToAnglePIDConstants = new PIDVSAGConstants(12.0, 0.0, 0.25);
     public static final Constraints kTurnToAngleTolerances = new Constraints(0.017, 0.05); 
  
     ////////////////////////////////////////////
@@ -161,12 +161,12 @@ public final class Constants {
  
     /** @see NerdDrivetrain.driveToTarget() */
     public static final double kTargetDriveMaxLateralVelocity = 5.0;
-    public static final PIDConstants kTargetDriveLateralPID = new PIDConstants(5.0, 0.0, 0.5);
+    public static final PIDVSAGConstants kTargetDriveLateralPID = new PIDVSAGConstants(5.0, 0.0, 0.5);
 
     /** m/s and m/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveLateralConstraints = new Constraints(kTargetDriveMaxLateralVelocity, kTargetDriveMaxLateralVelocity);
     public static final double kTargetDriveMaxRotationalVelocity = 9.4;
-    public static final PIDConstants kTargetDriveRotationalPID = new PIDConstants(4.0, 0.0, 0.2);
+    public static final PIDVSAGConstants kTargetDriveRotationalPID = new PIDVSAGConstants(4.0, 0.0, 0.2);
  
     /** rad/s and rad/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveRotationalConstraints = new Constraints(kTargetDriveMaxRotationalVelocity, kTargetDriveMaxRotationalVelocity);
@@ -184,7 +184,7 @@ public final class Constants {
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
         blue = new Pose2d(new Translation2d(_blueX, _blueY), new Rotation2d(Units.degreesToRadians(_blueHeadingDegrees)));
-        red = FlippingUtil.flipFieldPose(blue);
+        red = NerdFlippingUtil.flipFieldPose(blue);
       }
 
       public Pose2d get() {
@@ -464,13 +464,13 @@ public static final class ShooterConstants {
     public static final double kPP_I = 0.0;
     public static final double kPP_D = 0.0;
  
-    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
+    public static final PIDVSAGConstants kPPTranslationPIDConstants = new PIDVSAGConstants(kPP_P, kPP_I, kPP_D);
 
     public static final double kPP_ThetaP = 4.0;
     public static final double kPP_ThetaI = 0.0;
     public static final double kPP_ThetaD = 0.1;
  
-    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+    public static final PIDVSAGConstants kPPRotationPIDConstants = new PIDVSAGConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
   }
 
   public static final class LoggingConstants {

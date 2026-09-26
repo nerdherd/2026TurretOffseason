@@ -26,6 +26,9 @@ import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
+import org.wpilib.hardware.bus.CANPort;
+import org.wpilib.telemetry.TelemetryTable;
+
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
@@ -194,7 +197,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		TalonFX motor;
 
 		for (int i=0; i<5; i++) {
-			motor = new TalonFX(id, CANBus.systemcore(i));
+			motor = new TalonFX(id, new CANBus("can_s" + i));
 			if(motor.isConnected()) {
 				return motor;
 			}
