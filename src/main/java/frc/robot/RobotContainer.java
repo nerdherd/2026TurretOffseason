@@ -135,6 +135,35 @@ public class RobotContainer {
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
+
+        SwerveJoystickCommand swerveJoystickCommand =
+            new SwerveJoystickCommand(
+                swerveDrive,
+                // Horizontal Translation
+                () -> -driverController.getLeftY(), 
+                // Vertical Translation
+                () -> -driverController.getLeftX(), 
+                // Turn
+                () -> -driverController.getRightX(), 
+                // use turn to angle
+                () -> driverController.getBumperRight(),
+                // turn to angle target direction, 0.0 to use manual
+                () -> 0.0,
+                // robot oriented adjustment (dpad)
+                () -> new Translation2d(),
+                // joystick drive field oriented
+                () -> true, 
+                // tow supplier
+                () -> driverController.getBumperLeft(), 
+                // precision/programmer mode :)
+                () -> driverController.getTriggerLeftAxis()
+            );
+        swerveDrive.setDefaultCommand(swerveJoystickCommand);
+
+        driverController.triggerRight()
+            .whileTrue(superSystem.lookAtHubCommand());
+        driverController.triggerLeft()
+            .whileTrue(superSystem.lookAtHubMasonCommand());
     }
 
     public Command getAutonomousCommand() {
