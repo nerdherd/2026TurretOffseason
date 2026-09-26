@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 
-import frc.robot.util.nerd_constants.PIDVSAGConstants;
+import frc.robot.util.nerd_constants.NerdPIDConstants;
 import frc.robot.util.nerd_logging.NerdLog;
 
 /**
@@ -18,7 +18,7 @@ import frc.robot.util.nerd_logging.NerdLog;
 public class MultiProfiledPIDController {
     private final HashMap<String, ProfiledPIDController> controllers = new HashMap<>();
 
-    public MultiProfiledPIDController add(String name, PIDVSAGConstants pidConstants, Constraints profileConstraints, double errorTolerance, double derivativeTolerance) {
+    public MultiProfiledPIDController add(String name, NerdPIDConstants pidConstants, Constraints profileConstraints, double errorTolerance, double derivativeTolerance) {
         ProfiledPIDController controller = new ProfiledPIDController(pidConstants.kP(), pidConstants.kI(), pidConstants.kD(), profileConstraints);
         controller.setTolerance(errorTolerance, derivativeTolerance);
         controllers.put(name, controller);

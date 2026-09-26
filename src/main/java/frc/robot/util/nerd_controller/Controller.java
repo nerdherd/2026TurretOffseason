@@ -7,7 +7,7 @@ import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.Trigger;
 
-import frc.robot.util.nerd_logging.NerdLog;
+import dev.doglog.DogLog;
 
 // thank you william
 // you're welcome mason
@@ -89,71 +89,73 @@ public class Controller {
         return gamepad.getRightTrigger();
     }
 
-    public static void configureDebugBindings(Controller testController) { //TODO: test
+    // call once
+    public static void configureDebugBindings(Controller testController) {
         testController.buttonRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Right Test", "bye")));
         testController.buttonDown()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Down Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Down Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Down Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Down Test", "bye")));
         testController.buttonUp()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Up Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Up Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Up Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Up Test", "bye")));
         testController.buttonLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Left Test", "bye")));
 
         testController.bumperLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Bumper L Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Bumper L Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Bumper L Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Bumper L Test", "bye")));
         testController.bumperRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Bumper R Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Bumper R Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Bumper R Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Bumper R Test", "bye")));
         
         testController.triggerLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Trigger L Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Trigger L Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Trigger L Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Trigger L Test", "bye")));
         testController.triggerRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Trigger R Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Trigger R Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Trigger R Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Trigger R Test", "bye")));
 
         testController.dpadUp()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Up Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Up Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Up Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Up Test", "bye")));
         testController.dpadRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Right Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Right Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Right Test", "bye")));
         testController.dpadDown()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Down Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Down Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Down Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Down Test", "bye")));
         testController.dpadLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Left Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Dpad Left Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Dpad Left Test", "bye")));
 
         testController.controllerLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Controller Left Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Controller Left Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Controller Left Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Controller Left Test", "bye")));
         testController.controllerRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Controller Right Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Controller Right Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Controller Right Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Controller Right Test", "bye")));
         
         testController.joystickLeft()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Joy Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Left Joy Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Left Joy Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Left Joy Test", "bye")));
         testController.joystickRight()
-            .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Joy Test")))
-            .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Joy Test")));
+            .onTrue(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Right Joy Test", "hi")))
+            .onFalse(Commands.runOnce(() -> DogLog.log("ControllerTest/Button Right Joy Test", "bye")));
     }
 
+    // call repeatedly
     public void logAnalogValues() {
-        // NerdLog.logNumber("Controller Joy Left X", getLeftX());
-        // NerdLog.logNumber("Controller Joy Left Y", getLeftY());
-        // NerdLog.logNumber("Controller Joy Right X", getRightX());
-        // NerdLog.logNumber("Controller Joy Right Y", getRightY());
+        DogLog.log("ControllerTest/Controller Joy Left X", getLeftX());
+        DogLog.log("ControllerTest/Controller Joy Left Y", getLeftY());
+        DogLog.log("ControllerTest/Controller Joy Right X", getRightX());
+        DogLog.log("ControllerTest/Controller Joy Right Y", getRightY());
 
-        // SmartDashboard.putNumber("Controller Left Trigger", getTriggerLeftAxis());
-        // SmartDashboard.putNumber("Controller Right Trigger", getTriggerRightAxis());
+        DogLog.log("ControllerTest/Controller Left Trigger", getTriggerLeftAxis());
+        DogLog.log("ControllerTest/Controller Right Trigger", getTriggerRightAxis());
 
-        // SmartDashboard.putBoolean("Right Button", getControllerRight());
+        DogLog.log("ControllerTest/Right Button", getControllerRight());
     }
 }

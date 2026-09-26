@@ -195,7 +195,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 			}
 			motor.close();
 		} 
-	
+		
+		NerdLog.reportError("Motor (ID " + id + ") could not be found");
 		return new TalonFX(id, new CANBus());
 	}
 
