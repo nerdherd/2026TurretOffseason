@@ -22,6 +22,8 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
+import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
+
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
@@ -223,6 +225,8 @@ public final class Constants {
         .withCurrentLimits(kMotorCurrentLimitsConfigs)
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
+
+    public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration(); //TODO: SET VALUES
     
   }
 
@@ -569,6 +573,7 @@ public static final class ShooterConstants {
             SubsystemMode.POSITION,
             0.0,
             useTurretSwivel)
+          .setTurretSwivelConfiguration(TurretSwivelConstants.kTurretSwivelConfiguration)
           .configureMotors(TurretSwivelConstants.kSubsystemConfiguration)
           .logTorqueCurrent();
 

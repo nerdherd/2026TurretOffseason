@@ -176,6 +176,12 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         return getPose().plus(new Transform2d(speeds.vx, speeds.vy, Rotation2d.ZERO).times(factor));
     }
 
+    /** the position we will be one step in time, including rotation */
+    public Pose2d getLookAheadPoseWithRotation(double factor) {
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, new Rotation2d(speeds.omega)).times(factor));
+    }
+
     /** gets the ChassisVelocities from odometry */
     public ChassisVelocities getChassisVelocities() {
         return getState().Velocity;

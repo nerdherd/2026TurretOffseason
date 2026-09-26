@@ -1,5 +1,7 @@
 package frc.robot.subsystems.TurretSwivel;
 
+import static frc.robot.Constants.LoggingConstants.kSubsystemTab;
+
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.math.geometry.Pose2d;
@@ -7,8 +9,12 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.geometry.Translation2d;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
+import dev.doglog.DogLog;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_math.NerdyMath;
+import frc.robot.Constants.LoggingConstants;
 
 public class TurretSwivel extends TemplateSubsystem {
     private TurretSwivelConfiguration turretSwivelConfiguration;
@@ -48,4 +54,23 @@ public class TurretSwivel extends TemplateSubsystem {
     public Command goToAngleCommand(double desiredAngleDegrees) {
         return Commands.runOnce(() -> goToAngle(desiredAngleDegrees));
     }
+
+    public Pose2d getRelativePose(){
+        return turretSwivelConfiguration.relativePosition();
+    }
+
+    /** applies configuration to motors; should be used on construction */
+    @Override
+	public TurretSwivel configureMotors(TalonFXConfiguration configuration){
+		this.configuration = configuration;
+		DogLog.log(kSubsystemTab + name + "/motor configs", configuration.toString());
+		applyMotorConfigs();
+		return this;
+	}
+
+    @Override
+    public TurretSwivel logTorqueCurrent() {
+		_logTorqueCurrent = true;
+		return this;
+	}
 }

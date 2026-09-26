@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
+import org.wpilib.math.geometry.Pose2d;
+
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.ConveyorBeltConstants;
@@ -16,6 +18,7 @@ import frc.robot.Constants.IntakeRollerConstants;
 import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;
@@ -134,13 +137,23 @@ public class SuperSystem implements Reportable {
         return setHood(1.0);
     }
 
-    public Command setTurretSwivel(){
-        double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
-        double value = 360-angle;
-        return turretSwivel.goToAngleCommand(value);
+    // public Command setTurretSwivel(){
+    //     double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
+    //     double value = 360-angle;
+    //     return turretSwivel.goToAngleCommand(value);
+    // }
+
+    public void lookAtHub(){
+        Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
+        Pose2d expectedTurretPose = turretSwivel.getRelativePose().relativeTo(expectedRobotPose);
+        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+
+        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
     }
 
-
+    public Command lookAtHubCommand(){
+        return Commands.runOnce(() -> lookAtHub());
+    }
 
     // /**
     //  * Drives to the scoring position and raises the arm at the same time.
