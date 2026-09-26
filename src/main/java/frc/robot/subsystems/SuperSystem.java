@@ -7,6 +7,8 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Transform2d;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -18,6 +20,7 @@ import frc.robot.Constants.IntakeRollerConstants;
 import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;
@@ -142,7 +145,7 @@ public class SuperSystem implements Reportable {
     //     return turretSwivel.goToAngleCommand(value);
     // }
 
-    public void lookAtHub(){
+    public void lookAtHub(){ // not tested
         Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
         Pose2d expectedTurretPose = turretSwivel.getRelativePose().relativeTo(expectedRobotPose);
         double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
@@ -150,8 +153,23 @@ public class SuperSystem implements Reportable {
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
     }
 
+    public void lookAtHubMason(){ // not tested
+        Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
+        double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
+        Pose2d turretOffset = turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation());
+        Pose2d turretSpeedVector = new Pose2d(-turretOffset.getY(),turretOffset.getX(),Rotation2d.ZERO);
+        turretSpeedVector = turretSpeedVector.div(turretSpeedVector.getTranslation().getNorm()).times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
+        Pose2d expectedTurretPose = turretOffset.relativeTo(expectedRobotPose).plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
+        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+    }
+
     public Command lookAtHubCommand(){
         return Commands.runOnce(() -> lookAtHub());
+    }
+
+    public Command lookAtHubMasonCommand(){
+        return Commands.runOnce(() -> lookAtHubMason());
     }
 
     // /**

@@ -182,6 +182,12 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         return getPose().plus(new Transform2d(speeds.vx, speeds.vy, new Rotation2d(speeds.omega)).times(factor));
     }
 
+    /** returns the angular velocity of the robot in radians/second, CCW +*/
+    public double getRotationalSpeed(){
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return speeds.omega;
+    }
+
     /** gets the ChassisVelocities from odometry */
     public ChassisVelocities getChassisVelocities() {
         return getState().Velocity;
