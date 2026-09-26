@@ -34,10 +34,10 @@ public class Controller {
     public Trigger triggerRight()       { return gamepad.rightTrigger(); }
     public Trigger bumperLeft()         { return gamepad.leftBumper();   }
     public Trigger bumperRight()        { return gamepad.rightBumper();  }
-    public Trigger buttonUp()           { return gamepad.northFace();    }
-    public Trigger buttonRight()        { return gamepad.eastFace();     }
-    public Trigger buttonDown()         { return gamepad.southFace();    }
-    public Trigger buttonLeft()         { return gamepad.westFace();     }
+    public Trigger buttonUp()           { return gamepad.faceUp();    }
+    public Trigger buttonRight()        { return gamepad.faceRight();     }
+    public Trigger buttonDown()         { return gamepad.faceDown();    }
+    public Trigger buttonLeft()         { return gamepad.faceLeft();     }
     public Trigger dpadUp()             { return gamepad.dpadUp();       }
     public Trigger dpadRight()          { return gamepad.dpadRight();    }
     public Trigger dpadDown()           { return gamepad.dpadDown();     }
@@ -52,23 +52,23 @@ public class Controller {
     public double getRightX()           { return gamepad.getRightX(); }
     public double getRightY()           { return gamepad.getRightY(); }
 
-    public boolean getTriggerLeft()     { return gamepad.getLeftTriggerAxis() >= triggerDeadband;}
-    public boolean getTriggerRight()    { return gamepad.getRightTriggerAxis() >= triggerDeadband;}  
+    public boolean getTriggerLeft()     { return gamepad.getLeftTrigger() >= triggerDeadband;}
+    public boolean getTriggerRight()    { return gamepad.getRightTrigger() >= triggerDeadband;}  
 
-    public boolean getBumperLeft()      { return gamepad.getHID().getLeftBumperButton();  }
-    public boolean getBumperRight()     { return gamepad.getHID().getRightBumperButton(); }    
-    public boolean getButtonUp()        { return gamepad.getHID().getNorthFaceButton();   }
-    public boolean getButtonRight()     { return gamepad.getHID().getEastFaceButton();    }
-    public boolean getButtonDown()      { return gamepad.getHID().getSouthFaceButton();   }
-    public boolean getButtonLeft()      { return gamepad.getHID().getWestFaceButton();    }
-    public boolean getDpadUp()          { return gamepad.getHID().getDpadUpButton();      }
-    public boolean getDpadRight()       { return gamepad.getHID().getDpadRightButton();   }
-    public boolean getDpadDown()        { return gamepad.getHID().getDpadDownButton();    }
-    public boolean getDpadLeft()        { return gamepad.getHID().getDpadLeftButton();    }
-    public boolean getJoystickLeft()    { return gamepad.getHID().getLeftStickButton();   }
-    public boolean getJoystickRight()   { return gamepad.getHID().getRightStickButton();  }
-    public boolean getControllerLeft()  { return gamepad.getHID().getBackButton();       } // TODO: this is probably wrong
-    public boolean getControllerRight() { return gamepad.getHID().getStartButton();       } // TODO: this is probably wrong
+    public boolean getBumperLeft()      { return gamepad.getGamepad().getLeftBumperButton();  }
+    public boolean getBumperRight()     { return gamepad.getGamepad().getRightBumperButton(); }    
+    public boolean getButtonUp()        { return gamepad.getGamepad().getFaceUpButton();   }
+    public boolean getButtonRight()     { return gamepad.getGamepad().getFaceRightButton();    }
+    public boolean getButtonDown()      { return gamepad.getGamepad().getFaceDownButton();   }
+    public boolean getButtonLeft()      { return gamepad.getGamepad().getFaceLeftButton();    }
+    public boolean getDpadUp()          { return gamepad.getGamepad().getDpadUpButton();      }
+    public boolean getDpadRight()       { return gamepad.getGamepad().getDpadRightButton();   }
+    public boolean getDpadDown()        { return gamepad.getGamepad().getDpadDownButton();    }
+    public boolean getDpadLeft()        { return gamepad.getGamepad().getDpadLeftButton();    }
+    public boolean getJoystickLeft()    { return gamepad.getGamepad().getLeftStickButton();   }
+    public boolean getJoystickRight()   { return gamepad.getGamepad().getRightStickButton();  }
+    public boolean getControllerLeft()  { return gamepad.getGamepad().getBackButton();       } 
+    public boolean getControllerRight() { return gamepad.getGamepad().getStartButton();       } 
     
 
     // ***** STATE METHODS ***** //
@@ -78,7 +78,7 @@ public class Controller {
      * @return value on [0, 1]
      */
     public double getTriggerLeftAxis() {
-        return gamepad.getLeftTriggerAxis();
+        return gamepad.getLeftTrigger();
     }
 
     /**
@@ -86,10 +86,10 @@ public class Controller {
      * @return value on [0, 1]
      */
     public double getTriggerRightAxis() {
-        return gamepad.getRightTriggerAxis();
+        return gamepad.getRightTrigger();
     }
 
-    public static void configureDebugBindings(Controller testController) {
+    public static void configureDebugBindings(Controller testController) { //TODO: test
         testController.buttonRight()
             .onTrue(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")))
             .onFalse(Commands.runOnce(() -> NerdLog.reportInfo("Button Right Test")));
