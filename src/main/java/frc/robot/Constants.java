@@ -30,8 +30,8 @@ import org.wpilib.math.util.Units;
 
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
 import frc.robot.util.nerd_constants.PIDVSAGConstants;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
 import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;

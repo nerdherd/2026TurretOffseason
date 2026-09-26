@@ -22,11 +22,9 @@ import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
-
-import frc.robot.util.controller.Controller;
-
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_controller.Controller;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
 
 
 public class RobotContainer {

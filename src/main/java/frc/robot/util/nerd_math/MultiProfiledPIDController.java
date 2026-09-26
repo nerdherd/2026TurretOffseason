@@ -8,8 +8,9 @@ import java.util.HashMap;
 
 import org.wpilib.math.controller.ProfiledPIDController;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
-import frc.robot.util.logging.NerdLog;
+
 import frc.robot.util.nerd_constants.PIDVSAGConstants;
+import frc.robot.util.nerd_logging.NerdLog;
 
 /**
  * i didn't like the current implementation of the PID controller

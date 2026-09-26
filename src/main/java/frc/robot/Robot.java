@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
-import frc.robot.util.logging.NerdLog;
+import frc.robot.util.nerd_logging.NerdLog;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;

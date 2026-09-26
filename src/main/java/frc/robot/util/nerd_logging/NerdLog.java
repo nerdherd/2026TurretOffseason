@@ -1,4 +1,4 @@
-package frc.robot.util.logging;
+package frc.robot.util.nerd_logging;
 
 import static frc.robot.Constants.ROBOT_LOG_LEVEL;
 
@@ -23,7 +23,7 @@ import org.wpilib.telemetry.TelemetryTable;
 
 import frc.robot.Constants;
 import frc.robot.Constants.LoggingConstants;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
 
 public class NerdLog {
 	/** Contains the Runnables associated with each LOG_LEVEL. */

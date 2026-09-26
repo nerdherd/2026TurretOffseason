@@ -28,8 +28,8 @@ import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
 
 import frc.robot.subsystems.SuperSystem;
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable;
 
 public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	/** 
@@ -371,9 +371,9 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 	/** 
 	 * intialize shuffleboard logging on {@link #shuffleboardTab}
-	 * @see {@link Reportable#addNumber(ShuffleboardTab, String, java.util.function.DoubleSupplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
-	 * @see {@link Reportable#addBoolean(ShuffleboardTab, String, java.util.function.BooleanSupplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
-	 * @see {@link Reportable#addString(ShuffleboardTab, String, java.util.function.Supplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
+	 * @see {@link Reportable#addNumber(ShuffleboardTab, String, java.util.function.DoubleSupplier, frc.robot.util.nerd_logging.Reportable.LOG_LEVEL)}
+	 * @see {@link Reportable#addBoolean(ShuffleboardTab, String, java.util.function.BooleanSupplier, frc.robot.util.nerd_logging.Reportable.LOG_LEVEL)}
+	 * @see {@link Reportable#addString(ShuffleboardTab, String, java.util.function.Supplier, frc.robot.util.nerd_logging.Reportable.LOG_LEVEL)}
 	 */
     public void initializeLogging(){
 		if (!useSubsystem) return;

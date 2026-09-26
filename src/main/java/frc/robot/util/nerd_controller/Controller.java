@@ -1,13 +1,13 @@
 // VERSION 3.1
 // Uses the generic CommandGamepad class
 
-package frc.robot.util.controller;
+package frc.robot.util.nerd_controller;
 
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.button.CommandGamepad;
 import org.wpilib.command2.button.Trigger;
 
-import frc.robot.util.logging.NerdLog;
+import frc.robot.util.nerd_logging.NerdLog;
 
 // thank you william
 // you're welcome mason

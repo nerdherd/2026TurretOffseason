@@ -7,8 +7,8 @@ import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
 
 import static frc.robot.Constants.LoggingConstants.kAutosTab;
 
