@@ -64,7 +64,7 @@ public final class Constants {
   /**
    * controls whether vision should be initialized
    */
-  public static final boolean USE_VISION = true;
+  public static final boolean USE_VISION = false;
  
   public static class ControllerConstants {
     public static final int kDriverControllerPort = 0;
@@ -226,7 +226,12 @@ public final class Constants {
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
 
-    public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration(); //TODO: SET VALUES
+    public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
+      .setDeadbandMax(360)
+      .setDeadbandMin(270)
+      .setMaxAngleTolerance(2)
+      .setMaxVelocityTolerance(3)
+      .setRelativePosition(new Pose2d(0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
     
   }
 

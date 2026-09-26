@@ -17,6 +17,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
+import dev.doglog.DogLog;
+
 import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.linalg.VecBuilder;
 import org.wpilib.math.geometry.Pose2d;
@@ -27,6 +29,7 @@ import org.wpilib.driverstation.RobotState;
 import org.wpilib.smartdashboard.Field2d;
 import org.wpilib.system.Notifier;
 import org.wpilib.system.RobotController;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.telemetry.TelemetryLoggable;
 import org.wpilib.telemetry.TelemetryTable;
 import org.wpilib.command2.Command;
@@ -403,5 +406,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     @Override
     public void simulationPeriodic(){
         field.setRobotPose(getPose());
+        DogLog.log("Swerve Drive Simulation Periodic Running", "Yeag!!!");
+        Telemetry.log("Robot Pose :)", getPose());
     }
 }

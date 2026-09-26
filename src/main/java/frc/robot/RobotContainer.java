@@ -138,6 +138,8 @@ public class RobotContainer {
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
 
+        initDefaultCommands_teleop();
+
         driverController.triggerRight()
             .whileTrue(superSystem.lookAtHubCommand());
         driverController.triggerLeft()

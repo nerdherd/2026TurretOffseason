@@ -9,6 +9,7 @@ import org.wpilib.command2.Commands;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.telemetry.Telemetry;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -147,10 +148,12 @@ public class SuperSystem implements Reportable {
 
     public void lookAtHub(){ // not tested
         Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
-        Pose2d expectedTurretPose = turretSwivel.getRelativePose().relativeTo(expectedRobotPose);
+        Pose2d expectedTurretPose = expectedRobotPose.transformBy(new Transform2d(turretSwivel.getRelativePose().getTranslation(), Rotation2d.ZERO));
         double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
 
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
     }
 
     public void lookAtHubMason(){ // not tested
@@ -160,7 +163,7 @@ public class SuperSystem implements Reportable {
         double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
 
         // gets the turret's location relative to the robot's center, but rotated to match field space
-        Pose2d turretOffset = turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation());
+        Pose2d turretOffset = new Pose2d(turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation()).getTranslation(), Rotation2d.ZERO);
 
         // creates a point 90 degrees counterclockwise from the robot's center to turretOffset 
         Pose2d turretSpeedVector = new Pose2d(-turretOffset.getY(),turretOffset.getX(),Rotation2d.ZERO);
@@ -178,6 +181,8 @@ public class SuperSystem implements Reportable {
         double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
 
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
     }
 
     public Command lookAtHubCommand(){
