@@ -14,7 +14,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import dev.doglog.DogLog;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_math.NerdyMath;
-import frc.robot.Constants.LoggingConstants;
 
 public class TurretSwivel extends TemplateSubsystem {
     private TurretSwivelConfiguration turretSwivelConfiguration;
@@ -65,12 +64,6 @@ public class TurretSwivel extends TemplateSubsystem {
 		this.configuration = configuration;
 		DogLog.log(kSubsystemTab + name + "/motor configs", configuration.toString());
 		applyMotorConfigs();
-		return this;
-	}
-
-    @Override
-    public TurretSwivel logTorqueCurrent() {
-		_logTorqueCurrent = true;
 		return this;
 	}
 }

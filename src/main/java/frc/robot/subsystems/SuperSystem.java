@@ -18,7 +18,6 @@ import frc.robot.Constants.IntakeRollerConstants;
 import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;

@@ -574,8 +574,7 @@ public static final class ShooterConstants {
             0.0,
             useTurretSwivel)
           .setTurretSwivelConfiguration(TurretSwivelConstants.kTurretSwivelConfiguration)
-          .configureMotors(TurretSwivelConstants.kSubsystemConfiguration)
-          .logTorqueCurrent();
+          .configureMotors(TurretSwivelConstants.kSubsystemConfiguration);
 
       public static final boolean useShooter = true;
       public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
@@ -586,8 +585,7 @@ public static final class ShooterConstants {
         0.0, 
         useShooter)
       .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
-      .configureMotors(ShooterConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ShooterConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeRoller = true;
       public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
@@ -597,8 +595,7 @@ public static final class ShooterConstants {
           SubsystemMode.VOLTAGE, 
           0.0,
           useIntakeRoller)
-        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration)
-        .logTorqueCurrent();
+        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeSlide = true;
       public static final TemplateSubsystem intakeSlide = (!USE_SUBSYSTEMS) ? null:
@@ -608,8 +605,7 @@ public static final class ShooterConstants {
         SubsystemMode.VOLTAGE, 
         0.0, 
         useIntakeRoller)
-      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion)
-      .logTorqueCurrent();
+      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
 
       public static final boolean useIndexer = true;
       public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
@@ -619,8 +615,7 @@ public static final class ShooterConstants {
           SubsystemMode.VOLTAGE, 
           0.0,
           useIndexer)
-        .configureMotors(IndexerConstants.kSubsystemConfiguration)
-        .logTorqueCurrent();
+        .configureMotors(IndexerConstants.kSubsystemConfiguration);
 
       public static final boolean useHood = true;
       public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
@@ -630,8 +625,7 @@ public static final class ShooterConstants {
         SubsystemMode.POSITION,
         0.0, 
         useHood)
-      .configureMotors(HoodConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(HoodConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorBelt = true;
       public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
@@ -641,8 +635,7 @@ public static final class ShooterConstants {
         SubsystemMode.VELOCITY, 
         0.0, 
       useConveyorBelt)
-      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorRoller = true;
       public static final TemplateSubsystem conveyorRoller = (!USE_SUBSYSTEMS) ? null :
@@ -652,8 +645,7 @@ public static final class ShooterConstants {
         SubsystemMode.VELOCITY, 
         0.0, 
       useConveyorBelt)
-      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration);
 
       public static void init() {}
   }

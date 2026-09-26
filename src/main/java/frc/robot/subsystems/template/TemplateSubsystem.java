@@ -73,8 +73,6 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	/** used to indicate when the subsystem has an error, configured during debugging.  by default always false (reported at {@link LOG_LEVEL#ALL}) */
 	public boolean _hasError = false;
 
-	protected boolean _logTorqueCurrent = false;
-
 	/** name of the subsystem */
 	protected final String name;
 
@@ -178,11 +176,6 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		}
 	}
 
-	public TemplateSubsystem logTorqueCurrent() {
-		_logTorqueCurrent = true;
-		return this;
-	}
-
 	// ------------------------------------ Helper Functions ------------------------------------ //
 	
 	/**
@@ -195,6 +188,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		TalonFX motor;
 
 		for (int i=0; i<5; i++) {
+			// NerdLog.reportInfo("Trying CANBus " + i);
 			motor = new TalonFX(id, new CANBus("can_s" + i));
 			if(motor.isConnected()) {
 				return motor;
@@ -202,7 +196,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 			motor.close();
 		} 
 	
-		return null;
+		return new TalonFX(id, new CANBus());
 	}
 
 	/** used for logging, essentially returns the subsystem mode in string form */
@@ -380,35 +374,35 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
         ///////////
         /// ALL ///
         ///////////
-		NerdLog.get().logData(kSubsystemTab + name + "/Commands", this, LOG_LEVEL.ALL); 
-		NerdLog.get().logBoolean(kSubsystemTab + name + "/Has Error", () -> _hasError, LOG_LEVEL.ALL);
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Supply Current", primaryMotor.getSupplyCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.ALL);
+		NerdLog.logData(kSubsystemTab + name + "/Commands", this, LOG_LEVEL.ALL); 
+		NerdLog.logBoolean(kSubsystemTab + name + "/Has Error", () -> _hasError, LOG_LEVEL.ALL);
+		NerdLog.logSignal(kSubsystemTab + name + "/Supply Current", primaryMotor.getSupplyCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.ALL);
 		
 		
 		//////////////
 		/// MEDIUM ///
         //////////////
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
-		NerdLog.get().logSignal(kSubsystemTab + name + "/Motor Voltage/Primary Motor", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Primary Motor", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		applySecondaryMotors((motor, i) -> {
-			NerdLog.get().logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
-			NerdLog.get().logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		});
 		
-        NerdLog.get().logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
-        NerdLog.get().logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.MEDIUM);
+        NerdLog.logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
+        NerdLog.logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.MEDIUM);
 
         //////////////
 		/// MINIMAL //
         //////////////
-        NerdLog.getNT().logSignal(kSubsystemTab + name + "/" + getFlavorText(), getCurrentValue(), primaryMotor.getNetwork().getName(), LOG_LEVEL.MINIMAL);
-        NerdLog.get().logSignal(kSubsystemTab + name + "/Temperature/Primary Motor", primaryMotor.getDeviceTemp(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+        NerdLog.logSignal(kSubsystemTab + name + "/" + getFlavorText(), getCurrentValue(), primaryMotor.getNetwork().getName(), LOG_LEVEL.MINIMAL);
+        NerdLog.logSignal(kSubsystemTab + name + "/Temperature/Primary Motor", primaryMotor.getDeviceTemp(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		applySecondaryMotors((motor, i) -> 
-			NerdLog.get().logSignal(kSubsystemTab + name + "/Temperature/Secondary Motor " + i, motor.getDeviceTemp(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM)
+			NerdLog.logSignal(kSubsystemTab + name + "/Temperature/Secondary Motor " + i, motor.getDeviceTemp(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM)
 		);
-		NerdLog.getNT().logBoolean(kSubsystemTab + name + "/Connected/Primary Motor", primaryMotor::isConnected, LOG_LEVEL.MINIMAL);
+		NerdLog.logBoolean(kSubsystemTab + name + "/Connected/Primary Motor", primaryMotor::isConnected, LOG_LEVEL.MINIMAL);
 		applySecondaryMotors((motor, i) -> 
-			NerdLog.getNT().logBoolean(kSubsystemTab + name + "/Connected/Secondary Motor " + i, motor::isConnected, LOG_LEVEL.MINIMAL)
+			NerdLog.logBoolean(kSubsystemTab + name + "/Connected/Secondary Motor " + i, motor::isConnected, LOG_LEVEL.MINIMAL)
 		);
     }
 }

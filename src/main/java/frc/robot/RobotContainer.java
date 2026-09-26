@@ -12,6 +12,9 @@ import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
+
+import java.util.NoSuchElementException;
+
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 
@@ -190,12 +193,14 @@ public class RobotContainer {
         // if (!RobotState.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
         boolean wonAuto = true;
         if (Constants.ROBOT_LOG_LEVEL == LOG_LEVEL.MEDIUM) {
-            String data = MatchState.getGameData().get();
-            if (!data.isEmpty()) switch (data.charAt(0)) {
-                case 'B': wonAuto = !isRedSide; break;
-                case 'R': wonAuto = isRedSide; break;
-                default: break;
-            } 
+            try {
+                String data = MatchState.getGameData().get();
+                if (!data.isEmpty()) switch (data.charAt(0)) {
+                    case 'B': wonAuto = !isRedSide; break;
+                    case 'R': wonAuto = isRedSide; break;
+                    default: break;
+                } 
+            } catch (NoSuchElementException e) {}
             DogLog.log("Match Info/Won Auto?", wonAuto);
         }
 
