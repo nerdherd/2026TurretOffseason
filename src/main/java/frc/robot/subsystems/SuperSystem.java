@@ -1,15 +1,11 @@
 package frc.robot.subsystems;
 
-import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
-import org.wpilib.command2.Subsystem;
-import org.wpilib.math.geometry.Pose2d;
-
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.Constants.ConveyorBeltConstants;
@@ -20,9 +16,7 @@ import frc.robot.Constants.IntakeRollerConstants;
 import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
-import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.logging.NerdLog;
 import frc.robot.util.logging.Reportable;
 import frc.robot.util.nerd_math.NerdyMath;

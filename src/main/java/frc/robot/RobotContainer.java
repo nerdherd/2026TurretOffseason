@@ -6,12 +6,12 @@ import org.wpilib.driverstation.RobotState;
 import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.RobotController;
+import org.wpilib.tunable.Tunable;
 
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.networktables.StringSubscriber;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 
@@ -152,7 +152,7 @@ public class RobotContainer {
         return isRedSide;
     }
 
-    public StringSubscriber printLog = null;
+    public Tunable<String> printLog = null;
     public void initializeLogging() {
         if (printLog == null) printLog = DogLog.tunable("Print", "", (value) -> NerdLog.reportInfo("" + value));
         NerdLog.logData(

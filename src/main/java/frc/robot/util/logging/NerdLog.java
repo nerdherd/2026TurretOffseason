@@ -3,7 +3,6 @@ package frc.robot.util.logging;
 import static frc.robot.Constants.ROBOT_LOG_LEVEL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -12,15 +11,16 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import dev.doglog.DogLog;
-import org.wpilib.util.sendable.Sendable;
-import org.wpilib.util.sendable.SendableBuilder;
 import org.wpilib.util.struct.StructSerializable;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.wpilib.util.Alert;
 import org.wpilib.driverstation.DriverStationErrors;
 import org.wpilib.system.Timer;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
+import org.wpilib.telemetry.TelemetryLoggable;
+import org.wpilib.telemetry.TelemetryTable;
+
 import frc.robot.Constants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.util.logging.Reportable.LOG_LEVEL;
@@ -120,7 +120,12 @@ public class NerdLog {
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			() -> {DogLog.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray());};
+			() -> {
+				Double[] Doubles = supplier.get();
+				double[] doubles = new double[Doubles.length];
+				for (int i = 0; i < Doubles.length; i++) doubles[i] = Doubles[i];
+				DogLog.log(name, doubles);
+			};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
 
@@ -137,7 +142,12 @@ public class NerdLog {
 		if (!logSuppliers.containsKey(loggingLevel)) logSuppliers.put(loggingLevel, new ArrayList<>());
 
 		Runnable logger = 
-			() -> {DogLog.log(name, Arrays.stream(supplier.get()).mapToDouble(Double::doubleValue).toArray(), unit);};
+			() -> {
+				Double[] Doubles = supplier.get();
+				double[] doubles = new double[Doubles.length];
+				for (int i = 0; i < Doubles.length; i++) doubles[i] = Doubles[i];
+				DogLog.log(name, doubles);
+			};
 		logSuppliers.get(loggingLevel).add(logger);
 	}
 
@@ -217,9 +227,9 @@ public class NerdLog {
 	 * @param supplier
 	 * @param loggingLevel
 	 */
-	public static void logData(String path, Sendable supplier, LOG_LEVEL loggingLevel) {
+	public static void logData(String path, TelemetryLoggable supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
-		SmartDashboard.putData(path, supplier);
+		Telemetry.log(path, supplier);
 	}
 
 	/**
@@ -246,28 +256,31 @@ public class NerdLog {
 	 */
 	public static void logSwerveModules(String path, Supplier<SwerveDriveState> supplier, LOG_LEVEL loggingLevel) {
 		if(Constants.ROBOT_LOG_LEVEL.ordinal() > loggingLevel.ordinal()) return;
-		SmartDashboard.putData(path, generateModuleSendable(supplier));
+		Telemetry.log(path, generateModuleSendable(supplier));
 	}
 
-	private static Sendable generateModuleSendable(Supplier<SwerveDriveState> state) {
-		return new Sendable() {
+	private static TelemetryLoggable generateModuleSendable(Supplier<SwerveDriveState> state) {
+		return new TelemetryLoggable() {
 			@Override
-			public void initSendable(SendableBuilder builder) {
-				builder.setSmartDashboardType("SwerveDrive");
+			public void logTo(TelemetryTable table) {
+				table.log("Front Left Angle", state.get().ModuleVelocities[0].angle.getRadians());
+				table.log("Front Left Velocity", state.get().ModuleVelocities[0].velocity);
 
-				builder.addDoubleProperty("Front Left Angle", () -> state.get().ModuleVelocities[0].angle.getRadians(), null);
-				builder.addDoubleProperty("Front Left Velocity", () -> state.get().ModuleVelocities[0].velocity, null);
+				table.log("Front Right Angle", state.get().ModuleVelocities[1].angle.getRadians());
+				table.log("Front Right Velocity", state.get().ModuleVelocities[1].velocity);
 
-				builder.addDoubleProperty("Front Right Angle", () -> state.get().ModuleVelocities[1].angle.getRadians(), null);
-				builder.addDoubleProperty("Front Right Velocity", () -> state.get().ModuleVelocities[1].velocity, null);
+				table.log("Back Left Angle", state.get().ModuleVelocities[2].angle.getRadians());
+				table.log("Back Left Velocity", state.get().ModuleVelocities[2].velocity);
 
-				builder.addDoubleProperty("Back Left Angle", () -> state.get().ModuleVelocities[2].angle.getRadians(), null);
-				builder.addDoubleProperty("Back Left Velocity", () -> state.get().ModuleVelocities[2].velocity, null);
+				table.log("Back Right Angle", state.get().ModuleVelocities[3].angle.getRadians());
+				table.log("Back Right Velocity", state.get().ModuleVelocities[3].velocity);
 
-				builder.addDoubleProperty("Back Right Angle", () -> state.get().ModuleVelocities[3].angle.getRadians(), null);
-				builder.addDoubleProperty("Back Right Velocity", () -> state.get().ModuleVelocities[3].velocity, null);
+				table.log("Robot Angle", state.get().Pose.getRotation().getRadians());
+			}
 
-				builder.addDoubleProperty("Robot Angle", () -> state.get().Pose.getRotation().getRadians(), null);
+			@Override
+			public String getTelemetryType() {
+				return "SwerveDrive";
 			}
 		};
 	}

@@ -26,8 +26,6 @@ import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
-import org.wpilib.hardware.bus.CANPort;
-import org.wpilib.telemetry.TelemetryTable;
 
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.util.logging.NerdLog;
