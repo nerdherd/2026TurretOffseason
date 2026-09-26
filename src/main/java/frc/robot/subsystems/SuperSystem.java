@@ -154,13 +154,29 @@ public class SuperSystem implements Reportable {
     }
 
     public void lookAtHubMason(){ // not tested
+        // gets the pose of the robot translated by its velocity times a factor, but not changing its rotation
         Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
+
         double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
+
+        // gets the turret's location relative to the robot's center, but rotated to match field space
         Pose2d turretOffset = turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation());
+
+        // creates a point 90 degrees counterclockwise from the robot's center to turretOffset 
         Pose2d turretSpeedVector = new Pose2d(-turretOffset.getY(),turretOffset.getX(),Rotation2d.ZERO);
-        turretSpeedVector = turretSpeedVector.div(turretSpeedVector.getTranslation().getNorm()).times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
-        Pose2d expectedTurretPose = turretOffset.relativeTo(expectedRobotPose).plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
+
+        // sets the magnitude of turretSpeedVector (as in its distance from the origin) based on the robot's angular velocity times the factor
+        // in other words, creates a vector representing the turret's velocity in field space.
+        turretSpeedVector = turretSpeedVector.times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
+
+        // offsets the turret position by the turret speed vector to create its expected position
+        Pose2d expectedTurretPose = turretOffset
+            .plus(new Transform2d(expectedRobotPose.getTranslation(),Rotation2d.ZERO))
+            .plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
+
+        // the angle from the expected turret pose to the hub
         double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
     }
 
