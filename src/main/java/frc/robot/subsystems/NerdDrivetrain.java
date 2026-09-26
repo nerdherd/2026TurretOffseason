@@ -25,6 +25,8 @@ import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.smartdashboard.Field2d;
+import org.wpilib.system.Notifier;
+import org.wpilib.system.RobotController;
 import org.wpilib.telemetry.TelemetryLoggable;
 import org.wpilib.telemetry.TelemetryTable;
 import org.wpilib.command2.Command;
@@ -396,5 +398,10 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         var currentCommand = getCurrentCommand();
         table.log(".hasCommand", currentCommand != null);
         table.log(".command", currentCommand != null ? currentCommand.getName() : "none");
+    }
+
+    @Override
+    public void simulationPeriodic(){
+        this.updateSimState(0.020, RobotController.getBatteryVoltage());
     }
 }
