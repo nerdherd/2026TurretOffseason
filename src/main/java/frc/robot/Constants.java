@@ -53,7 +53,7 @@ import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
 public final class Constants {
  
   /** current logging level of the robot's subsystems, @see Reportable.add... */
-  public static final LOG_LEVEL ROBOT_LOG_LEVEL = LOG_LEVEL.MEDIUM;
+  public static final LOG_LEVEL ROBOT_LOG_LEVEL = LOG_LEVEL.ALL;
   
   /** 
    * (hopefully) controls whether subsystem objects are used, swerve and others not counted

@@ -11,12 +11,14 @@ import org.wpilib.tunable.Tunable;
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
+import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
 
 import java.util.NoSuchElementException;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Subsystems;
@@ -136,34 +138,13 @@ public class RobotContainer {
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
 
-        SwerveJoystickCommand swerveJoystickCommand =
-            new SwerveJoystickCommand(
-                swerveDrive,
-                // Horizontal Translation
-                () -> -driverController.getLeftY(), 
-                // Vertical Translation
-                () -> -driverController.getLeftX(), 
-                // Turn
-                () -> -driverController.getRightX(), 
-                // use turn to angle
-                () -> driverController.getBumperRight(),
-                // turn to angle target direction, 0.0 to use manual
-                () -> 0.0,
-                // robot oriented adjustment (dpad)
-                () -> new Translation2d(),
-                // joystick drive field oriented
-                () -> true, 
-                // tow supplier
-                () -> driverController.getBumperLeft(), 
-                // precision/programmer mode :)
-                () -> driverController.getTriggerLeftAxis()
-            );
-        swerveDrive.setDefaultCommand(swerveJoystickCommand);
-
         driverController.triggerRight()
             .whileTrue(superSystem.lookAtHubCommand());
         driverController.triggerLeft()
             .whileTrue(superSystem.lookAtHubMasonCommand());
+
+        driverController.buttonUp()
+            .whileTrue(Commands.runOnce( () -> superSystem.swerveDrivetrain.resetPose(new Pose2d())));
     }
 
     public Command getAutonomousCommand() {
