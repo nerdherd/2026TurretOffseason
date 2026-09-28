@@ -1,14 +1,15 @@
 package frc.robot.subsystems;
 
-import java.text.FieldPosition;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
-import org.wpilib.command2.Subsystem;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.telemetry.Telemetry;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -22,10 +23,10 @@ import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.template.TemplateSubsystem;
-import frc.robot.subsystems.TurretSwivel.TurretSwivel;
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable;
-import frc.robot.util.NerdyMath;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable;
+import frc.robot.util.nerd_math.NerdyMath;
+
 import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import static frc.robot.Constants.Subsystems.intakeSlide;
 import static frc.robot.Constants.Subsystems.intakeRoller;
@@ -139,13 +140,68 @@ public class SuperSystem implements Reportable {
         return setHood(1.0);
     }
 
-    public Command setTurretSwivel(){
-        double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
-        double value = 360-angle;
-        return turretSwivel.goToAngleCommand(value);
+    // public Command setTurretSwivel(){
+    //     double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
+    //     double value = 360-angle;
+    //     return turretSwivel.goToAngleCommand(value);
+    // }
+
+    /**
+     * Attempt to rotate the turret to look at the current hub, with look ahead.
+     * Rotational speed is added to the expected robot rotation.
+     */
+    public void lookAtHub(){ // simulated, not tested
+        Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
+        Pose2d expectedTurretPose = expectedRobotPose.transformBy(new Transform2d(turretSwivel.getRelativePose().getTranslation(), Rotation2d.ZERO));
+        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+
+        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+
+        // TODO: Comment this line when not simulating
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedRobotPose.getRotation().getDegrees())));
     }
 
+    /**
+     * Attempt to rotate the turret to look at the current hub, with look ahead.
+     * Rotational speed is converted to translational speed and added to the expected turret position.
+     */
+    public void lookAtHubMason(){ // simulated, not tested
+        // gets the pose of the robot translated by its velocity times a factor, but not changing its rotation
+        Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
 
+        double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
+
+        // gets the turret's location relative to the robot's center, but rotated to match field space
+        Pose2d turretOffset = new Pose2d(turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation()).getTranslation(), Rotation2d.ZERO);
+
+        // creates a point 90 degrees counterclockwise from the robot's center to turretOffset 
+        Pose2d turretSpeedVector = new Pose2d(-turretOffset.getY(),turretOffset.getX(),Rotation2d.ZERO);
+
+        // sets the magnitude of turretSpeedVector (as in its distance from the origin) based on the robot's angular velocity times the factor
+        // in other words, creates a vector representing the turret's velocity in field space.
+        turretSpeedVector = turretSpeedVector.times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
+
+        // offsets the turret position by the turret speed vector to create its expected position
+        Pose2d expectedTurretPose = turretOffset
+            .plus(new Transform2d(expectedRobotPose.getTranslation(),Rotation2d.ZERO))
+            .plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
+
+        // the angle from the expected turret pose to the hub
+        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+
+        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+
+        // TODO: Comment this line when not simulating
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedRobotPose.getRotation().getDegrees())));
+    }
+
+    public Command lookAtHubCommand(){
+        return Commands.run(() -> lookAtHub());
+    }
+
+    public Command lookAtHubMasonCommand(){
+        return Commands.run(() -> lookAtHubMason());
+    }
 
     // /**
     //  * Drives to the scoring position and raises the arm at the same time.

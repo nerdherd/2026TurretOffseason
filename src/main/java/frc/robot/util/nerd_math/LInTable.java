@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.nerd_math;
 
 public class LInTable {
     private final double[][] table;

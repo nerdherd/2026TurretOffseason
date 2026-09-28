@@ -21,9 +21,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.util.FlippingUtil;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
+import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
+
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
@@ -32,10 +32,12 @@ import org.wpilib.math.util.Units;
 
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
-import frc.robot.util.MultiProfiledPIDController;
-import frc.robot.util.NerdyMath;
-import frc.robot.util.Translation2dSlewRateLimiter;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_constants.NerdPIDConstants;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_math.MultiProfiledPIDController;
+import frc.robot.util.nerd_math.NerdFlippingUtil;
+import frc.robot.util.nerd_math.NerdyMath;
+import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -51,7 +53,7 @@ import frc.robot.util.logging.Reportable.LOG_LEVEL;
 public final class Constants {
  
   /** current logging level of the robot's subsystems, @see Reportable.add... */
-  public static final LOG_LEVEL ROBOT_LOG_LEVEL = LOG_LEVEL.MEDIUM;
+  public static final LOG_LEVEL ROBOT_LOG_LEVEL = LOG_LEVEL.ALL;
   
   /** 
    * (hopefully) controls whether subsystem objects are used, swerve and others not counted
@@ -62,7 +64,7 @@ public final class Constants {
   /**
    * controls whether vision should be initialized
    */
-  public static final boolean USE_VISION = true;
+  public static final boolean USE_VISION = false;
  
   public static class ControllerConstants {
     public static final int kDriverControllerPort = 0;
@@ -86,7 +88,7 @@ public final class Constants {
         y = NerdyMath.deadband(y, kTranslationDeadband);
         if (x == 0.0 && y == 0.0) {
           kTranslationInputRateLimiter.reset();
-          return Translation2d.kZero;
+          return Translation2d.ZERO;
         }
         Translation2d dir = new Translation2d(x, y);
         double length = dir.getNorm();
@@ -126,7 +128,7 @@ public final class Constants {
     ///////////////////////////
     
     public static final double kTurnToAngleMaxVelocity = 6.25; // rad/s
-    public static final PIDConstants kTurnToAnglePIDConstants = new PIDConstants(12.0, 0.0, 0.25);
+    public static final NerdPIDConstants kTurnToAnglePIDConstants = new NerdPIDConstants(12.0, 0.0, 0.25);
     public static final Constraints kTurnToAngleTolerances = new Constraints(0.017, 0.05); 
  
     ////////////////////////////////////////////
@@ -161,12 +163,12 @@ public final class Constants {
  
     /** @see NerdDrivetrain.driveToTarget() */
     public static final double kTargetDriveMaxLateralVelocity = 5.0;
-    public static final PIDConstants kTargetDriveLateralPID = new PIDConstants(5.0, 0.0, 0.5);
+    public static final NerdPIDConstants kTargetDriveLateralPID = new NerdPIDConstants(5.0, 0.0, 0.5);
 
     /** m/s and m/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveLateralConstraints = new Constraints(kTargetDriveMaxLateralVelocity, kTargetDriveMaxLateralVelocity);
     public static final double kTargetDriveMaxRotationalVelocity = 9.4;
-    public static final PIDConstants kTargetDriveRotationalPID = new PIDConstants(4.0, 0.0, 0.2);
+    public static final NerdPIDConstants kTargetDriveRotationalPID = new NerdPIDConstants(4.0, 0.0, 0.2);
  
     /** rad/s and rad/s/s @see NerdDrivetrain.driveToTarget() */
     public static final Constraints kTargetDriveRotationalConstraints = new Constraints(kTargetDriveMaxRotationalVelocity, kTargetDriveMaxRotationalVelocity);
@@ -184,7 +186,7 @@ public final class Constants {
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
         blue = new Pose2d(new Translation2d(_blueX, _blueY), new Rotation2d(Units.degreesToRadians(_blueHeadingDegrees)));
-        red = FlippingUtil.flipFieldPose(blue);
+        red = NerdFlippingUtil.flipFieldPose(blue);
       }
 
       public Pose2d get() {
@@ -223,6 +225,13 @@ public final class Constants {
         .withCurrentLimits(kMotorCurrentLimitsConfigs)
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
+
+    public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
+      .setLowerAngleBound(0)
+      .setUpperAngleBound(270)
+      .setMaxAngleTolerance(2)
+      .setMaxVelocityTolerance(3)
+      .setRelativePosition(new Pose2d(-0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
     
   }
 
@@ -391,7 +400,7 @@ public static final class ShooterConstants {
     public static final double kShootVelocity = 55;
     public static final double kFeedingVelocity = 65;
     
-    public static final double kLookAheadFactor = 1.35; //TODO test this
+    public static final double kLookAheadFactor = 0.0; //TODO test this
 
   }
 
@@ -464,13 +473,13 @@ public static final class ShooterConstants {
     public static final double kPP_I = 0.0;
     public static final double kPP_D = 0.0;
  
-    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
+    public static final NerdPIDConstants kPPTranslationPIDConstants = new NerdPIDConstants(kPP_P, kPP_I, kPP_D);
 
     public static final double kPP_ThetaP = 4.0;
     public static final double kPP_ThetaI = 0.0;
     public static final double kPP_ThetaD = 0.1;
  
-    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+    public static final NerdPIDConstants kPPRotationPIDConstants = new NerdPIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
   }
 
   public static final class LoggingConstants {
@@ -569,8 +578,8 @@ public static final class ShooterConstants {
             SubsystemMode.POSITION,
             0.0,
             useTurretSwivel)
-          .configureMotors(TurretSwivelConstants.kSubsystemConfiguration)
-          .logTorqueCurrent();
+          .setTurretSwivelConfiguration(TurretSwivelConstants.kTurretSwivelConfiguration)
+          .configureMotors(TurretSwivelConstants.kSubsystemConfiguration);
 
       public static final boolean useShooter = true;
       public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
@@ -581,8 +590,7 @@ public static final class ShooterConstants {
         0.0, 
         useShooter)
       .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
-      .configureMotors(ShooterConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ShooterConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeRoller = true;
       public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
@@ -592,8 +600,7 @@ public static final class ShooterConstants {
           SubsystemMode.VOLTAGE, 
           0.0,
           useIntakeRoller)
-        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration)
-        .logTorqueCurrent();
+        .configureMotors(IntakeRollerConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeSlide = true;
       public static final TemplateSubsystem intakeSlide = (!USE_SUBSYSTEMS) ? null:
@@ -603,8 +610,7 @@ public static final class ShooterConstants {
         SubsystemMode.VOLTAGE, 
         0.0, 
         useIntakeRoller)
-      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion)
-      .logTorqueCurrent();
+      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
 
       public static final boolean useIndexer = true;
       public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
@@ -614,8 +620,7 @@ public static final class ShooterConstants {
           SubsystemMode.VOLTAGE, 
           0.0,
           useIndexer)
-        .configureMotors(IndexerConstants.kSubsystemConfiguration)
-        .logTorqueCurrent();
+        .configureMotors(IndexerConstants.kSubsystemConfiguration);
 
       public static final boolean useHood = true;
       public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
@@ -625,8 +630,7 @@ public static final class ShooterConstants {
         SubsystemMode.POSITION,
         0.0, 
         useHood)
-      .configureMotors(HoodConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(HoodConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorBelt = true;
       public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
@@ -636,8 +640,7 @@ public static final class ShooterConstants {
         SubsystemMode.VELOCITY, 
         0.0, 
       useConveyorBelt)
-      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorRoller = true;
       public static final TemplateSubsystem conveyorRoller = (!USE_SUBSYSTEMS) ? null :
@@ -647,8 +650,7 @@ public static final class ShooterConstants {
         SubsystemMode.VELOCITY, 
         0.0, 
       useConveyorBelt)
-      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration)
-      .logTorqueCurrent();
+      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration);
 
       public static void init() {}
   }

@@ -1,4 +1,4 @@
-package frc.robot.util;
+package frc.robot.util.nerd_math;
 
 import org.wpilib.math.util.MathSharedStore;
 import org.wpilib.math.geometry.Translation2d;
@@ -15,7 +15,7 @@ public class Translation2dSlewRateLimiter {
     }
 
     public Translation2dSlewRateLimiter(double rateLimit) {
-        this(rateLimit, Translation2d.kZero);
+        this(rateLimit, Translation2d.ZERO);
     }
 
     public Translation2d calculate(Translation2d input) {
@@ -23,7 +23,7 @@ public class Translation2dSlewRateLimiter {
         double elapsedTime = currentTime - prevTime;
         prevTime = currentTime;
         Translation2d diff = input.minus(prevVal);
-        if (diff.equals(Translation2d.kZero)) return input;
+        if (diff.equals(Translation2d.ZERO)) return input;
         diff = diff.times(Math.min(rateLimit * elapsedTime / diff.getNorm(), 1.0));
         prevVal = prevVal.plus(diff);
         return prevVal;
@@ -39,6 +39,6 @@ public class Translation2dSlewRateLimiter {
     }
 
     public void reset() {
-        reset(Translation2d.kZero);
+        reset(Translation2d.ZERO);
     }
 }

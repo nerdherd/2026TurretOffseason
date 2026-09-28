@@ -6,9 +6,6 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.USE_VISION;
 import static frc.robot.Constants.LoggingConstants.kSwerveTab;
-import static frc.robot.Constants.PathPlannerConstants.kPPRotationPIDConstants;
-import static frc.robot.Constants.PathPlannerConstants.kPPTranslationPIDConstants;
-import static frc.robot.Constants.SwerveDriveConstants.kApplyRobotSpeedsRequest;
 import static frc.robot.Constants.SwerveDriveConstants.kFieldOrientedSwerveRequest;
 import static frc.robot.Constants.SwerveDriveConstants.kRobotOrientedSwerveRequest;
 import static frc.robot.Constants.SwerveDriveConstants.kTargetDriveController;
@@ -19,9 +16,8 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import dev.doglog.DogLog;
 
 import org.wpilib.math.util.MathUtil;
 import org.wpilib.math.linalg.VecBuilder;
@@ -29,12 +25,11 @@ import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
-import org.wpilib.util.sendable.Sendable;
-import org.wpilib.util.sendable.SendableBuilder;
-import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.smartdashboard.Field2d;
+import org.wpilib.telemetry.Telemetry;
+import org.wpilib.telemetry.TelemetryLoggable;
+import org.wpilib.telemetry.TelemetryTable;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.Subsystem;
@@ -43,45 +38,45 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.Constants.VisionConstants.Camera;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.util.NerdyMath;
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable;
+import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.vision.LimelightHelpers;
 import frc.robot.vision.LimelightHelpers.PoseEstimate;
 
-public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, Reportable, Sendable {
+public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, Reportable, TelemetryLoggable {
     public final Field2d field;
     public boolean useMegaTag2 = false;
-
+    
     public NerdDrivetrain(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
 
-        RobotConfig robotConfig = null;
-        try {
-            robotConfig = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // RobotConfig robotConfig = null;
+        // try {
+        //     robotConfig = RobotConfig.fromGUISettings();
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
 
-        AutoBuilder.configure(
-            this::getPose,
-            this::resetPose,
-            this::getChassisVelocities,
-            (speeds, feedforwards) -> setControl(
-                kApplyRobotSpeedsRequest.withVelocity(speeds)
-                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-            new PPHolonomicDriveController(
-                kPPTranslationPIDConstants, 
-                kPPRotationPIDConstants),  
-            robotConfig,
-            () -> {
-                var alliance = MatchState.getAlliance();
-                return alliance.isPresent() ? (alliance.get() == Alliance.RED) : false;
-            },
-            this
-        );
+        // AutoBuilder.configure(
+        //     this::getPose,
+        //     this::resetPose,
+        //     this::getChassisVelocities,
+        //     (speeds, feedforwards) -> setControl(
+        //         kApplyRobotSpeedsRequest.withVelocity(speeds)
+        //             .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+        //             .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+        //         ),
+        //     new PPHolonomicDriveController(
+        //         kPPTranslationPIDConstants, 
+        //         kPPRotationPIDConstants),  
+        //     robotConfig,
+        //     () -> {
+        //         var alliance = MatchState.getAlliance();
+        //         return alliance.isPresent() ? (alliance.get() == Alliance.RED) : false;
+        //     },
+        //     this
+        // );
 
         field = new Field2d();
 
@@ -138,7 +133,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     public void driveToTarget(Pose2d target) {
         // since the outputs are also capped, there is a limit to the influence of one axis on the direction
         // this can lead to larger angles, maybe saving on necessary precision?
-        // DriverStation.reportWarning(controller.getConstraints().maxVelocity + " " + controller.getConstraints().maxAcceleration, false);
+        // DriverStationErrors.reportWarning(controller.getConstraints().maxVelocity + " " + controller.getConstraints().maxAcceleration, false);
         double x = kTargetDriveController.calculate("x", getPose().getX(), target.getX());
         double y = kTargetDriveController.calculate("y", getPose().getY(), target.getY());
         double r = kTargetDriveController.calculate("r", getSwerveHeadingRadians(), MathUtil.inputModulus(target.getRotation().getRadians(), -Math.PI, Math.PI));
@@ -149,7 +144,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         if (kTargetDriveController.atSetpoint("x")) x = 0.0;
         if (kTargetDriveController.atSetpoint("y")) y = 0.0;
         if (kTargetDriveController.atSetpoint("r")) r = 0.0;
-        // DriverStation.reportWarning(x + " " + y + " " + r, false);
+        // DriverStationErrors.reportWarning(x + " " + y + " " + r, false);
 
         driveFieldOriented(x, y, r);
     }
@@ -181,10 +176,22 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     /** the position we will be one step in time */
     public Pose2d getLookAheadPose(double factor) {
         ChassisVelocities speeds = getFieldOrientedVelocities();
-        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, Rotation2d.kZero).times(factor));
+        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, Rotation2d.ZERO).times(factor));
     }
 
-    /** gets the ChassisSpeeds from odometry */
+    /** the position we will be one step in time, including rotation */
+    public Pose2d getLookAheadPoseWithRotation(double factor) {
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, new Rotation2d(speeds.omega)).times(factor));
+    }
+
+    /** returns the angular velocity of the robot in radians/second, CCW +*/
+    public double getRotationalSpeed(){
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return speeds.omega;
+    }
+
+    /** gets the ChassisVelocities from odometry */
     public ChassisVelocities getChassisVelocities() {
         return getState().Velocity;
     }
@@ -283,10 +290,10 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
             addVisionMeasurement(mt.pose, Utils.getCurrentTimeSeconds());
         }
     }
-    private Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.kZero);
+    private Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.ZERO);
 
     public void recalibrateGyroMT1() {
-        resetRotation((RobotContainer.IsRedSide()) ? Rotation2d.k180deg : Rotation2d.kZero);
+        resetRotation((RobotContainer.IsRedSide()) ? Rotation2d.k180deg : Rotation2d.ZERO);
         useMegaTag2 = false;
     }
 
@@ -297,7 +304,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
      * @see {@link #setOperatorPerspectiveForward} also for more custom setting
      */
     public void setDriverHeadingForward() {
-        setOperatorPerspectiveForward(RobotContainer.IsRedSide() ? Rotation2d.k180deg : Rotation2d.kZero);
+        setOperatorForwardDirection(RobotContainer.IsRedSide() ? Rotation2d.k180deg : Rotation2d.ZERO);
     }
 
     /** 
@@ -305,7 +312,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
      * @see {@link #setOperatorPerspectiveForward} also for more custom setting
      */
     public void setRobotHeadingForward() {
-        setOperatorPerspectiveForward(getPose().getRotation());
+        setOperatorForwardDirection(getPose().getRotation());
     }
     
     /**
@@ -384,18 +391,20 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     }
 
     @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("Subsystem");
+    public void logTo(TelemetryTable table) {
+        var defaultCommand = getDefaultCommand();
+        table.log(".hasDefault", defaultCommand != null);
+        table.log(".default", defaultCommand != null ? defaultCommand.getName() : "none");
 
-        builder.addBooleanProperty(".hasDefault", () -> getDefaultCommand() != null, null);
-        builder.addStringProperty(
-            ".default",
-            () -> getDefaultCommand() != null ? getDefaultCommand().getName() : "none",
-            null);
-        builder.addBooleanProperty(".hasCommand", () -> getCurrentCommand() != null, null);
-        builder.addStringProperty(
-            ".command",
-            () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "none",
-            null);
-  }
+        var currentCommand = getCurrentCommand();
+        table.log(".hasCommand", currentCommand != null);
+        table.log(".command", currentCommand != null ? currentCommand.getName() : "none");
+    }
+
+    @Override
+    public void simulationPeriodic(){
+        field.setRobotPose(getPose());
+        DogLog.log("Swerve Drive Simulation Periodic Running", "Yeag!!!");
+        Telemetry.log("Robot Pose :)", getPose());
+    }
 }

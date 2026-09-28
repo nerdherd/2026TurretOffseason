@@ -1,6 +1,6 @@
 // VERSION 1.0
 
-package frc.robot.util.controller;
+package frc.robot.util.nerd_controller;
 
 import org.wpilib.driverstation.Joystick;
 import org.wpilib.driverstation.POVDirection;

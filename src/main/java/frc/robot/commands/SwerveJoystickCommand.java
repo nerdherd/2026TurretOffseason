@@ -16,7 +16,7 @@ import org.wpilib.math.geometry.Translation2d;
 
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.subsystems.NerdDrivetrain;
-import frc.robot.util.NerdyMath;
+import frc.robot.util.nerd_math.NerdyMath;
 public class SwerveJoystickCommand extends Command {
     private final NerdDrivetrain swerveDrive;
     private final Supplier<Double> xTranslationInput, yTranslationInput, turnInput, desiredAngle, usePrecisionMode;
@@ -62,11 +62,7 @@ public class SwerveJoystickCommand extends Command {
         this.useTowMode = useTowMode;
         this.usePrecisionMode = usePrecisionMode;
 
-        this.angleController = new PIDController(
-            SwerveDriveConstants.kTurnToAnglePIDConstants.kP,
-            SwerveDriveConstants.kTurnToAnglePIDConstants.kI,
-            SwerveDriveConstants.kTurnToAnglePIDConstants.kD
-            );
+        this.angleController = SwerveDriveConstants.kTurnToAnglePIDConstants.getController();
         this.angleController.setTolerance(
             SwerveDriveConstants.kTurnToAngleTolerances.maxVelocity, 
             SwerveDriveConstants.kTurnToAngleTolerances.maxAcceleration
@@ -105,7 +101,7 @@ public class SwerveJoystickCommand extends Command {
         else turnSpeed = kRotationInputFilter.apply(turnInput.get()) * kTurnMaxVelocity * NerdyMath.lerp(1.0, kTurnPrecisionMultiplier, usePrecisionMode.get());
 
         Translation2d adjustment = robotOrientedAdjustment.get();
-        if (!adjustment.equals(Translation2d.kZero)) swerveDrive.driveRobotOriented(adjustment.getX() * driveMult, adjustment.getY() * driveMult, turnSpeed);
+        if (!adjustment.equals(Translation2d.ZERO)) swerveDrive.driveRobotOriented(adjustment.getX() * driveMult, adjustment.getY() * driveMult, turnSpeed);
         else if (useFieldOriented.get()) swerveDrive.driveFieldOriented(xSpeed, ySpeed, turnSpeed);
         else swerveDrive.driveRobotOriented(xSpeed, ySpeed, turnSpeed);
     }

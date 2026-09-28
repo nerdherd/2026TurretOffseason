@@ -2,7 +2,7 @@ package frc.robot.util;
 
 import org.wpilib.hardware.discrete.DigitalInput;
 
-import frc.robot.util.logging.NerdLog;
+import frc.robot.util.nerd_logging.NerdLog;
 
 public class BannerSensor {
     private final DigitalInput bannerSensorBlack;

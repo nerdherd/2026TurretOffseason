@@ -3,16 +3,22 @@ package frc.robot;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
+import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.RobotController;
+import org.wpilib.tunable.Tunable;
 
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
+import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.networktables.StringSubscriber;
+
+import java.util.NoSuchElementException;
+
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Subsystems;
@@ -21,17 +27,15 @@ import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
-
-import frc.robot.util.controller.Controller;
-
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_controller.Controller;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
 
 
 public class RobotContainer {
     public NerdDrivetrain swerveDrive;
     public SuperSystem superSystem;
-    public PowerDistribution pdp = new PowerDistribution(0,1, ModuleType.REV);
+    public PowerDistribution pdp = new PowerDistribution(CANPort.CAN_D0, 1, ModuleType.REV);
 
     private final Controller driverController = new Controller(ControllerConstants.kDriverControllerPort);
     private final Controller operatorController = new Controller(ControllerConstants.kOperatorControllerPort);
@@ -44,11 +48,11 @@ public class RobotContainer {
 
         if (Constants.USE_SUBSYSTEMS) {
             superSystem = new SuperSystem(swerveDrive);
-            Autos.initNamedCommands(superSystem, swerveDrive);
+            // Autos.initNamedCommands(superSystem, swerveDrive);
         }
 
         Subsystems.init(); // required to initialize the class or else java lazy loading just doesn't
-        Autos.initAutoChooser();
+        // Autos.initAutoChooser();
         initializeLogging();
 
         NerdLog.reportInfo("Initialization Complete");
@@ -133,6 +137,16 @@ public class RobotContainer {
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
+
+        initDefaultCommands_teleop();
+
+        driverController.triggerRight()
+            .whileTrue(superSystem.lookAtHubCommand());
+        driverController.triggerLeft()
+            .whileTrue(superSystem.lookAtHubMasonCommand());
+
+        driverController.buttonUp()
+            .whileTrue(Commands.runOnce( () -> superSystem.swerveDrivetrain.resetPose(new Pose2d())));
     }
 
     public Command getAutonomousCommand() {
@@ -151,7 +165,7 @@ public class RobotContainer {
         return isRedSide;
     }
 
-    public StringSubscriber printLog = null;
+    public Tunable<String> printLog = null;
     public void initializeLogging() {
         if (printLog == null) printLog = DogLog.tunable("Print", "", (value) -> NerdLog.reportInfo("" + value));
         NerdLog.logData(
@@ -188,15 +202,17 @@ public class RobotContainer {
    * @return the number of seconds in the current phase, and the phase name
    */
     public static double allianceShiftTime() {
-        // if (!DriverStation.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
+        // if (!RobotState.isFMSAttached()) { DogLog.forceNT.log("Match Info/Shift Name", "DriverStation not attached"); return 0.0; };
         boolean wonAuto = true;
         if (Constants.ROBOT_LOG_LEVEL == LOG_LEVEL.MEDIUM) {
-            String data = MatchState.getGameData().get();
-            if (!data.isEmpty()) switch (data.charAt(0)) {
-                case 'B': wonAuto = !isRedSide; break;
-                case 'R': wonAuto = isRedSide; break;
-                default: break;
-            } 
+            try {
+                String data = MatchState.getGameData().get();
+                if (!data.isEmpty()) switch (data.charAt(0)) {
+                    case 'B': wonAuto = !isRedSide; break;
+                    case 'R': wonAuto = isRedSide; break;
+                    default: break;
+                } 
+            } catch (NoSuchElementException e) {}
             DogLog.log("Match Info/Won Auto?", wonAuto);
         }
 

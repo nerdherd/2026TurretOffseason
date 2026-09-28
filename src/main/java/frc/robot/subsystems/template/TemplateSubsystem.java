@@ -26,9 +26,10 @@ import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.command2.SubsystemBase;
+
 import frc.robot.subsystems.SuperSystem;
-import frc.robot.util.logging.NerdLog;
-import frc.robot.util.logging.Reportable;
+import frc.robot.util.nerd_logging.NerdLog;
+import frc.robot.util.nerd_logging.Reportable;
 
 public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	/** 
@@ -71,8 +72,6 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 	/** used to indicate when the subsystem has an error, configured during debugging.  by default always false (reported at {@link LOG_LEVEL#ALL}) */
 	public boolean _hasError = false;
-
-	private boolean _logTorqueCurrent = false;
 
 	/** name of the subsystem */
 	protected final String name;
@@ -177,11 +176,6 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		}
 	}
 
-	public TemplateSubsystem logTorqueCurrent() {
-		_logTorqueCurrent = true;
-		return this;
-	}
-
 	// ------------------------------------ Helper Functions ------------------------------------ //
 	
 	/**
@@ -194,14 +188,16 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		TalonFX motor;
 
 		for (int i=0; i<5; i++) {
-			motor = new TalonFX(id, CANBus.systemcore(i));
+			// NerdLog.reportInfo("Trying CANBus " + i);
+			motor = new TalonFX(id, new CANBus("can_s" + i));
 			if(motor.isConnected()) {
 				return motor;
 			}
 			motor.close();
 		} 
-	
-		return null;
+		
+		NerdLog.reportError("Motor (ID " + id + ") could not be found");
+		return new TalonFX(id, new CANBus());
 	}
 
 	/** used for logging, essentially returns the subsystem mode in string form */
@@ -380,22 +376,23 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
         /// ALL ///
         ///////////
 		NerdLog.logData(kSubsystemTab + name + "/Commands", this, LOG_LEVEL.ALL); 
-		
-        NerdLog.logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.ALL);
 		NerdLog.logBoolean(kSubsystemTab + name + "/Has Error", () -> _hasError, LOG_LEVEL.ALL);
-
-		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL);
-		applySecondaryMotors((motor, i) -> 
-			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), (_logTorqueCurrent) ? LOG_LEVEL.MINIMAL : LOG_LEVEL.ALL));
-
 		NerdLog.logSignal(kSubsystemTab + name + "/Supply Current", primaryMotor.getSupplyCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.ALL);
-
+		
+		
 		//////////////
 		/// MEDIUM ///
         //////////////
+		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Primary Motor", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+		applySecondaryMotors((motor, i) -> {
+			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+		});
+		
         NerdLog.logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
-		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
-        
+        NerdLog.logNumber(kSubsystemTab + name + "/Desired " + getFlavorText(), () -> getDesiredValue(), getUnit(), LOG_LEVEL.MEDIUM);
+
         //////////////
 		/// MINIMAL //
         //////////////
