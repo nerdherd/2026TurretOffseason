@@ -158,7 +158,7 @@ public class SuperSystem implements Reportable {
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
 
         // TODO: Comment this line when not simulating
-        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedRobotPose.getRotation().getDegrees())));
     }
 
     /**
@@ -192,15 +192,15 @@ public class SuperSystem implements Reportable {
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
 
         // TODO: Comment this line when not simulating
-        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
+        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedRobotPose.getRotation().getDegrees())));
     }
 
     public Command lookAtHubCommand(){
-        return Commands.runOnce(() -> lookAtHub());
+        return Commands.run(() -> lookAtHub());
     }
 
     public Command lookAtHubMasonCommand(){
-        return Commands.runOnce(() -> lookAtHubMason());
+        return Commands.run(() -> lookAtHubMason());
     }
 
     // /**

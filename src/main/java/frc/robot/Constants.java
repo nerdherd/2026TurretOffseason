@@ -227,11 +227,11 @@ public final class Constants {
         .withMotorOutput(kMotorOutputConfigs);
 
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
-      .setDeadbandMax(360)
-      .setDeadbandMin(270)
+      .setLowerAngleBound(0)
+      .setUpperAngleBound(270)
       .setMaxAngleTolerance(2)
       .setMaxVelocityTolerance(3)
-      .setRelativePosition(new Pose2d(0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
+      .setRelativePosition(new Pose2d(-0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
     
   }
 
@@ -400,7 +400,7 @@ public static final class ShooterConstants {
     public static final double kShootVelocity = 55;
     public static final double kFeedingVelocity = 65;
     
-    public static final double kLookAheadFactor = 1.35; //TODO test this
+    public static final double kLookAheadFactor = 0.0; //TODO test this
 
   }
 
