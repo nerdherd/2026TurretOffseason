@@ -146,17 +146,26 @@ public class SuperSystem implements Reportable {
     //     return turretSwivel.goToAngleCommand(value);
     // }
 
-    public void lookAtHub(){ // not tested
+    /**
+     * Attempt to rotate the turret to look at the current hub, with look ahead.
+     * Rotational speed is added to the expected robot rotation.
+     */
+    public void lookAtHub(){ // simulated, not tested
         Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
         Pose2d expectedTurretPose = expectedRobotPose.transformBy(new Transform2d(turretSwivel.getRelativePose().getTranslation(), Rotation2d.ZERO));
         double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
 
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
 
+        // TODO: Comment this line when not simulating
         Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
     }
 
-    public void lookAtHubMason(){ // not tested
+    /**
+     * Attempt to rotate the turret to look at the current hub, with look ahead.
+     * Rotational speed is converted to translational speed and added to the expected turret position.
+     */
+    public void lookAtHubMason(){ // simulated, not tested
         // gets the pose of the robot translated by its velocity times a factor, but not changing its rotation
         Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
 
@@ -182,6 +191,7 @@ public class SuperSystem implements Reportable {
 
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
 
+        // TODO: Comment this line when not simulating
         Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), new Rotation2d(angleToHubRad + expectedRobotPose.getRotation().getRadians())));
     }
 
