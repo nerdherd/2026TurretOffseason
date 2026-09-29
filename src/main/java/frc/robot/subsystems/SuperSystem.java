@@ -1,8 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-import java.util.function.Consumer;
-
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
@@ -11,108 +8,127 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.telemetry.Telemetry;
 
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import frc.robot.Constants.ConveyorBeltConstants;
-import frc.robot.Constants.ConveyorRollerConstants;
 import frc.robot.Constants.HoodConstants;
-import frc.robot.Constants.IndexerConstants;
-import frc.robot.Constants.IntakeRollerConstants;
-import frc.robot.Constants.IntakeSlideConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
-import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_logging.NerdLog;
-import frc.robot.util.nerd_logging.Reportable;
 import frc.robot.util.nerd_math.NerdyMath;
 
 import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import static frc.robot.Constants.Subsystems.intakeSlide;
 import static frc.robot.Constants.Subsystems.intakeRoller;
-import static frc.robot.Constants.Subsystems.indexer;
+import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.conveyorBelt;
-import static frc.robot.Constants.Subsystems.conveyorRoller;
+import static frc.robot.Constants.Subsystems.rollerFloor;
 import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 import static frc.robot.Constants.Subsystems.hood;
 
 
-public class SuperSystem implements Reportable {
-    public static final ArrayList<TemplateSubsystem> subsystems = new ArrayList<>();
-    public NerdDrivetrain swerveDrivetrain;
-
+public class SuperSystem extends SuperSystemBase {
     public SuperSystem(NerdDrivetrain swerveDrivetrain) {
-        this.swerveDrivetrain = swerveDrivetrain;
+        super(swerveDrivetrain);
     }
-    
-    public static void registerSubsystem(TemplateSubsystem subsystem) {
-        subsystems.add(subsystem);
-    }
-    
-    public void applySubsystems(Consumer<TemplateSubsystem> f) {
-        for (TemplateSubsystem subsystem : subsystems) f.accept(subsystem);
-    }
-
 
     // ------------------------------------ subsystems ------------------------------------ //
-    public void reConfigureMotors() {
-        applySubsystems((s) -> s.applyMotorConfigs());
-    }
-
-    public Command intakeOutOnly() {
-        return intakeSlide.setDesiredValueCommand(IntakeSlideConstants.kOutVoltage); // test actual number
-    }
-
-    public Command intakeHold() {
-        return intakeSlide.setDesiredValueCommand(IntakeSlideConstants.kHoldVoltage); 
-    }
-
-    public Command stopIntakeHold(){
-        return intakeSlide.setDesiredValueCommand(0);
+    public enum IntakeSlideMode{OUT, IN, HOLD, STOP};
+    public Command intakeSlideCommand(IntakeSlideMode mode) {
+        switch(mode) {
+            case OUT:   return intakeSlide.setDesiredValueCommand(-3);
+            case IN:    return intakeSlide.setDesiredValueCommand(3);
+            case HOLD:  return intakeSlide.setDesiredValueCommand(-1);
+            case STOP: default: return intakeSlide.setDesiredValueCommand(0);
+        }
     }
     
-    public Command intake() {
-        return Commands.parallel(
-            intakeRoller.setDesiredValueCommand(IntakeRollerConstants.kIntakeVoltage),
-            stopIntakeHold()
-        );
+    public enum IntakeRollerMode{INTAKE, OUTTAKE, STOP};
+    public Command intakeRollerCommand(IntakeRollerMode mode) {
+        switch(mode) {
+            case INTAKE:    return intakeRoller.setDesiredValueCommand(8);
+            case OUTTAKE:   return intakeRoller.setDesiredValueCommand(-8);
+            case STOP: default: return intakeRoller.setDesiredValueCommand(0);
+        }
     }
 
-    public Command outtake(){
-        return intakeRoller.setDesiredValueCommand(IntakeRollerConstants.kOuttakeVoltage);
+    public enum RollerFloorMode {IN, OUT, STOP};
+    public Command rollerFloorCommand(RollerFloorMode mode) {
+        switch(mode) {
+            case IN:    return rollerFloor.setDesiredValueCommand(8);
+            case OUT:   return rollerFloor.setDesiredValueCommand(-8);
+            case STOP: default: return rollerFloor.setDesiredValueCommand(0);
+        }
     }
 
-    public Command stopIntaking() {
-        return Commands.parallel (
-        intakeRoller.setDesiredValueCommand(0),
-        stopIntakeHold()
-        );
-    } 
+    public enum ConveyorBeltMode {IN, OUT, STOP};
+    public Command conveyorBeltCommand(ConveyorBeltMode mode) {
+        switch(mode) {
+            case IN:    return conveyorBelt.setDesiredValueCommand(8);
+            case OUT:   return conveyorBelt.setDesiredValueCommand(-8);
+            case STOP: default: return conveyorBelt.setDesiredValueCommand(0);
+        }
+    }
 
-    public Command spinConveyorForward() {
-        return Commands.parallel(
-            conveyorRoller.setDesiredValueCommand(ConveyorRollerConstants.kConveyorVoltage),
-            conveyorBelt.setDesiredValueCommand(ConveyorBeltConstants.kConveyorVoltage),
-            indexer.setDesiredValueCommand(IndexerConstants.kConveyorVoltage)
-        );
+    public enum ThroatMode {IN, OUT, STOP};
+    public Command throatCommand(ThroatMode mode) {
+        switch(mode) {
+            case IN:    return throat.setDesiredValueCommand(8);
+            case OUT:   return throat.setDesiredValueCommand(-8);
+            case STOP: default: return throat.setDesiredValueCommand(0);
+        }
     }
     
-    public Command stopConveyor() {
-        return Commands.parallel(
-            conveyorRoller.setDesiredValueCommand(0),
-            conveyorBelt.setDesiredValueCommand(0),
-            indexer.setDesiredValueCommand(0)
-        );
+    // ------------------------------------ game actions ------------------------------------ //
+    /** @return continuous */
+    public Command startIntakingCommand() {
+        return continuousParallelCommand(
+            intakeSlideCommand(IntakeSlideMode.HOLD),
+            intakeRollerCommand(IntakeRollerMode.INTAKE)
+        ).andThen(stopIntakeCommand());
     }
     
-    public Command spinConveyorBackward() {
+    /** @return continuous */
+    public Command startOuttakingCommand(){
+        return continuousParallelCommand(
+                intakeSlideCommand(IntakeSlideMode.HOLD),
+                intakeRollerCommand(IntakeRollerMode.OUTTAKE),
+                rollerFloorCommand(RollerFloorMode.OUT),
+                conveyorBeltCommand(ConveyorBeltMode.OUT),
+                throatCommand(ThroatMode.OUT)
+            ).andThen(stopIntakeCommand());
+    }
+
+    /** @return instant */
+    public Command stopIntakeCommand() {
         return Commands.parallel(
-            conveyorRoller.setDesiredValueCommand(-ConveyorRollerConstants.kConveyorVoltage),
-            conveyorBelt.setDesiredValueCommand(-ConveyorBeltConstants.kConveyorVoltage),
-            indexer.setDesiredValueCommand(-IndexerConstants.kConveyorVoltage)
+            intakeSlideCommand(IntakeSlideMode.STOP),
+            intakeRollerCommand(IntakeRollerMode.STOP)
         );
     }
+
+    /** @return continuous */
+    public Command startIndexing() {
+        return Commands.parallel(
+            rollerFloorCommand(RollerFloorMode.IN),
+            conveyorBeltCommand(ConveyorBeltMode.IN),
+            throatCommand(ThroatMode.IN),
+            Commands.run(() -> {
+                // TODO agitate
+            }, intakeSlide)
+        ).andThen(stopIndexing());
+    }
+
+    /** @return instant */
+    public Command stopIndexing() {
+        return Commands.parallel(
+            rollerFloorCommand(RollerFloorMode.STOP),
+            conveyorBeltCommand(ConveyorBeltMode.STOP)
+        );
+    }
+
+    /** @return instant */
+
+
+    // progress ^^^
     
     public Command spinUpFlywheel() {
         return shooter.setDesiredValueCommand(ShooterConstants.kShootVelocity);
@@ -203,61 +219,10 @@ public class SuperSystem implements Reportable {
         return Commands.run(() -> lookAtHubMason());
     }
 
-    // /**
-    //  * Drives to the scoring position and raises the arm at the same time.
-    //  *
-    //  * <p>Cancels itself if the driver takes over translation control.
-    //  *
-    //  * @return the composed command.
-    //  */
-    // public Command intake() {
-    //     return Commands.parallel(
-    //         intakeRoller.setDesiredValueCommand(11),
-    //         intakeHoldTeleop()
-    //         );
-    // }
-    //
-    // public Command stopIntaking() {
-    //     return Commands.parallel(
-    //         intakeRoller.setDesiredValueCommand(0),
-    //         stopIntakeHold()
-    //     );
-    // }
-
-    public void setNeutralMode(NeutralModeValue neutralMode) {
-        applySubsystems((s) -> s.setNeutralMode(neutralMode));
-    }
-    /**
-     * fully stops all subsystems by putting them into neutral and disabling them
-     * subsystems do not reenable on their own
-     * @return a command to stop
-     */
-    public Command stop() {
-        return Commands.runOnce(() -> {
-            applySubsystems((s) -> s.stop());
-        });
-    }   
-
-    public void initialize() {
-        applySubsystems((s) -> s.setEnabled(s.useSubsystem));
-    }
-
-    public void resetSubsystemValues() {
-        applySubsystems((s) -> s.setDesiredValue(s.getDefaultValue()));
-    }
-
-    
-
     // ------------------------------------ logging ------------------------------------ //
     @Override
     public void initializeLogging() {
-        applySubsystems((s) -> s.initializeLogging());
+        super.initializeLogging();
         NerdLog.logData(LoggingConstants.kSupersystemTab + "/Command Scheduler", CommandScheduler.getInstance(), LOG_LEVEL.ALL);
     }
-
-      // ------------------------------------ subsystems ------------------------------------ //
-    
-
-
-    
 }

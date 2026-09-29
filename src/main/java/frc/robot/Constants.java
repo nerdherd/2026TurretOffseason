@@ -265,7 +265,7 @@ public final class Constants {
     public static final double kOuttakeVoltage = -9.5;
   }
 
-  public static final class IndexerConstants {
+  public static final class ThroatConstants {
     public static final int kMotor1ID = 25;
     public static final int kMotor2ID = 24;
 
@@ -329,7 +329,7 @@ public final class Constants {
     public static double kConveyorVoltage = 8;
   }
 
-    public static final class ConveyorRollerConstants {
+    public static final class RollerFloor {
 
     //TODO
     public static final int kMotor1ID = 0;
@@ -463,10 +463,6 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLmitsConfigs);
-    
-    // TODO test actual numbers
-    public static final double kOutVoltage  = -10;
-    public static final double kHoldVoltage = -1;
   }
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
@@ -612,25 +608,15 @@ public static final class ShooterConstants {
         useIntakeRoller)
       .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
 
-      public static final boolean useIndexer = true;
-      public static final TemplateSubsystem indexer = (!USE_SUBSYSTEMS) ? null :
+      public static final boolean useThroat = true;
+      public static final TemplateSubsystem throat = (!USE_SUBSYSTEMS) ? null :
       new TemplateSubsystem(
-          "Indexer", 
-          IndexerConstants.kMotor1ID, 
+          "Throat", 
+          ThroatConstants.kMotor1ID, 
           SubsystemMode.VOLTAGE, 
           0.0,
-          useIndexer)
-        .configureMotors(IndexerConstants.kSubsystemConfiguration);
-
-      public static final boolean useHood = true;
-      public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-        "Hood", 
-        HoodConstants.kMotor1ID, 
-        SubsystemMode.POSITION,
-        0.0, 
-        useHood)
-      .configureMotors(HoodConstants.kSubsystemConfiguration);
+          useThroat)
+        .configureMotors(ThroatConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorBelt = true;
       public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
@@ -642,15 +628,25 @@ public static final class ShooterConstants {
       useConveyorBelt)
       .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration);
 
-      public static final boolean useConveyorRoller = true;
-      public static final TemplateSubsystem conveyorRoller = (!USE_SUBSYSTEMS) ? null :
+      public static final boolean useRollerFloor = true;
+      public static final TemplateSubsystem rollerFloor = (!USE_SUBSYSTEMS) ? null :
       new TemplateSubsystem(
-        "Conveyor Roller", 
-        ConveyorRollerConstants.kMotor1ID, 
+        "Roller Floor", 
+        RollerFloor.kMotor1ID, 
         SubsystemMode.VELOCITY, 
         0.0, 
       useConveyorBelt)
-      .configureMotors(ConveyorRollerConstants.kSubsystemConfiguration);
+      .configureMotors(RollerFloor.kSubsystemConfiguration);
+
+      public static final boolean useHood = true;
+      public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
+      new TemplateSubsystem(
+        "Hood", 
+        HoodConstants.kMotor1ID, 
+        SubsystemMode.POSITION,
+        0.0, 
+        useHood)
+      .configureMotors(HoodConstants.kSubsystemConfiguration);
 
       public static void init() {}
   }

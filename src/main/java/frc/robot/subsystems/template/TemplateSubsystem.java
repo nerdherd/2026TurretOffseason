@@ -352,7 +352,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	 * @return {@link #setDesiredValue(double)} in command form
 	 */
 	public Command setDesiredValueCommand(double newValue) {
-		return Commands.runOnce(() -> setDesiredValue(newValue));
+		return Commands.runOnce(() -> setDesiredValue(newValue), this);
 	}
 
 	/**
