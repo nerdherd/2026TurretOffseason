@@ -394,14 +394,7 @@ public static final class ShooterConstants {
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
     
-    // TODO test actual numbers
-    public static final double kShootWithDistanceA = 1.0;
-    public static final double kShootWithDistanceB = 1.0;
-    public static final double kShootVelocity = 55;
-    public static final double kFeedingVelocity = 65;
-    
     public static final double kLookAheadFactor = 0.0; //TODO test this
-
   }
 
   public static final class HoodConstants {
@@ -432,8 +425,8 @@ public static final class ShooterConstants {
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
     
-    public static final double kDownPos = 0.0;
     public static final double kUpPos = 1.0; 
+    public static final double kDownPos = 0.0;
   }
 
   public static final class IntakeSlideConstants {

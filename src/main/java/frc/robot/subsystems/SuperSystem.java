@@ -11,10 +11,14 @@ import org.wpilib.telemetry.Telemetry;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_math.NerdyMath;
 
 import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
+
+import java.util.function.Supplier;
+
 import static frc.robot.Constants.Subsystems.intakeSlide;
 import static frc.robot.Constants.Subsystems.intakeRoller;
 import static frc.robot.Constants.Subsystems.throat;
@@ -32,129 +36,168 @@ public class SuperSystem extends SuperSystemBase {
 
     // ------------------------------------ subsystems ------------------------------------ //
     public enum IntakeSlideMode{OUT, IN, HOLD, STOP};
-    public Command intakeSlideCommand(IntakeSlideMode mode) {
+    public void setIntakeSlide(IntakeSlideMode mode) {
         switch(mode) {
-            case OUT:   return intakeSlide.setDesiredValueCommand(-3);
-            case IN:    return intakeSlide.setDesiredValueCommand(3);
-            case HOLD:  return intakeSlide.setDesiredValueCommand(-1);
-            case STOP: default: return intakeSlide.setDesiredValueCommand(0);
+            case OUT:       intakeSlide.setDesiredValue(-3); break;
+            case IN:        intakeSlide.setDesiredValue(3); break;
+            case HOLD:      intakeSlide.setDesiredValue(-1); break;
+            case STOP: default: intakeSlide.setDesiredValue(0); break;
         }
+    }
+    public Command setIntakeSlideCommand(IntakeSlideMode mode) {
+        return Commands.runOnce(() -> setIntakeSlide(mode), intakeSlide);
     }
     
     public enum IntakeRollerMode{INTAKE, OUTTAKE, STOP};
-    public Command intakeRollerCommand(IntakeRollerMode mode) {
+    public void setIntakeRoller(IntakeRollerMode mode) {
         switch(mode) {
-            case INTAKE:    return intakeRoller.setDesiredValueCommand(8);
-            case OUTTAKE:   return intakeRoller.setDesiredValueCommand(-8);
-            case STOP: default: return intakeRoller.setDesiredValueCommand(0);
+            case INTAKE:    intakeRoller.setDesiredValue(8); break;
+            case OUTTAKE:   intakeRoller.setDesiredValue(-8); break;
+            case STOP: default: intakeRoller.setDesiredValue(0); break;
         }
+    }
+    public Command setIntakeRollerCommand(IntakeRollerMode mode) {
+        return Commands.runOnce(() -> setIntakeRoller(mode), intakeRoller);
     }
 
     public enum RollerFloorMode {IN, OUT, STOP};
-    public Command rollerFloorCommand(RollerFloorMode mode) {
+    public void setRollerFloor(RollerFloorMode mode) {
         switch(mode) {
-            case IN:    return rollerFloor.setDesiredValueCommand(8);
-            case OUT:   return rollerFloor.setDesiredValueCommand(-8);
-            case STOP: default: return rollerFloor.setDesiredValueCommand(0);
+            case IN:        rollerFloor.setDesiredValue(8); break;
+            case OUT:       rollerFloor.setDesiredValue(-8); break;
+            case STOP: default: rollerFloor.setDesiredValue(0); break;
         }
+    }
+    public Command setRollerFloorCommand(RollerFloorMode mode) {
+        return Commands.runOnce(() -> setRollerFloor(mode), rollerFloor);
     }
 
     public enum ConveyorBeltMode {IN, OUT, STOP};
-    public Command conveyorBeltCommand(ConveyorBeltMode mode) {
+    public void setConveyorBelt(ConveyorBeltMode mode) {
         switch(mode) {
-            case IN:    return conveyorBelt.setDesiredValueCommand(8);
-            case OUT:   return conveyorBelt.setDesiredValueCommand(-8);
-            case STOP: default: return conveyorBelt.setDesiredValueCommand(0);
+            case IN:        conveyorBelt.setDesiredValue(8); break;
+            case OUT:       conveyorBelt.setDesiredValue(-8); break;
+            case STOP: default: conveyorBelt.setDesiredValue(0); break;
         }
+    }
+    public Command setConveyorBeltCommand(ConveyorBeltMode mode) {
+        return Commands.runOnce(() -> setConveyorBelt(mode), conveyorBelt);
     }
 
     public enum ThroatMode {IN, OUT, STOP};
-    public Command throatCommand(ThroatMode mode) {
+    public void setThroat(ThroatMode mode) {
         switch(mode) {
-            case IN:    return throat.setDesiredValueCommand(8);
-            case OUT:   return throat.setDesiredValueCommand(-8);
-            case STOP: default: return throat.setDesiredValueCommand(0);
+            case IN:        throat.setDesiredValue(8); break;
+            case OUT:       throat.setDesiredValue(-8); break;
+            case STOP: default: throat.setDesiredValue(0); break;
         }
+    }
+    public Command setThroatCommand(ThroatMode mode) {
+        return Commands.runOnce(() -> setThroat(mode), throat);
+    }
+
+    public enum HoodMode {HIGH, MID, LOW};
+    public void setHood(HoodMode mode) {
+        switch(mode) {
+            case HIGH:      hood.setDesiredValue(HoodConstants.kUpPos); break;
+            case MID:       hood.setDesiredValue((HoodConstants.kUpPos + HoodConstants.kDownPos) * 0.5); break;
+            case LOW: default: hood.setDesiredValue(HoodConstants.kDownPos); break;
+        }
+    }
+    public Command setHoodCommand(HoodMode mode) {
+        return Commands.runOnce(() -> setHood(mode), throat);
     }
     
     // ------------------------------------ game actions ------------------------------------ //
     /** @return continuous */
     public Command startIntakingCommand() {
         return continuousParallelCommand(
-            intakeSlideCommand(IntakeSlideMode.HOLD),
-            intakeRollerCommand(IntakeRollerMode.INTAKE)
+            setIntakeSlideCommand(IntakeSlideMode.HOLD),
+            setIntakeRollerCommand(IntakeRollerMode.INTAKE)
         ).andThen(stopIntakeCommand());
     }
     
     /** @return continuous */
     public Command startOuttakingCommand(){
         return continuousParallelCommand(
-                intakeSlideCommand(IntakeSlideMode.HOLD),
-                intakeRollerCommand(IntakeRollerMode.OUTTAKE),
-                rollerFloorCommand(RollerFloorMode.OUT),
-                conveyorBeltCommand(ConveyorBeltMode.OUT),
-                throatCommand(ThroatMode.OUT)
+                setIntakeSlideCommand(IntakeSlideMode.HOLD),
+                setIntakeRollerCommand(IntakeRollerMode.OUTTAKE),
+                setRollerFloorCommand(RollerFloorMode.OUT),
+                setConveyorBeltCommand(ConveyorBeltMode.OUT),
+                setThroatCommand(ThroatMode.OUT)
             ).andThen(stopIntakeCommand());
     }
 
     /** @return instant */
     public Command stopIntakeCommand() {
         return Commands.parallel(
-            intakeSlideCommand(IntakeSlideMode.STOP),
-            intakeRollerCommand(IntakeRollerMode.STOP)
+            setIntakeSlideCommand(IntakeSlideMode.STOP),
+            setIntakeRollerCommand(IntakeRollerMode.STOP)
         );
     }
 
     /** @return continuous */
-    public Command startIndexing() {
-        return Commands.parallel(
-            rollerFloorCommand(RollerFloorMode.IN),
-            conveyorBeltCommand(ConveyorBeltMode.IN),
-            throatCommand(ThroatMode.IN),
-            Commands.run(() -> {
-                // TODO agitate
-            }, intakeSlide)
-        ).andThen(stopIndexing());
+    public void startIndexing() {
+        setRollerFloor(RollerFloorMode.IN);
+        setConveyorBelt(ConveyorBeltMode.IN);
+        setThroat(ThroatMode.IN);
+        // agitate
+    }
+    public Command startIndexingCommand() {
+        return Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
+            .andThen(stopIndexingCommand());
     }
 
     /** @return instant */
-    public Command stopIndexing() {
+    public Command stopIndexingCommand() {
         return Commands.parallel(
-            rollerFloorCommand(RollerFloorMode.STOP),
-            conveyorBeltCommand(ConveyorBeltMode.STOP)
+            setRollerFloorCommand(RollerFloorMode.STOP),
+            setConveyorBeltCommand(ConveyorBeltMode.STOP),
+            setIntakeSlideCommand(IntakeSlideMode.HOLD)
         );
     }
 
+    /**
+     * schedule during teleop
+     * @param ejectBinding
+     * @param shootBinding
+     * @param passBinding
+     * @return continuous
+     */
+    public Command shootCommand(Supplier<Boolean> ejectBinding, Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
+        return Commands.run(() -> {
+            if (shootBinding.get()) {
+                // set flywheel using 
+                // point at
+                // prepTurret(hubpose)
+                if (ejectBinding.get()) {
+
+                    ; // set hood
+                }
+            } else if (passBinding.get()) {
+                // set flywheel 
+                // point at
+                // prepTurret(passing poses)
+                if (ejectBinding.get()) 
+                    ; // set hood
+            }
+            if (ejectBinding.get()) startIndexing();
+        }, shooter, hood)
+            .andThen(Commands.parallel(
+                stopIndexingCommand(),
+                stopFlywheelCommand()
+            ));
+    }
+
     /** @return instant */
+    public Command stopFlywheelCommand() {
+        return Commands.runOnce(() -> {
+            shooter.setDesiredValue(0.0);
+        });
+    }
 
 
     // progress ^^^
-    
-    public Command spinUpFlywheel() {
-        return shooter.setDesiredValueCommand(ShooterConstants.kShootVelocity);
-    }
-    
-    
-    public Command spinUpFlywheelFeeding() {
-        return shooter.setDesiredValueCommand(ShooterConstants.kFeedingVelocity);
-    }
-    
-    public Command stopFlywheel() {
-        return shooter.setDesiredValueCommand(0);
-    }
-
-    public Command setHood(double value) {
-        value = (HoodConstants.kUpPos-HoodConstants.kDownPos) * value + HoodConstants.kDownPos;
-        return hood.setDesiredValueCommand(value);
-    }
-
-    public Command hoodDown() {
-        return setHood(0.0);
-    }
-    
-    public Command hoodUp() {
-        return setHood(1.0);
-    }
 
     // public Command setTurretSwivel(){
     //     double angle = NerdyMath.angleToPose(swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor), FieldPositions.HUB_CENTER.get());
