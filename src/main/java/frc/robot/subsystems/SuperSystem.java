@@ -233,7 +233,7 @@ public class SuperSystem extends SuperSystemBase {
                     .plus(new Transform2d(expectedRobotPose.getTranslation(),Rotation2d.ZERO))
                     .plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
                 // offsets the turret position by the turret speed vector to create its expected position
-                return new Pose2d(expectedRobotPose.getTranslation(),expectedRobotPose.getRotation());
+                return new Pose2d(expectedTurretPosition.getTranslation(),expectedTurretPosition.getRotation());
             }
         }
         return Pose2d.ZERO;
