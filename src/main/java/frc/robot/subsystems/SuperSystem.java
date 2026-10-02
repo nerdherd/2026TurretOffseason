@@ -199,12 +199,17 @@ public class SuperSystem extends SuperSystemBase {
     // TODO: move this
     // TODO: give these better names
     public enum TurretLookAheadMode {ANGLE,TRANSLATION};
+    /**
+     * 
+     * @param mode the mode to use. ANGLE rotates the robot, TRANSLATION calculates the translational velocity
+     * @return A Pose2d. The x and y are the position of the turret in field space. The rotation is the rotation of the robot
+     */
     public Pose2d getExpectedTurretPosition(TurretLookAheadMode mode) {
         switch (mode) {
             case ANGLE -> {
                 // Rotational speed is added to the expected robot rotation
                 Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPoseWithRotation(ShooterConstants.kLookAheadFactor);
-                return expectedRobotPose.transformBy(new Transform2d(turretSwivel.getRelativePose().getTranslation(), Rotation2d.ZERO));
+                return expectedRobotPose.transformBy(new Transform2d(turretSwivel.getRelativePose().getTranslation(), expectedRobotPose.getRotation()));
             }
             case TRANSLATION -> {
                 // Rotational speed is converted to translational speed and added to the expected turret position.
@@ -224,19 +229,21 @@ public class SuperSystem extends SuperSystemBase {
                 // in other words, creates a vector representing the turret's velocity in field space.
                 turretSpeedVector = turretSpeedVector.times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
 
-                // offsets the turret position by the turret speed vector to create its expected position
-                return turretOffset
+                Pose2d expectedTurretPosition = turretOffset
                     .plus(new Transform2d(expectedRobotPose.getTranslation(),Rotation2d.ZERO))
                     .plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
+                // offsets the turret position by the turret speed vector to create its expected position
+                return new Pose2d(expectedRobotPose.getTranslation(),expectedRobotPose.getRotation());
             }
         }
         return Pose2d.ZERO;
     }
 
+    // TODO: test this
     public void lookAtHub(TurretLookAheadMode mode) {
         Pose2d expectedTurretPose = getExpectedTurretPosition(mode);
 
-        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedRobotPose.getRotation().getRadians();
+        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedTurretPose.getRotation().getRadians();
 
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
 
