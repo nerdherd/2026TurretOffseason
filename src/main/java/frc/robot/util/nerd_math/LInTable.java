@@ -1,15 +1,31 @@
 package frc.robot.util.nerd_math;
 
-import java.util.Objects;
-
 import frc.robot.util.nerd_logging.NerdLog;
 
+/**
+ * A table of points to be linearly interpolated between
+ * Basically: a straight line is drawn between every point, and this exposes a simple function to sample those lines
+ */
 public class LInTable {
     // Helper types
     private record Point(double x, double y, double dy) {}
 
+    /**
+     * how the table should behave before the first point or after the last point
+     */
     public static enum BoundBehavior {
-        EXCEPTION, HOLD, LINEAR
+        /**
+         * Throw an exception
+         */
+        EXCEPTION, 
+        /**
+         * Keep the same value as the boundary points (flattens off at the start and end)
+         */
+        HOLD, 
+        /**
+         * Continue the lines past the bounds
+         */
+        LINEAR
     }
 
     // Variables
@@ -22,6 +38,12 @@ public class LInTable {
 
     // Initializers
 
+    /**
+     * Creates a LInTable
+     * @param x an array of x values
+     * @param y an array of y values
+     * @param boundBehavior how the table should behave before the first point or after the last point (see BoundBehavior)
+     */
     public LInTable(double[] x, double[] y, BoundBehavior boundBehavior) {
         if (boundBehavior == null)
             throw new IllegalArgumentException("bound behavior must not be null");
@@ -56,12 +78,22 @@ public class LInTable {
         }
     }
 
+    /**
+     * Creates a LInTable, defaulting to boundBehavior = {@link BoundBehavior#LINEAR}
+     * @param x an array of x values
+     * @param y an array of y values
+     */
     public LInTable(double[] x, double[] y) {
         this(x, y, BoundBehavior.LINEAR);
     }
 
     // Interpolate
 
+    /**
+     * Interpolates the table
+     * @param x the x value to sample at
+     * @return the y value at that x
+     */
     public double interpolate(double x) {
         if (Double.isNaN(x)) throw new IllegalArgumentException("X must not be NaN");
         if (table.length == 0) {

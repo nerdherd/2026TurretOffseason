@@ -195,7 +195,7 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /**
-     * does both look at and spin up
+     * Both turns the turret to the target and spins up the flywheel
      * @param target
      */
     public void prepTurret(Pose2d target) {
@@ -209,8 +209,17 @@ public class SuperSystem extends SuperSystemBase {
             .andThen(stopFlywheelCommand());
     }
 
+    /**
+     * Spins the flywheel at a speed depending on the distance to a target
+     * <p>
+     * Assumes turret is already pointing toward the target
+     * <p>
+     * Assumes shooting at height of the hub
+     * @param target The target to shoot at
+     */
     public void shootWithDistance(Pose2d target) {
         double distance = getTurretDistanceTo(target);
+        // TODO call turret is ready to shoot
         shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance));
     }
 
@@ -220,6 +229,10 @@ public class SuperSystem extends SuperSystemBase {
             .andThen(stopFlywheelCommand());
     }
 
+    /**
+     * Turns the turret to look at a specific point on the field
+     * @param point the location to turn to, in field space
+     */
     public void lookAtPoint(Pose2d point) {
         Pose2d expectedTurretPose = getExpectedTurretPosition();
 
@@ -246,11 +259,19 @@ public class SuperSystem extends SuperSystemBase {
     
     // ------------------------------------ helper functions ------------------------------------ //
 
-    public enum TurretLookAheadMode {ANGLE,TRANSLATION};
+    public enum TurretLookAheadMode {
+        /**
+         * Offset the robot's rotation by the angular velocity
+         */
+        ANGLE,
+        /**
+         * Offset the turret's position by the tangential velocity
+         */
+        TRANSLATION
+    };
     /**
-     * 
-     * @param mode the mode to use. ANGLE rotates the robot, TRANSLATION calculates the translational velocity
-     * @return A Pose2d. The x and y are the position of the turret in field space. The rotation is the rotation of the robot
+     * Calculate the turret position, plus a little lookahead
+     * @return A Pose2d. The x and y are the expected position of the turret in field space. The rotation is the expected rotation of the robot
      */
     public Pose2d getExpectedTurretPosition() {
         TurretLookAheadMode mode = TurretLookAheadMode.ANGLE;
@@ -282,6 +303,11 @@ public class SuperSystem extends SuperSystemBase {
         return Pose2d.ZERO;
     }
 
+    /**
+     * Gets the distance between the turret's expected position and a target
+     * @param target the target to calculate the distance to
+     * @return the distance between the turret's expected position and the target
+     */
     public double getTurretDistanceTo(Pose2d target) {
         return getExpectedTurretPosition().getTranslation().getDistance(target.getTranslation());
     }
