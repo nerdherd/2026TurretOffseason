@@ -1,8 +1,20 @@
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.Subsystems.conveyorBelt;
+import static frc.robot.Constants.Subsystems.hood;
+import static frc.robot.Constants.Subsystems.intakeRoller;
+import static frc.robot.Constants.Subsystems.intakeSlide;
+import static frc.robot.Constants.Subsystems.rollerFloor;
+import static frc.robot.Constants.Subsystems.shooter;
+import static frc.robot.Constants.Subsystems.throat;
+import static frc.robot.Constants.Subsystems.turretSwivel;
+
+import java.util.function.Supplier;
+
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
+import org.wpilib.framework.RobotBase;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
@@ -12,21 +24,9 @@ import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
+import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_math.NerdyMath;
-
-import static frc.robot.Constants.SwerveDriveConstants.FieldPositions;
-
-import java.util.function.Supplier;
-
-import static frc.robot.Constants.Subsystems.intakeSlide;
-import static frc.robot.Constants.Subsystems.intakeRoller;
-import static frc.robot.Constants.Subsystems.throat;
-import static frc.robot.Constants.Subsystems.conveyorBelt;
-import static frc.robot.Constants.Subsystems.rollerFloor;
-import static frc.robot.Constants.Subsystems.shooter;
-import static frc.robot.Constants.Subsystems.turretSwivel;
-import static frc.robot.Constants.Subsystems.hood;
 
 
 public class SuperSystem extends SuperSystemBase {
@@ -143,6 +143,8 @@ public class SuperSystem extends SuperSystemBase {
         setThroat(ThroatMode.IN);
         // agitate
     }
+
+    /** @return continuous */
     public Command startIndexingCommand() {
         return Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
             .andThen(stopIndexingCommand());
@@ -167,17 +169,13 @@ public class SuperSystem extends SuperSystemBase {
     public Command shootCommand(Supplier<Boolean> ejectBinding, Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
         return Commands.run(() -> {
             if (shootBinding.get()) {
-                // set flywheel using 
-                // point at
-                // prepTurret(hubpose)
+                prepTurret(FieldPositions.HUB_CENTER.get());
                 if (ejectBinding.get()) {
 
                     ; // set hood
                 }
             } else if (passBinding.get()) {
-                // set flywheel 
-                // point at
-                // prepTurret(passing poses)
+                // prepTurret();
                 if (ejectBinding.get()) 
                     ; // set hood
             }
@@ -196,15 +194,66 @@ public class SuperSystem extends SuperSystemBase {
         });
     }
 
-    // TODO: move this
-    // TODO: give these better names
+    /**
+     * does both look at and spin up
+     * @param target
+     */
+    public void prepTurret(Pose2d target) {
+        lookAtPoint(target);
+        shootWithDistance(target);
+    }
+
+    /** @return continuous */
+    public Command prepTurretCommand(Pose2d target) {
+        return Commands.run(() -> prepTurret(target), turretSwivel, shooter, hood)
+            .andThen(stopFlywheelCommand());
+    }
+
+    public void shootWithDistance(Pose2d target) {
+        double distance = getTurretDistanceTo(target);
+        shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance, 0));
+    }
+
+    /** @return continuous */
+    public Command shootWithDistanceCommand(Pose2d target) {
+        return Commands.run(() -> shootWithDistance(target))
+            .andThen(stopFlywheelCommand());
+    }
+
+    public void lookAtPoint(Pose2d point) {
+        Pose2d expectedTurretPose = getExpectedTurretPosition();
+
+        double angleToHubRad = TurretSwivel.getRobotRelativeAngle(
+            expectedTurretPose.getRotation().getRadians(), // actually expected robot rotation
+            NerdyMath.angleToPose(expectedTurretPose, point)
+        );
+        
+        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
+
+        if (RobotBase.isSimulation()) Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedTurretPose.getRotation().getDegrees())));
+    }
+
+    /** @return continuous */
+    public Command lookAtPointCommand(Pose2d point) {
+        return Commands.run(() -> lookAtPoint(point), turretSwivel);
+    }
+
+    /** @return continuous */
+    public Command lookAtHubCommand() {
+        return lookAtPointCommand(FieldPositions.HUB_CENTER.get());
+    }
+
+    
+    // ------------------------------------ helper functions ------------------------------------ //
+
     public enum TurretLookAheadMode {ANGLE,TRANSLATION};
     /**
      * 
      * @param mode the mode to use. ANGLE rotates the robot, TRANSLATION calculates the translational velocity
      * @return A Pose2d. The x and y are the position of the turret in field space. The rotation is the rotation of the robot
      */
-    public Pose2d getExpectedTurretPosition(TurretLookAheadMode mode) {
+    public Pose2d getExpectedTurretPosition() {
+        TurretLookAheadMode mode = TurretLookAheadMode.ANGLE;
         switch (mode) {
             case ANGLE -> {
                 // Rotational speed is added to the expected robot rotation
@@ -213,50 +262,28 @@ public class SuperSystem extends SuperSystemBase {
             }
             case TRANSLATION -> {
                 // Rotational speed is converted to translational speed and added to the expected turret position.
-
                 // gets the pose of the robot translated by its velocity times a factor, but not changing its rotation
                 Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
-
                 double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
-
                 // gets the turret's location relative to the robot's center, but rotated to match field space
                 Pose2d turretOffset = new Pose2d(turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation()).getTranslation(), Rotation2d.ZERO);
-
                 // creates a point 90 degrees counterclockwise from the robot's center to turretOffset 
                 Pose2d turretSpeedVector = new Pose2d(-turretOffset.getY(),turretOffset.getX(),Rotation2d.ZERO);
-
                 // sets the magnitude of turretSpeedVector (as in its distance from the origin) based on the robot's angular velocity times the factor
                 // in other words, creates a vector representing the turret's velocity in field space.
                 turretSpeedVector = turretSpeedVector.times(robotAngularVelocity).times(ShooterConstants.kLookAheadFactor);
-
                 Pose2d expectedTurretPosition = turretOffset
                     .plus(new Transform2d(expectedRobotPose.getTranslation(),Rotation2d.ZERO))
                     .plus(new Transform2d(turretSpeedVector.getTranslation(),Rotation2d.ZERO));
                 // offsets the turret position by the turret speed vector to create its expected position
-                return new Pose2d(expectedTurretPosition.getTranslation(),expectedTurretPosition.getRotation());
+                return new Pose2d(expectedTurretPosition.getTranslation(),expectedRobotPose.getRotation());
             }
         }
         return Pose2d.ZERO;
     }
 
-    // TODO: test this
-    public void lookAtHub(TurretLookAheadMode mode) {
-        Pose2d expectedTurretPose = getExpectedTurretPosition(mode);
-
-        double angleToHubRad = NerdyMath.angleToPose(expectedTurretPose, FieldPositions.HUB_CENTER.get()) - expectedTurretPose.getRotation().getRadians();
-
-        turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
-
-        // TODO: Comment this line when not simulating
-        Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedRobotPose.getRotation().getDegrees())));
-    }
-
-    /**
-     * @param mode
-     * @return continuous
-     */
-    public Command lookAtHubCommand(TurretLookAheadMode mode){
-        return Commands.run(() -> lookAtHub(mode));
+    public double getTurretDistanceTo(Pose2d target) {
+        return getExpectedTurretPosition().getTranslation().getDistance(target.getTranslation());
     }
 
     // ------------------------------------ logging ------------------------------------ //

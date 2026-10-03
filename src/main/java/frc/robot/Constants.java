@@ -34,10 +34,12 @@ import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.subsystems.template.TemplateSubsystem.SubsystemMode;
 import frc.robot.util.nerd_constants.NerdPIDConstants;
 import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_math.LInTable;
 import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
+import frc.robot.util.nerd_math.LInTable.BoundBehavior;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -395,6 +397,15 @@ public static final class ShooterConstants {
         .withCurrentLimits(kCurrentLimitsConfigs);
     
     public static final double kLookAheadFactor = 0.0; //TODO test this
+
+    private static final double[][] _shooter_table = {
+      {0.0, 0.0}
+      // TODO GOD THIS WILL BE PAINFUL
+    };
+    public static final LInTable kShooterTable = new LInTable(
+      _shooter_table, 
+      BoundBehavior.LINEAR)
+      ;
   }
 
   public static final class HoodConstants {

@@ -8,7 +8,6 @@ import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.geometry.Translation2d;
-import org.wpilib.telemetry.Telemetry;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -48,7 +47,6 @@ public class TurretSwivel extends TemplateSubsystem {
      */
     public void goToAngle(double desiredAngleDegrees){
         desiredAngleDegrees = NerdyMath.posMod(desiredAngleDegrees, 360);
-        Telemetry.log("turret desired angle degrees",desiredAngleDegrees);
         if (desiredAngleDegrees < turretSwivelConfiguration.lowerAngleBound() || desiredAngleDegrees > turretSwivelConfiguration.upperAngleBound())
             return;
         this.setDesiredValue(desiredAngleDegrees/360.0);

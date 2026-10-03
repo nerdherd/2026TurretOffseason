@@ -20,7 +20,7 @@ public class LInTable {
 
     public LInTable(double[][] table, BoundBehavior boundBehavior){
         if (table.length == 0){
-            throw new IllegalArgumentException("Table is too small.");
+            throw new IllegalArgumentException("Table is too small.  Add at least one point for placeholders.");
         }
 
         double previousNumber = table[0][0] - 1;
@@ -126,6 +126,10 @@ public class LInTable {
         }
         return result;
         
+    }
+
+    public double interpolate(double x, int yIndex){
+        return interpolate(x, new int[] {yIndex})[0];
     }
 
     public double[][] getTable(){

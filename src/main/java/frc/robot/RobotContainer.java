@@ -11,15 +11,12 @@ import org.wpilib.tunable.Tunable;
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
-import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Translation2d;
 
 import java.util.NoSuchElementException;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
-import org.wpilib.command2.Commands;
-
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.Subsystems;
 import frc.robot.commands.SwerveJoystickCommand;
@@ -27,6 +24,7 @@ import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
+import frc.robot.subsystems.SuperSystem.IntakeSlideMode;
 import frc.robot.util.nerd_controller.Controller;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
@@ -117,36 +115,23 @@ public class RobotContainer {
         // Add operator controls here
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
 
-        operatorController.triggerRight()
-            .whileTrue(superSystem.spinUpFlywheel());
-        operatorController.triggerLeft()
-            .whileTrue(superSystem.spinUpFlywheelFeeding());
+        CommandScheduler.getInstance().schedule(
+            superSystem.shootCommand(
+                () -> operatorController.getBumperRight(),  // eject
+                () -> operatorController.getTriggerRight(), // spin up shoot
+                () -> operatorController.getButtonUp()      // spin up pass
+            )
+        );
         operatorController.bumperLeft()
-            .onTrue(superSystem.intake())
-            .onFalse(superSystem.stopIntaking());
+            .whileTrue(superSystem.startIntakingCommand());
         operatorController.buttonRight()
-            .onTrue(superSystem.outtake())
-            .onFalse(superSystem.stopIntaking());
+            .whileTrue(superSystem.startOuttakingCommand());
         operatorController.controllerLeft()
-            .onTrue(superSystem.intakeHold())
-            .onFalse(superSystem.stopIntakeHold());
-        operatorController.buttonDown()
-            .whileTrue(superSystem.spinConveyorBackward())
-            .whileFalse(superSystem.stopConveyor());
+            .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.HOLD));
     }
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
-
-        initDefaultCommands_teleop();
-
-        driverController.triggerRight()
-            .whileTrue(superSystem.lookAtHubCommand());
-        driverController.triggerLeft()
-            .whileTrue(superSystem.lookAtHubMasonCommand());
-
-        driverController.buttonUp()
-            .whileTrue(Commands.runOnce( () -> superSystem.swerveDrivetrain.resetPose(new Pose2d())));
     }
 
     public Command getAutonomousCommand() {
