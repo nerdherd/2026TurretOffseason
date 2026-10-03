@@ -109,7 +109,11 @@ public class SuperSystem extends SuperSystemBase {
     }
     
     // ------------------------------------ game actions ------------------------------------ //
-    /** @return continuous */
+    /** 
+     * @return continuous 
+     * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#HOLD}
+     * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#INTAKE}
+     */
     public Command startIntakingCommand() {
         return continuousParallelCommand(
             setIntakeSlideCommand(IntakeSlideMode.HOLD),
@@ -117,7 +121,14 @@ public class SuperSystem extends SuperSystemBase {
         ).andThen(stopIntakeCommand());
     }
     
-    /** @return continuous */
+    /** 
+     * @return continuous 
+     * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#HOLD}
+     * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#OUTTAKE}
+     * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#OUT}
+     * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#OUT}
+     * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#OUT}
+     */
     public Command startOuttakingCommand(){
         return continuousParallelCommand(
                 setIntakeSlideCommand(IntakeSlideMode.HOLD),
@@ -128,7 +139,11 @@ public class SuperSystem extends SuperSystemBase {
             ).andThen(stopIntakeCommand());
     }
 
-    /** @return instant */
+    /** 
+     * @return instant 
+     * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#STOP}
+     * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#STOP}
+     */
     public Command stopIntakeCommand() {
         return Commands.parallel(
             setIntakeSlideCommand(IntakeSlideMode.STOP),
@@ -136,21 +151,35 @@ public class SuperSystem extends SuperSystemBase {
         );
     }
 
-    /** @return continuous */
+    /** 
+     * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#IN}
+     * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#IN}
+     * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#IN}
+     */
     public void startIndexing() {
         setRollerFloor(RollerFloorMode.IN);
         setConveyorBelt(ConveyorBeltMode.IN);
         setThroat(ThroatMode.IN);
-        // agitate
+        // TODO: agitate
     }
 
-    /** @return continuous */
+    /** 
+     * Starts indexing, then stops indexing after finished
+     * @return continuous 
+     * @see {@link #startIndexing()}
+     * @see {@link #stopIndexingCommand()}
+     */
     public Command startIndexingCommand() {
         return Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
             .andThen(stopIndexingCommand());
     }
 
-    /** @return instant */
+    /** 
+     * @return instant 
+     * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#STOP}
+     * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#STOP}
+     * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#STOP}
+     */
     public Command stopIndexingCommand() {
         return Commands.parallel(
             setRollerFloorCommand(RollerFloorMode.STOP),
@@ -161,6 +190,7 @@ public class SuperSystem extends SuperSystemBase {
 
     /**
      * schedule during teleop
+     * TODO: Javadoc
      * @param ejectBinding
      * @param shootBinding
      * @param passBinding
@@ -187,7 +217,10 @@ public class SuperSystem extends SuperSystemBase {
             ));
     }
 
-    /** @return instant */
+    /** 
+     * set the flywheel velocity to 0
+     * @return instant
+     */
     public Command stopFlywheelCommand() {
         return Commands.runOnce(() -> {
             shooter.setDesiredValue(0.0);
@@ -197,13 +230,21 @@ public class SuperSystem extends SuperSystemBase {
     /**
      * Both turns the turret to the target and spins up the flywheel
      * @param target
+     * @see {@link #lookAtPoint(Pose2d)}
+     * @see {@link #shootWithDistance(Pose2d)}
      */
     public void prepTurret(Pose2d target) {
         lookAtPoint(target);
         shootWithDistance(target);
     }
 
-    /** @return continuous */
+    /** 
+     * Both turns the turret to the target and spins up the flywheel
+     * <p>
+     * Stops the flywheel on end
+     * @return continuous 
+     * @see {@link #prepTurret(Pose2d)}
+     */
     public Command prepTurretCommand(Pose2d target) {
         return Commands.run(() -> prepTurret(target), turretSwivel, shooter, hood)
             .andThen(stopFlywheelCommand());
@@ -216,6 +257,8 @@ public class SuperSystem extends SuperSystemBase {
      * <p>
      * Assumes shooting at height of the hub
      * @param target The target to shoot at
+     * @see {@link #getTurretDistanceTo(Pose2d)}
+     * @see {@link frc.robot.Constants.ShooterConstants#kShooterTable ShooterConstants.kShooterTable}
      */
     public void shootWithDistance(Pose2d target) {
         double distance = getTurretDistanceTo(target);
@@ -223,7 +266,11 @@ public class SuperSystem extends SuperSystemBase {
         shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance));
     }
 
-    /** @return continuous */
+    /** 
+     * Runs shootWithDistance, then stops the flywheel on end
+     * @return continuous 
+     * @see {@link #shootWithDistance(Pose2d)}
+     */
     public Command shootWithDistanceCommand(Pose2d target) {
         return Commands.run(() -> shootWithDistance(target))
             .andThen(stopFlywheelCommand());
@@ -232,6 +279,7 @@ public class SuperSystem extends SuperSystemBase {
     /**
      * Turns the turret to look at a specific point on the field
      * @param point the location to turn to, in field space
+     * @see {@link #getExpectedTurretPosition()}
      */
     public void lookAtPoint(Pose2d point) {
         Pose2d expectedTurretPose = getExpectedTurretPosition();
@@ -246,12 +294,18 @@ public class SuperSystem extends SuperSystemBase {
         if (RobotBase.isSimulation()) Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedTurretPose.getRotation().getDegrees())));
     }
 
-    /** @return continuous */
+    /** 
+     * @return continuous 
+     * @see {@link #lookAtPoint(Pose2d)}
+     */
     public Command lookAtPointCommand(Pose2d point) {
         return Commands.run(() -> lookAtPoint(point), turretSwivel);
     }
 
-    /** @return continuous */
+    /** 
+     * @return continuous 
+     * @see {@link #lookAtPointCommand(Pose2d)}
+     */
     public Command lookAtHubCommand() {
         return lookAtPointCommand(FieldPositions.HUB_CENTER.get());
     }
@@ -307,12 +361,16 @@ public class SuperSystem extends SuperSystemBase {
      * Gets the distance between the turret's expected position and a target
      * @param target the target to calculate the distance to
      * @return the distance between the turret's expected position and the target
+     * @see {@link #getExpectedTurretPosition()}
      */
     public double getTurretDistanceTo(Pose2d target) {
         return getExpectedTurretPosition().getTranslation().getDistance(target.getTranslation());
     }
 
     // ------------------------------------ logging ------------------------------------ //
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void initializeLogging() {
         super.initializeLogging();
