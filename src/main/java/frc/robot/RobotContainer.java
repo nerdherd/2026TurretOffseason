@@ -11,19 +11,27 @@ import org.wpilib.tunable.Tunable;
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
+import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 
 import java.util.NoSuchElementException;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.Commands;
+
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.Subsystems;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.commands.SwerveJoystickCommand;
+import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
+import frc.robot.subsystems.SuperSystem.HoodMode;
+import frc.robot.subsystems.SuperSystem.IntakeRollerMode;
 import frc.robot.subsystems.SuperSystem.IntakeSlideMode;
 import frc.robot.util.nerd_controller.Controller;
 import frc.robot.util.nerd_logging.NerdLog;
@@ -71,7 +79,9 @@ public class RobotContainer {
                 // turn to angle target direction, 0.0 to use manual
                 () -> 0.0,
                 // robot oriented adjustment (dpad)
-                () -> new Translation2d(),
+                () -> new Translation2d(
+                    (((driverController.getDpadUp() && !driverController.getBumperRight()) ? 1 : 0) - (driverController.getDpadDown() ? 1 : 0)) * SwerveDriveConstants.kRobotOrientedVelocity, 
+                    ((driverController.getDpadLeft() ? 1 : 0) - (driverController.getDpadRight() ? 1 : 0)) * 1.5),
                 // joystick drive field oriented
                 () -> true, 
                 // tow supplier
@@ -103,8 +113,17 @@ public class RobotContainer {
         driverController.buttonA()
             .whileTrue(new SomeCommand());
         */
+       driverController.controllerLeft() // Set Drive Heading
+        .onTrue(Commands.runOnce(() -> swerveDrive.setRobotHeadingForward()));
 
-        if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
+       driverController.controllerRight() // Set Pose Heading (pressed)
+        .onTrue(Commands.runOnce(() -> swerveDrive.recalibrateGyroMT1()));
+
+        if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */
+            driverController.triggerRight()
+                .whileTrue(superSystem.startIntakingCommand());
+            
+        }
     }
     
     ///////////////////////
@@ -113,21 +132,39 @@ public class RobotContainer {
     private void configureOperatorBindings_teleop() {
         
         // Add operator controls here
-        if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
+        if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */
 
-        CommandScheduler.getInstance().schedule(
-            superSystem.shootCommand(
-                () -> operatorController.getBumperRight(),  // eject
-                () -> operatorController.getTriggerRight(), // spin up shoot
-                () -> operatorController.getButtonUp()      // spin up pass
-            )
-        );
-        operatorController.bumperLeft()
-            .whileTrue(superSystem.startIntakingCommand());
-        operatorController.buttonRight()
-            .whileTrue(superSystem.startOuttakingCommand());
-        operatorController.controllerLeft()
-            .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.HOLD));
+            CommandScheduler.getInstance().schedule(
+                superSystem.shootCommand(
+                    () -> operatorController.getBumperRight(),  // eject
+                    () -> operatorController.getTriggerRight(), // spin up shoot
+                    () -> operatorController.getButtonUp()      // spin up pass
+                )
+            );
+            operatorController.bumperLeft()
+                .whileTrue(superSystem.startIntakingCommand());
+            operatorController.buttonRight()
+                .whileTrue(superSystem.startOuttakingCommand());
+            operatorController.controllerLeft()
+                .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.HOLD));
+            operatorController.controllerRight()
+                .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.IN))
+                .onFalse(superSystem.setIntakeSlideCommand(IntakeSlideMode.STOP));
+            operatorController.buttonLeft()
+                .onTrue(Subsystems.shooter.setDesiredValueCommand(45))
+                .onFalse(superSystem.stopFlywheelCommand());
+            operatorController.triggerLeft()
+                .onTrue(Subsystems.shooter.setDesiredValueCommand(37))
+                .onFalse(superSystem.stopFlywheelCommand());
+
+            operatorController.dpadUp()
+                .onTrue(superSystem.setHoodCommand(HoodMode.HIGH))
+                .onFalse(superSystem.setHoodCommand(HoodMode.LOW));
+            operatorController.dpadDown()
+                .onTrue(superSystem.setHoodCommand(HoodMode.MID))
+                .onFalse(superSystem.setHoodCommand(HoodMode.LOW));
+        }
+        
     }
 
     public void configureBindings_test() {
