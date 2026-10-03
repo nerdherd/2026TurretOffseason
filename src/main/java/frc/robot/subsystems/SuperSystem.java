@@ -28,7 +28,11 @@ import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_math.NerdyMath;
 
-
+/**
+ * Coordinates subsystems
+ * <p>
+ * Provides commands to be bound to controller buttons that run individual subsystems as needed
+ */
 public class SuperSystem extends SuperSystemBase {
     public SuperSystem(NerdDrivetrain swerveDrivetrain) {
         super(swerveDrivetrain);
@@ -44,6 +48,11 @@ public class SuperSystem extends SuperSystemBase {
             case STOP: default: intakeSlide.setDesiredValue(0); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setIntakeSlide(IntakeSlideMode)}
+     */
     public Command setIntakeSlideCommand(IntakeSlideMode mode) {
         return Commands.runOnce(() -> setIntakeSlide(mode), intakeSlide);
     }
@@ -56,6 +65,11 @@ public class SuperSystem extends SuperSystemBase {
             case STOP: default: intakeRoller.setDesiredValue(0); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setIntakeRoller(IntakeRollerMode)}
+     */
     public Command setIntakeRollerCommand(IntakeRollerMode mode) {
         return Commands.runOnce(() -> setIntakeRoller(mode), intakeRoller);
     }
@@ -68,6 +82,11 @@ public class SuperSystem extends SuperSystemBase {
             case STOP: default: rollerFloor.setDesiredValue(0); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setRollerFloor(RollerFloorMode)}
+     */
     public Command setRollerFloorCommand(RollerFloorMode mode) {
         return Commands.runOnce(() -> setRollerFloor(mode), rollerFloor);
     }
@@ -80,6 +99,11 @@ public class SuperSystem extends SuperSystemBase {
             case STOP: default: conveyorBelt.setDesiredValue(0); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setConveyorBelt(ConveyorBeltMode)}
+     */
     public Command setConveyorBeltCommand(ConveyorBeltMode mode) {
         return Commands.runOnce(() -> setConveyorBelt(mode), conveyorBelt);
     }
@@ -92,6 +116,11 @@ public class SuperSystem extends SuperSystemBase {
             case STOP: default: throat.setDesiredValue(0); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setThroat(ThroatMode)}
+     */
     public Command setThroatCommand(ThroatMode mode) {
         return Commands.runOnce(() -> setThroat(mode), throat);
     }
@@ -104,12 +133,18 @@ public class SuperSystem extends SuperSystemBase {
             case LOW: default: hood.setDesiredValue(HoodConstants.kDownPos); break;
         }
     }
+    /**
+     * @param mode mode to use
+     * @return instant
+     * @see {@link #setHood(HoodMode)}
+     */
     public Command setHoodCommand(HoodMode mode) {
-        return Commands.runOnce(() -> setHood(mode), throat);
+        return Commands.runOnce(() -> setHood(mode), hood);
     }
     
     // ------------------------------------ game actions ------------------------------------ //
     /** 
+     * Holds slide, spins intake roller
      * @return continuous 
      * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#HOLD}
      * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#INTAKE}
@@ -122,6 +157,7 @@ public class SuperSystem extends SuperSystemBase {
     }
     
     /** 
+     * Holds slide, reverses intake, floor, belt, and throat to outtake fuel
      * @return continuous 
      * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#HOLD}
      * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#OUTTAKE}
@@ -140,6 +176,7 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /** 
+     * Stops intake, stops slide
      * @return instant 
      * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#STOP}
      * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#STOP}
@@ -152,6 +189,7 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /** 
+     * Spins the roller floor, conveyor belt, and throat inwards
      * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#IN}
      * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#IN}
      * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#IN}
@@ -175,6 +213,7 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /** 
+     * Stops the roller floor, conveyor belt, and intake slide
      * @return instant 
      * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#STOP}
      * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#STOP}
@@ -184,7 +223,7 @@ public class SuperSystem extends SuperSystemBase {
         return Commands.parallel(
             setRollerFloorCommand(RollerFloorMode.STOP),
             setConveyorBeltCommand(ConveyorBeltMode.STOP),
-            setIntakeSlideCommand(IntakeSlideMode.HOLD)
+            setIntakeSlideCommand(IntakeSlideMode.STOP)
         );
     }
 
@@ -210,7 +249,7 @@ public class SuperSystem extends SuperSystemBase {
                     ; // set hood
             }
             if (ejectBinding.get()) startIndexing();
-        }, shooter, hood)
+        }, shooter, hood, turretSwivel, rollerFloor, throat)
             .andThen(Commands.parallel(
                 stopIndexingCommand(),
                 stopFlywheelCommand()
@@ -224,7 +263,7 @@ public class SuperSystem extends SuperSystemBase {
     public Command stopFlywheelCommand() {
         return Commands.runOnce(() -> {
             shooter.setDesiredValue(0.0);
-        });
+        }, shooter);
     }
 
     /**
@@ -272,7 +311,7 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #shootWithDistance(Pose2d)}
      */
     public Command shootWithDistanceCommand(Pose2d target) {
-        return Commands.run(() -> shootWithDistance(target))
+        return Commands.run(() -> shootWithDistance(target), shooter)
             .andThen(stopFlywheelCommand());
     }
 
