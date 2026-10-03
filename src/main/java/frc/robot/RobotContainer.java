@@ -24,6 +24,7 @@ import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
+import frc.robot.subsystems.SuperSystem.HoodMode;
 import frc.robot.subsystems.SuperSystem.IntakeSlideMode;
 import frc.robot.util.nerd_controller.Controller;
 import frc.robot.util.nerd_logging.NerdLog;
@@ -96,13 +97,7 @@ public class RobotContainer {
     //////////////////////
     private void configureDriverBindings_teleop() {
         // Add driver controls here
-
-        /*
-        Example:
-
-        driverController.buttonA()
-            .whileTrue(new SomeCommand());
-        */
+        
 
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */}
     }
@@ -128,6 +123,23 @@ public class RobotContainer {
             .whileTrue(superSystem.startOuttakingCommand());
         operatorController.controllerLeft()
             .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.HOLD));
+        operatorController.controllerRight()
+            .onTrue(superSystem.setIntakeSlideCommand(IntakeSlideMode.IN))
+            .onFalse(superSystem.setIntakeSlideCommand(IntakeSlideMode.STOP));
+
+        // pit testing
+        operatorController.triggerLeft()
+            .onTrue(Subsystems.shooter.setDesiredValueCommand(37))
+            .onFalse(superSystem.stopFlywheelCommand());
+        operatorController.buttonLeft()
+            .onTrue(Subsystems.shooter.setDesiredValueCommand(45))
+            .onFalse(superSystem.stopFlywheelCommand());
+        operatorController.dpadUp()
+            .onTrue(superSystem.setHoodCommand(HoodMode.HIGH))
+            .onFalse(superSystem.setHoodCommand(HoodMode.LOW));
+        operatorController.dpadDown()
+            .onTrue(superSystem.setHoodCommand(HoodMode.MID))
+            .onFalse(superSystem.setHoodCommand(HoodMode.LOW));
     }
 
     public void configureBindings_test() {
