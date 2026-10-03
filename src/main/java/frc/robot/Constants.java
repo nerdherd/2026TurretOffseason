@@ -398,14 +398,10 @@ public static final class ShooterConstants {
     
     public static final double kLookAheadFactor = 0.0; //TODO test this
 
-    private static final double[][] _shooter_table = {
-      {0.0, 0.0}
-      // TODO GOD THIS WILL BE PAINFUL
-    };
     public static final LInTable kShooterTable = new LInTable(
-      _shooter_table, 
-      BoundBehavior.LINEAR)
-      ;
+      new double[] {},
+      new double[] {}
+    );
   }
 
   public static final class HoodConstants {

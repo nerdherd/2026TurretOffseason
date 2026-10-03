@@ -211,7 +211,7 @@ public class SuperSystem extends SuperSystemBase {
 
     public void shootWithDistance(Pose2d target) {
         double distance = getTurretDistanceTo(target);
-        shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance, 0));
+        shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance));
     }
 
     /** @return continuous */
