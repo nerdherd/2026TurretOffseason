@@ -1,5 +1,9 @@
 package frc.robot.util.nerd_math;
 
+import java.util.Objects;
+
+import frc.robot.util.nerd_logging.NerdLog;
+
 public class LInTable {
     // Helper types
     private record Point(double x, double y, double dy) {}
@@ -14,21 +18,35 @@ public class LInTable {
 
     private Point[] table;
 
+    private boolean warnedEmpty = false;
+
     // Initializers
 
     public LInTable(double[] x, double[] y, BoundBehavior boundBehavior) {
-        if (x.length != y.length) {
-            throw new IllegalArgumentException("x and y tables must have the same size");
-        }
+        if (boundBehavior == null)
+            throw new IllegalArgumentException("bound behavior must not be null");
+        if (x == null)
+            throw new IllegalArgumentException("x array must not be null");
+        if (y == null)
+            throw new IllegalArgumentException("y array must not be null");
+
+        if (x.length != y.length)
+            throw new IllegalArgumentException("x and y arrays must have the same size");
+
         this.boundBehavior = boundBehavior;
 
-        double previous = x[0] - 1;
+        table = new Point[x.length];
+        if (x.length == 0) return;
+
+        double previous = Double.NEGATIVE_INFINITY;
         for (double xval : x) {
-            if (xval <= previous) throw new IllegalArgumentException("X values must be in order and not repeat.");
+            if (xval <= previous) throw new IllegalArgumentException("X values must be in order and not repeat");
+            if (!Double.isFinite(xval)) throw new IllegalArgumentException("X values must be valid doubles");
             previous = xval;
         }
-
-        table = new Point[x.length];
+        for (double yval : y)
+            if (!Double.isFinite(yval))
+                throw new IllegalArgumentException("Y values must be valid doubles");
 
         for (int i = 0; i < x.length; i++){
             if (i==0) table[i] = new Point(x[i], y[i], Double.NaN);
@@ -45,8 +63,12 @@ public class LInTable {
     // Interpolate
 
     public double interpolate(double x) {
+        if (Double.isNaN(x)) throw new IllegalArgumentException("X must not be NaN");
         if (table.length == 0) {
-            // TODO: log this probably
+            if (!warnedEmpty) {
+                NerdLog.reportWarning("LInTable has no values, returning 0");
+                warnedEmpty = true;
+            }
             return 0;
         }
         if (table.length == 1){
@@ -62,6 +84,9 @@ public class LInTable {
                     double m = table[1].dy();
                     return m * (x-table[0].x()) + table[0].y();
                 }
+                default -> {
+                    throw new IllegalArgumentException("Unhandled LInTable BoundBehavior");
+                }
             }
         }
         if (x > table[table.length - 1].x()){
@@ -73,6 +98,9 @@ public class LInTable {
                 case LINEAR -> {
                     double m = table[table.length-1].dy();
                     return m * (x-table[table.length - 1].x()) + table[table.length - 1].y();
+                }
+                default -> {
+                    throw new IllegalArgumentException("Unhandled LInTable BoundBehavior");
                 }
             }
         } else if (x == table[table.length - 1].x()) 
