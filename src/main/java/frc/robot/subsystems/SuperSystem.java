@@ -325,8 +325,8 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link frc.robot.Constants.ShooterConstants#kShooterTable ShooterConstants.kShooterTable}
      */
     public void shootWithDistance(Pose2d target) {
+        if (!turretSwivel.isReadyToShoot()) return;
         double distance = getTurretDistanceTo(target);
-        // TODO call turret is ready to shoot
         shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance));
     }
 
