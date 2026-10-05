@@ -18,6 +18,7 @@ import org.wpilib.framework.RobotBase;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.math.util.MathSharedStore;
 import org.wpilib.telemetry.Telemetry;
 
 import frc.robot.Constants.HoodConstants;
@@ -188,17 +189,39 @@ public class SuperSystem extends SuperSystemBase {
         );
     }
 
+    /**
+     * 
+     * COMPRESS has the intake slide go inwards at a low voltage.
+     * JIMMY has the intake move in and out
+     */
+    public enum AgitateMode {COMPRESS, JIMMY}
+
+    private double startShootTime = 0.0;
+
     /** 
      * Spins the roller floor, conveyor belt, and throat inwards
+     * @param mode The AgitateMode to use when indexing
      * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#IN}
      * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#IN}
      * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#IN}
+     * @see {@link AgitateMode}
      */
-    public void startIndexing() {
+    public void startIndexing(AgitateMode mode) {
         setRollerFloor(RollerFloorMode.IN);
         setConveyorBelt(ConveyorBeltMode.IN);
         setThroat(ThroatMode.IN);
-        // TODO: agitate
+        switch(mode){
+            case COMPRESS -> {
+                setIntakeSlide(IntakeSlideMode.IN);
+            }
+            case JIMMY -> {
+                double val = NerdyMath.posMod(MathSharedStore.getTimestamp() - startShootTime, 0.7);
+                if (val <= 0.5) setIntakeSlide(IntakeSlideMode.IN);
+                else if (val <= 0.7) setIntakeSlide(IntakeSlideMode.OUT);
+                else setIntakeSlide(IntakeSlideMode.STOP);
+            }
+        }
+        
     }
 
     /** 
@@ -208,8 +231,10 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #stopIndexingCommand()}
      */
     public Command startIndexingCommand() {
-        return Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
-            .andThen(stopIndexingCommand());
+        return Commands.runOnce(()->startShootTime = MathSharedStore.getTimestamp()).andThen(
+            Commands.run(() -> startIndexing(AgitateMode.COMPRESS), rollerFloor, conveyorBelt, throat)
+            .andThen(stopIndexingCommand())
+        );
     }
 
     /** 
@@ -248,7 +273,7 @@ public class SuperSystem extends SuperSystemBase {
                 if (ejectBinding.get()) 
                     ; // set hood
             }
-            if (ejectBinding.get()) startIndexing();
+            if (ejectBinding.get()) startIndexing(AgitateMode.COMPRESS);
         }, shooter, hood, turretSwivel, rollerFloor, throat)
             .andThen(Commands.parallel(
                 stopIndexingCommand(),
