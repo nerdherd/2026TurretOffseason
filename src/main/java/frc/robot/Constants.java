@@ -183,8 +183,10 @@ public final class Constants {
  
     public static enum FieldPositions {
       // Add field positions
-      HUB_CENTER(4.626, 4.035, 0.0);
-      
+      HUB_CENTER(4.626, 4.035, 0.0),
+      DEPOT_PASSING(3.25,6.0,0.0),
+      OUTPOST_PASSING(3.25,2.0,0.0);
+
       public Pose2d blue, red; // meters and degrees
       FieldPositions(double _blueX, double _blueY, double _blueHeadingDegrees) {
         blue = new Pose2d(new Translation2d(_blueX, _blueY), new Rotation2d(Units.degreesToRadians(_blueHeadingDegrees)));
@@ -434,6 +436,11 @@ public static final class ShooterConstants {
     
     public static final double kUpPos = 1.0; 
     public static final double kDownPos = 0.0;
+
+    public static final LInTable kHoodTable = new LInTable(
+      new double[] {},
+      new double[] {}
+    );
   }
 
   public static final class IntakeSlideConstants {

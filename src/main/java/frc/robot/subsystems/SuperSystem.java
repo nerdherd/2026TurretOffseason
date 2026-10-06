@@ -9,11 +9,15 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.DriverStation;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.framework.RobotBase;
 import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
@@ -206,7 +210,9 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#IN}
      * @see {@link AgitateMode}
      */
-    public void startIndexing(AgitateMode mode) {
+    public void startIndexing() {
+        AgitateMode mode = AgitateMode.COMPRESS;
+
         setRollerFloor(RollerFloorMode.IN);
         setConveyorBelt(ConveyorBeltMode.IN);
         setThroat(ThroatMode.IN);
@@ -232,7 +238,7 @@ public class SuperSystem extends SuperSystemBase {
      */
     public Command startIndexingCommand() {
         return Commands.runOnce(()->startShootTime = MathSharedStore.getTimestamp()).andThen(
-            Commands.run(() -> startIndexing(AgitateMode.COMPRESS), rollerFloor, conveyorBelt, throat)
+            Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
             .andThen(stopIndexingCommand())
         );
     }
@@ -251,6 +257,19 @@ public class SuperSystem extends SuperSystemBase {
             setIntakeSlideCommand(IntakeSlideMode.STOP)
         );
     }
+    /**
+     * Returns if the robot is on the side with its alliance's depot
+     */
+    public boolean onDepotSide(){
+        boolean onTop = swerveDrivetrain.getPose().getY() > 4.03;
+        var alliance = MatchState.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.BLUE){
+            return onTop;
+        } else {
+            return !onTop;
+        }
+        
+    }
 
     /**
      * schedule during teleop
@@ -262,18 +281,17 @@ public class SuperSystem extends SuperSystemBase {
      */
     public Command shootCommand(Supplier<Boolean> ejectBinding, Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
         return Commands.run(() -> {
-            if (shootBinding.get()) {
-                prepTurret(FieldPositions.HUB_CENTER.get());
-                if (ejectBinding.get()) {
-
-                    ; // set hood
-                }
-            } else if (passBinding.get()) {
-                // prepTurret();
-                if (ejectBinding.get()) 
-                    ; // set hood
-            }
-            if (ejectBinding.get()) startIndexing(AgitateMode.COMPRESS);
+            Pose2d target = (shootBinding.get()) ? 
+                FieldPositions.HUB_CENTER.get() : 
+                (passBinding.get()) ? (onDepotSide()) ? 
+                    FieldPositions.DEPOT_PASSING.get() : 
+                    FieldPositions.OUTPOST_PASSING.get() : null;
+            if (target == null) return;
+            prepTurret(target);
+            if (ejectBinding.get()){ 
+                hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
+                startIndexing();
+            };
         }, shooter, hood, turretSwivel, rollerFloor, throat)
             .andThen(Commands.parallel(
                 stopIndexingCommand(),
@@ -315,6 +333,11 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /**
+     * Updated each time {@link #shootWithDistance} is called with the calculated distance between the turret and the point.
+     */
+    private double lastCalculatedDistance = 0.0;
+
+    /**
      * Spins the flywheel at a speed depending on the distance to a target
      * <p>
      * Assumes turret is already pointing toward the target
@@ -325,9 +348,12 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link frc.robot.Constants.ShooterConstants#kShooterTable ShooterConstants.kShooterTable}
      */
     public void shootWithDistance(Pose2d target) {
-        if (!turretSwivel.isReadyToShoot()) return;
-        double distance = getTurretDistanceTo(target);
-        shooter.setDesiredValue(ShooterConstants.kShooterTable.interpolate(distance));
+        lastCalculatedDistance = getTurretDistanceTo(target);
+        shooter.setDesiredValue(
+            (turretSwivel.isReadyToShoot()) ?
+            ShooterConstants.kShooterTable.interpolate(lastCalculatedDistance) :
+            0.0
+        );
     }
 
     /** 
