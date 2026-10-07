@@ -351,7 +351,7 @@ public class SuperSystem extends SuperSystemBase {
     public void shootWithDistance(Pose2d target) {
         lastCalculatedDistance = getTurretDistanceTo(target);
         shooter.setDesiredValue(
-            (turretSwivel.isReadyToShoot()) ?
+            (turretSwivel.isReadyToShoot(swerveDrivetrain)) ?
             ShooterConstants.kShooterTable.interpolate(lastCalculatedDistance) :
             0.0
         );

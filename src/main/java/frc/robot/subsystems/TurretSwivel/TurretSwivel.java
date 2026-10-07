@@ -9,6 +9,7 @@ import org.wpilib.math.geometry.Pose2d;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import dev.doglog.DogLog;
+import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_math.NerdyMath;
 
@@ -57,8 +58,8 @@ public class TurretSwivel extends TemplateSubsystem {
      * Takes into account current turret rotation and current turret velocity
      * @return Whether or not the turret is ready to shoot or not
      */
-    public boolean isReadyToShoot(){
-        if (Math.abs(this.getCurrentVelocity()) > turretSwivelConfiguration.maxVelocityTolerance())
+    public boolean isReadyToShoot(NerdDrivetrain drivetrain){
+        if (Math.abs(this.getCurrentVelocity() + (drivetrain.getRotationalVelocity() / (2 * Math.PI))) > turretSwivelConfiguration.maxVelocityTolerance())
             return false;
         if (Math.abs(this.getCurrentPosition()-this.getDesiredValue())*360 > turretSwivelConfiguration.maxAngleTolerance())
             return false;
