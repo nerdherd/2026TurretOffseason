@@ -404,6 +404,8 @@ public static final class ShooterConstants {
       new double[] {},
       new double[] {}
     );
+
+    public static final double kVelocityTolerance = 0.5; //TODO test this
   }
 
   public static final class HoodConstants {

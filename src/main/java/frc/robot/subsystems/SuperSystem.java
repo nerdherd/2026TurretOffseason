@@ -289,7 +289,8 @@ public class SuperSystem extends SuperSystemBase {
 
             prepTurret(target);
 
-            if (ejectBinding.get()){ 
+            if (turretSwivel.isReadyToShoot(swerveDrivetrain) && 
+            (Math.abs(shooter.getCurrentVelocity() - shooter.getDesiredValue()) < ShooterConstants.kVelocityTolerance)){ 
                 hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                 startIndexing();
             };
