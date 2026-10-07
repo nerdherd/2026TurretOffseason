@@ -11,7 +11,6 @@ import org.wpilib.tunable.Tunable;
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
-import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Translation2d;
 
 import java.util.NoSuchElementException;
@@ -21,9 +20,7 @@ import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.Subsystems;
-import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.commands.autos.Autos;
@@ -31,7 +28,6 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.subsystems.SuperSystem.HoodMode;
-import frc.robot.subsystems.SuperSystem.IntakeRollerMode;
 import frc.robot.subsystems.SuperSystem.IntakeSlideMode;
 import frc.robot.util.nerd_controller.Controller;
 import frc.robot.util.nerd_logging.NerdLog;

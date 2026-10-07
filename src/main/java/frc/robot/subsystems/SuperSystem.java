@@ -9,14 +9,12 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
 import org.wpilib.driverstation.Alliance;
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.MatchState;
 import org.wpilib.framework.RobotBase;
 import org.wpilib.math.geometry.Pose2d;
@@ -281,13 +279,16 @@ public class SuperSystem extends SuperSystemBase {
      */
     public Command shootCommand(Supplier<Boolean> ejectBinding, Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
         return Commands.run(() -> {
-            Pose2d target = (shootBinding.get()) ? 
-                FieldPositions.HUB_CENTER.get() : 
-                (passBinding.get()) ? (onDepotSide()) ? 
-                    FieldPositions.DEPOT_PASSING.get() : 
-                    FieldPositions.OUTPOST_PASSING.get() : null;
+            Pose2d target = null;
+            if (shootBinding.get()) target = FieldPositions.HUB_CENTER.get();
+            else if (passBinding.get()) {
+                if (onDepotSide()) target = FieldPositions.DEPOT_PASSING.get();
+                else target = FieldPositions.OUTPOST_PASSING.get();
+            }
             if (target == null) return;
+
             prepTurret(target);
+
             if (ejectBinding.get()){ 
                 hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                 startIndexing();
@@ -429,7 +430,7 @@ public class SuperSystem extends SuperSystemBase {
                 // Rotational speed is converted to translational speed and added to the expected turret position.
                 // gets the pose of the robot translated by its velocity times a factor, but not changing its rotation
                 Pose2d expectedRobotPose = swerveDrivetrain.getLookAheadPose(ShooterConstants.kLookAheadFactor);
-                double robotAngularVelocity = swerveDrivetrain.getRotationalSpeed();
+                double robotAngularVelocity = swerveDrivetrain.getRotationalVelocity();
                 // gets the turret's location relative to the robot's center, but rotated to match field space
                 Pose2d turretOffset = new Pose2d(turretSwivel.getRelativePose().rotateBy(expectedRobotPose.getRotation()).getTranslation(), Rotation2d.ZERO);
                 // creates a point 90 degrees counterclockwise from the robot's center to turretOffset 

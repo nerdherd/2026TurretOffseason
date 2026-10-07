@@ -186,7 +186,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     }
 
     /** returns the angular velocity of the robot in radians/second, CCW +*/
-    public double getRotationalSpeed(){
+    public double getRotationalVelocity(){
         ChassisVelocities speeds = getFieldOrientedVelocities();
         return speeds.omega;
     }
