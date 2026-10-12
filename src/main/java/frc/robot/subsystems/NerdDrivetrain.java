@@ -46,6 +46,7 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;
 import frc.robot.util.nerd_math.NerdyMath;
+import frc.robot.vision.LimelightHelpers;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.VisionConstants;
@@ -186,6 +187,18 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     public Pose2d getLookAheadPose(double factor) {
         ChassisVelocities speeds = getFieldOrientedVelocities();
         return getPose().plus(new Transform2d(speeds.vx, speeds.vy, Rotation2d.ZERO).times(factor));
+    }
+
+    /** the position we will be one step in time, including rotation */
+    public Pose2d getLookAheadPoseWithRotation(double factor) {
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return getPose().plus(new Transform2d(speeds.vx, speeds.vy, new Rotation2d(speeds.omega)).times(factor));
+    }
+
+    /** returns the angular velocity of the robot in radians/second, CCW +*/
+    public double getRotationalVelocity(){
+        ChassisVelocities speeds = getFieldOrientedVelocities();
+        return speeds.omega;
     }
 
     /** gets the ChassisVelocities from odometry */
