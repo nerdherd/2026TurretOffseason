@@ -21,6 +21,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.limelightvision.Limelight;
+import com.pathplanner.lib.config.PIDConstants;
+
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
 
@@ -478,13 +481,13 @@ public static final class ShooterConstants {
     public static final double kPP_I = 0.0;
     public static final double kPP_D = 0.0;
  
-    public static final NerdPIDConstants kPPTranslationPIDConstants = new NerdPIDConstants(kPP_P, kPP_I, kPP_D);
+    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
 
     public static final double kPP_ThetaP = 4.0;
     public static final double kPP_ThetaI = 0.0;
     public static final double kPP_ThetaD = 0.1;
  
-    public static final NerdPIDConstants kPPRotationPIDConstants = new NerdPIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
   }
 
   public static final class LoggingConstants {
@@ -500,18 +503,8 @@ public static final class ShooterConstants {
     /** how many frames to skip in disabled, to prevent overheating */
     public static final int kDisabledThrottle = 100;
 
-    public static enum Camera {
-      // TODO: Update the limelights
-      Front("limelight-fr", "10.6.87.17:5802"),
-      Back("limelight-br", "10.6.87.15:5802");
-      ;
-
-      public final String name, ip;
-      Camera(String name, String ip) {
-        this.name = name;
-        this.ip = ip;
-      }
-    }
+    public static Limelight kLimelightFR = new Limelight("limelight-fr");
+    public static Limelight kLimelightBR = new Limelight("limelight-br");
   }
 
 // Template for subsystem based constants
