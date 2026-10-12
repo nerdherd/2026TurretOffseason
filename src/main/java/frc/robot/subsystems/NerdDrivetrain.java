@@ -46,7 +46,6 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;
 import frc.robot.util.nerd_math.NerdyMath;
-import frc.robot.vision.LimelightHelpers;
 import frc.robot.Constants.PathPlannerConstants;
 import frc.robot.Constants.SwerveDriveConstants;
 import frc.robot.Constants.VisionConstants;
@@ -250,7 +249,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
 
     /**
      * activates or deactivates vision by setting the pipeline either to 0 for active or 1 for inactive
-     * and by adjusting throttle, see {@link LimelightHelpers#SetThrottle(String, int)}
+     * and by adjusting throttle}
      * @param activate whether to activate or deactivate
      */
     public void setVision(boolean activate) {

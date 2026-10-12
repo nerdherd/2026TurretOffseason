@@ -42,7 +42,6 @@ import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
-import frc.robot.util.nerd_math.LInTable.BoundBehavior;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
