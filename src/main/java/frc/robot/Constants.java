@@ -22,6 +22,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.limelightvision.Limelight;
+import com.limelightvision.PoseEstimateConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
@@ -29,7 +30,9 @@ import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
 
 import org.wpilib.math.controller.PIDController;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
@@ -515,8 +518,40 @@ public static final class ShooterConstants {
     /** how many frames to skip in disabled, to prevent overheating */
     public static final int kDisabledThrottle = 100;
 
-    public static Limelight kLimelightFR = new Limelight("limelight-fr");
-    public static Limelight kLimelightBR = new Limelight("limelight-br");
+    public static double untrusted = PoseEstimateConfig.UNTRUSTED;
+    //TODO: check these configs
+    public static PoseEstimateConfig mt1Config = PoseEstimateConfig.defaultMT1() // starting with the safe default means you are not required to set every single configuration value
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(0.7) // MT1 needs low-ambiguity perspectives
+            .withMaxSingleTagDistance(4.0) // If we only see one tag, don't trust it unless we are at most 4m away from it
+            .withMaxAvgTagDistance(6.0) // If we see multiple tags, max avg distance must be less than 6 meters.
+            .withMinAvgTagArea(0.02) // 0-100, percentage of image area. This is .02%, not 2%.
+            .withFieldBounds(16.541, 8.069) // Reject pose estimates that are out of bounds.
+            .withFieldBoundsMargin(0.5) // Add .5m margin around field.
+            .withStdDevXY(0.5, 0.05, 2.0) // .5 base, absolute min .05, absolute max 2.0. With scaling enabled, .5 at 1m distance
+            .withStdDevTheta(untrusted, untrusted, untrusted) // never incorporate pose estimate rotation. You may want to incorporate rotation by setting these to other values
+            .withStdDevDistanceScaling(1.0, 0.0, 6.0) // linear scaling, only scale between 0 and 6m.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by square root of number of contributing tags
+
+    public static PoseEstimateConfig mt2Config = PoseEstimateConfig.defaultMT2()
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(1.0) // MT2 can handle maximally ambiguous perspectives. Accept tags regardless of ambiguity value.
+            .withMaxSingleTagDistance(0.0) // 0 disables this check
+            .withMaxAvgTagDistance(8.0)
+            .withMinAvgTagArea(0.02) //0-100, percentage of image area
+            .withFieldBounds(16.541, 8.069)
+            .withFieldBoundsMargin(0.5)
+            .withStdDevXY(0.3, 0.0001, 2.0)
+            .withStdDevTheta(untrusted, untrusted, untrusted)
+            .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
+    
+    @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
+    public static Limelight kLimelightMain = new Limelight(
+      "limelight-main", //TODO: name it right
+      new Pose3d(-0.279,0,0.521, new Rotation3d(0,20,0)) //TODO: make sure these are right; also the pose of the limelight will change as it is on the turret
+    ).withPoseEstimateConfig_MT1(mt1Config)
+    .withPoseEstimateConfig_MT2(mt2Config);
   }
 
 // Template for subsystem based constants

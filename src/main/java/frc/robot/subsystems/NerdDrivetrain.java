@@ -98,8 +98,7 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         DogLog.log("pose", getPose());
         if (USE_VISION) {
             // visionUpdate(Camera.Example);
-            visionUpdate(VisionConstants.kLimelightFR, true);
-            visionUpdate(VisionConstants.kLimelightBR, RobotState.isTeleop());
+            visionUpdateAll(VisionConstants.kLimelightMain);
             // Limelight.flushNT();
         }
     }
@@ -253,10 +252,8 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
      * @param activate whether to activate or deactivate
      */
     public void setVision(boolean activate) {
-        VisionConstants.kLimelightFR.setPipelineIndex(0);
-        VisionConstants.kLimelightFR.setThrottle(0);
-        VisionConstants.kLimelightBR.setPipelineIndex(0);
-        VisionConstants.kLimelightBR.setThrottle(0);
+        VisionConstants.kLimelightMain.setPipelineIndex(0);
+        VisionConstants.kLimelightMain.setThrottle(0);
     }
     
     /**
@@ -271,16 +268,22 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
       );
     }
 
-    // private HashMap<Camera, Double> lastTimestamps = new HashMap<>();    
-    public void visionUpdate(Limelight limelight, boolean useReset) {
-        if (useReset && !useMegaTag2) {
-            PoseEstimate[] poseEstimates = limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE);
-            if (poseEstimates.length < 1) return;
-            resetRotation(poseEstimates[0].pose.getRotation());
-            useMegaTag2 = true;
+    private boolean doVisionReset = false;
+    public void visionUpdateAll(Limelight... limelights) {
+        if (doVisionReset) {
+            double totalAngle = 0.0;
+            int estimateCount = 0;
+            for (Limelight limelight : limelights){
+                for (var estimate : limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE)){
+                    estimateCount++;
+                    totalAngle += estimate.pose.getRotation().getRadians();
+                }
+            }
+            resetRotation(new Rotation2d(totalAngle/ (double) estimateCount));
+            doVisionReset = false;
             return;
         }
-
+        
         PoseEstimateType estimateType = PoseEstimateType.MT1_WPIBLUE;
         if (useMegaTag2) {
             estimateType = PoseEstimateType.MT2_WPIBLUE;
@@ -288,36 +291,61 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
             double yaw = getSwerveHeadingDegrees();
             Limelight.setSharedRobotOrientation(yaw);
         }
-        for (var estimate : limelight.readAcceptedPoseEstimates(estimateType)) {
-            addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
+        for (Limelight limelight : limelights) {
+            for (var estimate : limelight.readAcceptedPoseEstimates(estimateType)) {
+                addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
+            }
         }
-
-        // if (limelight.getCurrentPipelineIndex() != 0) return;
-        // if (!useMegaTag2) {
-        //     // --------- MT1 --------- //
-        //     if (!useReset) return;
-        //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT1_WPIBLUE);
-        //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0 || mt.avgTagDistanceMeters >= 3.0) return;
-        //     resetRotation(mt.pose.getRotation());
-        //     useMegaTag2 = true;
-        //     setDriverHeadingForward();
-        // }
-        // else {
-        //     // --------- MT2 --------- //
-        //     double yaw = getSwerveHeadingDegrees();
-        //     limelight.setRobotOrientation(yaw, true);
-        //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT2_WPIBLUE);
-        //     field.getObject(name).setPose(nullPose);
-        //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0) return;
-        //     // if (!lastTimestamps.containsKey(limelight)) lastTimestamps.put(limelight, 0.0);
-        //     // if (lastTimestamps.get(limelight).equals(mt.timestampSeconds)) return;
-        //     // lastTimestamps.put(limelight, mt.timestampSeconds);
-        //     field.getObject(name).setPose(mt.pose);
-        //     double stddev = (mt.avgTagDistanceMeters > 3) ? 2.0 : 0.7;
-        //     setVisionMeasurementStdDevs(VecBuilder.fill(stddev, stddev, 9999999)); // TODO consider other stddevs
-        //     addVisionMeasurement(mt.pose, mt.timestampSeconds);
-        // }
     }
+
+    // private HashMap<Camera, Double> lastTimestamps = new HashMap<>();    
+    // public void visionUpdate(Limelight limelight, boolean useReset) {
+    //     if (useReset && !useMegaTag2) {
+    //         PoseEstimate[] poseEstimates = limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE);
+    //         if (poseEstimates.length < 1) return;
+    //         resetRotation(poseEstimates[0].pose.getRotation());
+    //         useMegaTag2 = true;
+    //         return;
+    //     }
+
+    //     PoseEstimateType estimateType = PoseEstimateType.MT1_WPIBLUE;
+    //     if (useMegaTag2) {
+    //         estimateType = PoseEstimateType.MT2_WPIBLUE;
+
+    //         double yaw = getSwerveHeadingDegrees();
+    //         Limelight.setSharedRobotOrientation(yaw);
+    //     }
+    //     for (var estimate : limelight.readAcceptedPoseEstimates(estimateType)) {
+    //         addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
+    //     }
+
+    //     // if (limelight.getCurrentPipelineIndex() != 0) return;
+    //     // if (!useMegaTag2) {
+    //     //     // --------- MT1 --------- //
+    //     //     if (!useReset) return;
+    //     //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT1_WPIBLUE);
+    //     //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0 || mt.avgTagDistanceMeters >= 3.0) return;
+    //     //     resetRotation(mt.pose.getRotation());
+    //     //     useMegaTag2 = true;
+    //     //     setDriverHeadingForward();
+    //     // }
+    //     // else {
+    //     //     // --------- MT2 --------- //
+    //     //     double yaw = getSwerveHeadingDegrees();
+    //     //     limelight.setRobotOrientation(yaw, true);
+    //     //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT2_WPIBLUE);
+    //     //     field.getObject(name).setPose(nullPose);
+    //     //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0) return;
+    //     //     // if (!lastTimestamps.containsKey(limelight)) lastTimestamps.put(limelight, 0.0);
+    //     //     // if (lastTimestamps.get(limelight).equals(mt.timestampSeconds)) return;
+    //     //     // lastTimestamps.put(limelight, mt.timestampSeconds);
+    //     //     field.getObject(name).setPose(mt.pose);
+    //     //     double stddev = (mt.avgTagDistanceMeters > 3) ? 2.0 : 0.7;
+    //     //     setVisionMeasurementStdDevs(VecBuilder.fill(stddev, stddev, 9999999)); // TODO consider other stddevs
+    //     //     addVisionMeasurement(mt.pose, mt.timestampSeconds);
+    //     // }
+    // }
+
     private Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.ZERO);
 
     public void recalibrateGyroMT1() {
