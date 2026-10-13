@@ -196,6 +196,10 @@ public class RobotContainer {
             LOG_LEVEL.MEDIUM
         );
         NerdLog.logNumber(
+            "Robot/RAM Available", 
+            () -> (double)Runtime.getRuntime().freeMemory(), 
+            LOG_LEVEL.ALL);
+        NerdLog.logNumber(
             "Robot/Battery Voltage",
             RobotController::getBatteryVoltage,
             LOG_LEVEL.MEDIUM
