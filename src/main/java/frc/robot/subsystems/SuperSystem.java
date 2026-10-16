@@ -9,6 +9,7 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
+import java.text.FieldPosition;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
@@ -300,6 +301,27 @@ public class SuperSystem extends SuperSystemBase {
                 stopFlywheelCommand()
             ));
     }
+
+    public Command startShootAutoCommand() {
+        return Commands.run(() -> {
+            Pose2d target = FieldPositions.HUB_CENTER.get();
+            prepTurret(target);
+
+            if (turretSwivel.isReadyToShoot(swerveDrivetrain) && 
+            (Math.abs(shooter.getCurrentVelocity() - shooter.getDesiredValue()) < ShooterConstants.kVelocityTolerance)){ 
+                hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
+                startIndexing();
+            };
+        }, shooter, hood, turretSwivel, rollerFloor, throat);
+    }
+
+    public Command stopShootAutoCommand() {
+        return Commands.parallel(
+                stopIndexingCommand(),
+                stopFlywheelCommand()
+            );
+    }
+
 
     /** 
      * set the flywheel velocity to 0

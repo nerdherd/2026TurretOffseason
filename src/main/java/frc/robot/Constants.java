@@ -21,11 +21,18 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.limelightvision.Limelight;
+import com.limelightvision.PoseEstimateConfig;
+import com.pathplanner.lib.config.PIDConstants;
+
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
 
+import org.wpilib.math.controller.PIDController;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
@@ -39,7 +46,6 @@ import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
-import frc.robot.util.nerd_math.LInTable.BoundBehavior;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -473,18 +479,30 @@ public static final class ShooterConstants {
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLmitsConfigs);
   }
+
+  public static final class ChoreoConstants {
+    private final static NerdPIDConstants kXControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
+    private final static NerdPIDConstants kYControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
+    private final static NerdPIDConstants kRControllerConstants = new NerdPIDConstants(7.5, 10.0, 0).enableContinuousInput(-Math.PI, Math.PI);
+
+    public final static PIDController kXController = kXControllerConstants.getController();
+    public final static PIDController kYController = kYControllerConstants.getController();
+    public final static PIDController kRController = kRControllerConstants.getController();
+  }
+
+
   public static final class PathPlannerConstants {
     public static final double kPP_P = 5.0;
     public static final double kPP_I = 0.0;
     public static final double kPP_D = 0.0;
  
-    public static final NerdPIDConstants kPPTranslationPIDConstants = new NerdPIDConstants(kPP_P, kPP_I, kPP_D);
+    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
 
     public static final double kPP_ThetaP = 4.0;
     public static final double kPP_ThetaI = 0.0;
     public static final double kPP_ThetaD = 0.1;
  
-    public static final NerdPIDConstants kPPRotationPIDConstants = new NerdPIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
+    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
   }
 
   public static final class LoggingConstants {
@@ -500,18 +518,40 @@ public static final class ShooterConstants {
     /** how many frames to skip in disabled, to prevent overheating */
     public static final int kDisabledThrottle = 100;
 
-    public static enum Camera {
-      // TODO: Update the limelights
-      Front("limelight-fr", "10.6.87.17:5802"),
-      Back("limelight-br", "10.6.87.15:5802");
-      ;
+    public static double untrusted = PoseEstimateConfig.UNTRUSTED;
+    //TODO: check these configs
+    public static PoseEstimateConfig mt1Config = PoseEstimateConfig.defaultMT1() // starting with the safe default means you are not required to set every single configuration value
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(0.7) // MT1 needs low-ambiguity perspectives
+            .withMaxSingleTagDistance(4.0) // If we only see one tag, don't trust it unless we are at most 4m away from it
+            .withMaxAvgTagDistance(6.0) // If we see multiple tags, max avg distance must be less than 6 meters.
+            .withMinAvgTagArea(0.02) // 0-100, percentage of image area. This is .02%, not 2%.
+            .withFieldBounds(16.541, 8.069) // Reject pose estimates that are out of bounds.
+            .withFieldBoundsMargin(0.5) // Add .5m margin around field.
+            .withStdDevXY(0.5, 0.05, 2.0) // .5 base, absolute min .05, absolute max 2.0. With scaling enabled, .5 at 1m distance
+            .withStdDevTheta(untrusted, untrusted, untrusted) // never incorporate pose estimate rotation. You may want to incorporate rotation by setting these to other values
+            .withStdDevDistanceScaling(1.0, 0.0, 6.0) // linear scaling, only scale between 0 and 6m.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by square root of number of contributing tags
 
-      public final String name, ip;
-      Camera(String name, String ip) {
-        this.name = name;
-        this.ip = ip;
-      }
-    }
+    public static PoseEstimateConfig mt2Config = PoseEstimateConfig.defaultMT2()
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(1.0) // MT2 can handle maximally ambiguous perspectives. Accept tags regardless of ambiguity value.
+            .withMaxSingleTagDistance(0.0) // 0 disables this check
+            .withMaxAvgTagDistance(8.0)
+            .withMinAvgTagArea(0.02) //0-100, percentage of image area
+            .withFieldBounds(16.541, 8.069)
+            .withFieldBoundsMargin(0.5)
+            .withStdDevXY(0.3, 0.0001, 2.0)
+            .withStdDevTheta(untrusted, untrusted, untrusted)
+            .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
+    
+    @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
+    public static Limelight kLimelightMain = new Limelight(
+      "limelight-main", //TODO: name it right
+      new Pose3d(-0.279,0,0.521, new Rotation3d(0,20,0)) //TODO: make sure these are right; also the pose of the limelight will change as it is on the turret
+    ).withPoseEstimateConfig_MT1(mt1Config)
+    .withPoseEstimateConfig_MT2(mt2Config);
   }
 
 // Template for subsystem based constants

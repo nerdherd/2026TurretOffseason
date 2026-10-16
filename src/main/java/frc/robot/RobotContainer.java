@@ -50,11 +50,11 @@ public class RobotContainer {
 
         if (Constants.USE_SUBSYSTEMS) {
             superSystem = new SuperSystem(swerveDrive);
-            // Autos.initNamedCommands(superSystem, swerveDrive);
         }
 
         Subsystems.init(); // required to initialize the class or else java lazy loading just doesn't
-        // Autos.initAutoChooser();
+        Autos.initBindings(superSystem);
+        Autos.initAutoChooser();
         initializeLogging();
 
         NerdLog.reportInfo("Initialization Complete");
@@ -195,6 +195,10 @@ public class RobotContainer {
             CommandScheduler.getInstance(),
             LOG_LEVEL.MEDIUM
         );
+        NerdLog.logNumber(
+            "Robot/RAM Available", 
+            () -> (double)Runtime.getRuntime().freeMemory(), 
+            LOG_LEVEL.ALL);
         NerdLog.logNumber(
             "Robot/Battery Voltage",
             RobotController::getBatteryVoltage,

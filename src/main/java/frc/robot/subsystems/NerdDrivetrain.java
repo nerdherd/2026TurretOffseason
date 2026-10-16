@@ -12,10 +12,15 @@ import static frc.robot.Constants.SwerveDriveConstants.kTargetDriveController;
 import static frc.robot.Constants.SwerveDriveConstants.kTargetDriveMaxLateralVelocity;
 import static frc.robot.Constants.SwerveDriveConstants.kTowSwerveRequest;
 
-import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.limelightvision.Limelight;
+import com.limelightvision.PoseEstimate;
+import com.limelightvision.PoseEstimateType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import dev.doglog.DogLog;
 
@@ -25,9 +30,10 @@ import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Transform2d;
 import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchState;
 import org.wpilib.driverstation.RobotState;
 import org.wpilib.smartdashboard.Field2d;
-import org.wpilib.telemetry.Telemetry;
 import org.wpilib.telemetry.TelemetryLoggable;
 import org.wpilib.telemetry.TelemetryTable;
 import org.wpilib.command2.Command;
@@ -36,50 +42,51 @@ import org.wpilib.command2.Subsystem;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
-import frc.robot.Constants.VisionConstants.Camera;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable;
 import frc.robot.util.nerd_math.NerdyMath;
-import frc.robot.vision.LimelightHelpers;
-import frc.robot.vision.LimelightHelpers.PoseEstimate;
+import frc.robot.Constants.PathPlannerConstants;
+import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.VisionConstants;
 
 public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, Reportable, TelemetryLoggable {
     public final Field2d field;
     public boolean useMegaTag2 = false;
-    
+
     public NerdDrivetrain(SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
 
-        // RobotConfig robotConfig = null;
-        // try {
-        //     robotConfig = RobotConfig.fromGUISettings();
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
+        RobotConfig robotConfig = null;
+        try {
+            robotConfig = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // AutoBuilder.configure(
-        //     this::getPose,
-        //     this::resetPose,
-        //     this::getChassisVelocities,
-        //     (speeds, feedforwards) -> setControl(
-        //         kApplyRobotSpeedsRequest.withVelocity(speeds)
-        //             .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-        //             .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-        //         ),
-        //     new PPHolonomicDriveController(
-        //         kPPTranslationPIDConstants, 
-        //         kPPRotationPIDConstants),  
-        //     robotConfig,
-        //     () -> {
-        //         var alliance = MatchState.getAlliance();
-        //         return alliance.isPresent() ? (alliance.get() == Alliance.RED) : false;
-        //     },
-        //     this
-        // );
+        AutoBuilder.configure(
+            this::getPose,
+            this::resetPose,
+            this::getChassisVelocities,
+            (speeds, feedforwards) -> setControl(
+                SwerveDriveConstants.kApplyRobotSpeedsRequest.withVelocity(speeds)
+                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+            new PPHolonomicDriveController(
+                PathPlannerConstants.kPPTranslationPIDConstants,
+                PathPlannerConstants.kPPRotationPIDConstants
+            ),
+            robotConfig,
+            () -> {
+                var alliance = MatchState.getAlliance();
+                return alliance.isPresent() ? (alliance.get() == Alliance.RED) : false;
+            },
+            this
+        );
+
 
         field = new Field2d();
-
         setVision(USE_VISION);
     }
     
@@ -87,11 +94,12 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
     @Override
     public void periodic() {
         field.setRobotPose(getPose());
-
+        field.getObject("robot2").setPose(getPose());
+        DogLog.log("pose", getPose());
         if (USE_VISION) {
             // visionUpdate(Camera.Example);
-            visionUpdate(Camera.Front, true);
-            visionUpdate(Camera.Back, RobotState.isTeleop());
+            visionUpdateAll(VisionConstants.kLimelightMain);
+            // Limelight.flushNT();
         }
     }
 
@@ -240,14 +248,12 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
 
     /**
      * activates or deactivates vision by setting the pipeline either to 0 for active or 1 for inactive
-     * and by adjusting throttle, see {@link LimelightHelpers#SetThrottle(String, int)}
+     * and by adjusting throttle}
      * @param activate whether to activate or deactivate
      */
     public void setVision(boolean activate) {
-        for (Camera camera : Camera.values()) {
-            LimelightHelpers.setPipelineIndex(camera.name, (activate) ? 0 : 0);
-            LimelightHelpers.SetThrottle(camera.name, (activate) ? 0 : 0);
-        }
+        VisionConstants.kLimelightMain.setPipelineIndex(0);
+        VisionConstants.kLimelightMain.setThrottle(0);
     }
     
     /**
@@ -262,34 +268,84 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
       );
     }
 
-    // private HashMap<Camera, Double> lastTimestamps = new HashMap<>();    
-    public void visionUpdate(Camera limelight, boolean useReset) {
-        if (LimelightHelpers.getCurrentPipelineIndex(limelight.name) != 0) return;
-        if (!useMegaTag2) {
-            // --------- MT1 --------- //
-            if (!useReset) return;
-            PoseEstimate mt = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight.name);
-            if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.tagCount == 0 || mt.avgTagDist >= 3.0) return;
-            resetRotation(mt.pose.getRotation());
-            useMegaTag2 = true;
-            setDriverHeadingForward();
+    private boolean doVisionReset = false;
+    public void visionUpdateAll(Limelight... limelights) {
+        if (doVisionReset) {
+            double totalAngle = 0.0;
+            int estimateCount = 0;
+            for (Limelight limelight : limelights){
+                for (var estimate : limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE)){
+                    estimateCount++;
+                    totalAngle += estimate.pose.getRotation().getRadians();
+                }
+            }
+            resetRotation(new Rotation2d(totalAngle/ (double) estimateCount));
+            doVisionReset = false;
+            return;
         }
-        else {
-            // --------- MT2 --------- //
+        
+        PoseEstimateType estimateType = PoseEstimateType.MT1_WPIBLUE;
+        if (useMegaTag2) {
+            estimateType = PoseEstimateType.MT2_WPIBLUE;
+
             double yaw = getSwerveHeadingDegrees();
-            LimelightHelpers.SetRobotOrientation(limelight.name, yaw, 0, 0, 0, 0, 0);
-            PoseEstimate mt = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.name);
-            field.getObject(limelight.name).setPose(nullPose);
-            if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.tagCount == 0) return;
-            // if (!lastTimestamps.containsKey(limelight)) lastTimestamps.put(limelight, 0.0);
-            // if (lastTimestamps.get(limelight).equals(mt.timestampSeconds)) return;
-            // lastTimestamps.put(limelight, mt.timestampSeconds);
-            field.getObject(limelight.name).setPose(mt.pose);
-            double stddev = (mt.avgTagDist > 3) ? 2.0 : 0.7;
-            setVisionMeasurementStdDevs(VecBuilder.fill(stddev, stddev, 9999999)); // TODO consider other stddevs
-            addVisionMeasurement(mt.pose, Utils.getCurrentTimeSeconds());
+            Limelight.setSharedRobotOrientation(yaw);
+        }
+        for (Limelight limelight : limelights) {
+            for (var estimate : limelight.readAcceptedPoseEstimates(estimateType)) {
+                addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
+            }
         }
     }
+
+    // private HashMap<Camera, Double> lastTimestamps = new HashMap<>();    
+    // public void visionUpdate(Limelight limelight, boolean useReset) {
+    //     if (useReset && !useMegaTag2) {
+    //         PoseEstimate[] poseEstimates = limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE);
+    //         if (poseEstimates.length < 1) return;
+    //         resetRotation(poseEstimates[0].pose.getRotation());
+    //         useMegaTag2 = true;
+    //         return;
+    //     }
+
+    //     PoseEstimateType estimateType = PoseEstimateType.MT1_WPIBLUE;
+    //     if (useMegaTag2) {
+    //         estimateType = PoseEstimateType.MT2_WPIBLUE;
+
+    //         double yaw = getSwerveHeadingDegrees();
+    //         Limelight.setSharedRobotOrientation(yaw);
+    //     }
+    //     for (var estimate : limelight.readAcceptedPoseEstimates(estimateType)) {
+    //         addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
+    //     }
+
+    //     // if (limelight.getCurrentPipelineIndex() != 0) return;
+    //     // if (!useMegaTag2) {
+    //     //     // --------- MT1 --------- //
+    //     //     if (!useReset) return;
+    //     //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT1_WPIBLUE);
+    //     //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0 || mt.avgTagDistanceMeters >= 3.0) return;
+    //     //     resetRotation(mt.pose.getRotation());
+    //     //     useMegaTag2 = true;
+    //     //     setDriverHeadingForward();
+    //     // }
+    //     // else {
+    //     //     // --------- MT2 --------- //
+    //     //     double yaw = getSwerveHeadingDegrees();
+    //     //     limelight.setRobotOrientation(yaw, true);
+    //     //     PoseEstimate mt = limelight.getPoseEstimate(PoseEstimateType.MT2_WPIBLUE);
+    //     //     field.getObject(name).setPose(nullPose);
+    //     //     if (mt == null || Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720 || mt.reportedTagCount == 0) return;
+    //     //     // if (!lastTimestamps.containsKey(limelight)) lastTimestamps.put(limelight, 0.0);
+    //     //     // if (lastTimestamps.get(limelight).equals(mt.timestampSeconds)) return;
+    //     //     // lastTimestamps.put(limelight, mt.timestampSeconds);
+    //     //     field.getObject(name).setPose(mt.pose);
+    //     //     double stddev = (mt.avgTagDistanceMeters > 3) ? 2.0 : 0.7;
+    //     //     setVisionMeasurementStdDevs(VecBuilder.fill(stddev, stddev, 9999999)); // TODO consider other stddevs
+    //     //     addVisionMeasurement(mt.pose, mt.timestampSeconds);
+    //     // }
+    // }
+
     private Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.ZERO);
 
     public void recalibrateGyroMT1() {
@@ -365,8 +421,6 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
             }
             NerdLog.logData(kSwerveTab +"/Object Field", positionField, LOG_LEVEL.ALL);
         }
-        for (Camera camera : Camera.values())
-            NerdLog.logBoolean(kSwerveTab + "/" + camera.name + " detecting", () -> LimelightHelpers.getTV(camera.name), LOG_LEVEL.ALL);
 
         NerdLog.logStructSerializable(kSwerveTab + "/Field Chassis Speeds", () -> getFieldOrientedVelocities(), LOG_LEVEL.ALL);
         NerdLog.logSwerveModules(kSwerveTab + "/Swerve Module States", this::getState, LOG_LEVEL.ALL);
@@ -399,12 +453,5 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
         var currentCommand = getCurrentCommand();
         table.log(".hasCommand", currentCommand != null);
         table.log(".command", currentCommand != null ? currentCommand.getName() : "none");
-    }
-
-    @Override
-    public void simulationPeriodic(){
-        field.setRobotPose(getPose());
-        DogLog.log("Swerve Drive Simulation Periodic Running", "Yeag!!!");
-        Telemetry.log("Robot Pose :)", getPose());
     }
 }
