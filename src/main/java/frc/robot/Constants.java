@@ -13,7 +13,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -117,6 +116,69 @@ public final class Constants {
       return Math.atan2(y, x);
     };
   }
+
+  public static final class ChoreoConstants {
+    private final static NerdPIDConstants kXControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
+    private final static NerdPIDConstants kYControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
+    private final static NerdPIDConstants kRControllerConstants = new NerdPIDConstants(7.5, 10.0, 0).enableContinuousInput(-Math.PI, Math.PI);
+
+    public final static PIDController kXController = kXControllerConstants.getController();
+    public final static PIDController kYController = kYControllerConstants.getController();
+    public final static PIDController kRController = kRControllerConstants.getController();
+  }
+
+
+  public static final class PathPlannerConstants {
+    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(5, 0, 0);
+    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(5, 0, 0);
+  }
+
+  public static final class LoggingConstants {
+    public static final double LOGGING_INTERVAL = 0.02; // seconds
+
+    public static final String kSubsystemTab = "SuperSystem/"; // ends with a /
+    public static final String kSupersystemTab = "SuperSystem";
+    public static final String kSwerveTab = "SwerveDrive";
+    public static final String kAutosTab = "Autos";
+  }
+
+  public static final class VisionConstants {
+    /** how many frames to skip in disabled, to prevent overheating */
+    public static final int kDisabledThrottle = 100;
+
+    public static PoseEstimateConfig mt1Config = PoseEstimateConfig.defaultMT1() // starting with the safe default means you are not required to set every single configuration value
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(0.7) // MT1 needs low-ambiguity perspectives
+            .withMaxSingleTagDistance(4.0) // If we only see one tag, don't trust it unless we are at most 4m away from it
+            .withMaxAvgTagDistance(6.0) // If we see multiple tags, max avg distance must be less than 6 meters.
+            .withMinAvgTagArea(0.02) // 0-100, percentage of image area. This is .02%, not 2%.
+            .withFieldBounds(16.541, 8.069) // Reject pose estimates that are out of bounds.
+            .withFieldBoundsMargin(0.5) // Add .5m margin around field.
+            .withStdDevXY(0.5, 0.05, 2.0) // .5 base, absolute min .05, absolute max 2.0. With scaling enabled, .5 at 1m distance
+            .withStdDevTheta(PoseEstimateConfig.UNTRUSTED, PoseEstimateConfig.UNTRUSTED, PoseEstimateConfig.UNTRUSTED) // never incorporate pose estimate rotation. You may want to incorporate rotation by setting these to other values
+            .withStdDevDistanceScaling(1.0, 0.0, 6.0) // linear scaling, only scale between 0 and 6m.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by square root of number of contributing tags
+
+    public static PoseEstimateConfig mt2Config = PoseEstimateConfig.defaultMT2()
+            .withMinTagCount(1)
+            .withMaxSingleTagAmbiguity(1.0) // MT2 can handle maximally ambiguous perspectives. Accept tags regardless of ambiguity value.
+            .withMaxSingleTagDistance(0.0) // 0 disables this check
+            .withMaxAvgTagDistance(8.0)
+            .withMinAvgTagArea(0.02) //0-100, percentage of image area
+            .withFieldBounds(16.541, 8.069)
+            .withFieldBoundsMargin(0.5)
+            .withStdDevXY(0.3, 0.0001, 2.0)
+            .withStdDevTheta(PoseEstimateConfig.UNTRUSTED, PoseEstimateConfig.UNTRUSTED, PoseEstimateConfig.UNTRUSTED)
+            .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
+            .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
+    
+    @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
+    public static Limelight kLimelightMain = new Limelight(
+      "limelight-main", //TODO: name it right
+      new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)) //TODO: make sure these are right; also the pose of the limelight will change as it is on the turret
+    ).withPoseEstimateConfig_MT1(mt1Config)
+    .withPoseEstimateConfig_MT2(mt2Config);
+  }
   
   public static final class SwerveDriveConstants {
     //////////////////////////
@@ -207,7 +269,7 @@ public final class Constants {
   }
 
   public static final class TurretSwivelConstants {
-    public static final int kMotor1ID = 0;
+    public static final int kMotor1ID = 45;
 
     private static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -242,7 +304,6 @@ public final class Constants {
       .setMaxAngleTolerance(2)
       .setMaxVelocityTolerance(3)
       .setRelativePosition(new Pose2d(-0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
-    
   }
 
   public static final class IntakeRollerConstants {
@@ -269,15 +330,10 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withCurrentLimits(kCurrentLimitsConfigs)
         .withFeedback(kFeedbackConfigs);
-
-    // TODO test actual numbers
-    public static final double kIntakeVoltage = 11;
-    public static final double kOuttakeVoltage = -9.5;
   }
 
   public static final class ThroatConstants {
-    public static final int kMotor1ID = 25;
-    public static final int kMotor2ID = 24;
+    public static final int kMotor1ID = 27;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -300,15 +356,10 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
-
-    // TODO test actual numbers
-    public static double kConveyorVoltage = 5;
   }
 
   public static final class ConveyorBeltConstants {
-
-    //TODO
-    public static final int kMotor1ID = 0;
+    public static final int kMotor1ID = 26;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -334,14 +385,9 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
-
-    // TODO test actual numbers
-    public static double kConveyorVoltage = 8;
   }
 
     public static final class RollerFloor {
-
-    //TODO
     public static final int kMotor1ID = 0;
 
     public static final Slot0Configs kSlot0Configs = 
@@ -368,17 +414,11 @@ public final class Constants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
-    
-    // TODO test actual numbers
-    public static double kConveyorVoltage = 10;
   }
 
 public static final class ShooterConstants {
-    Follower followRequest = new Follower(kMotor2ID, MotorAlignmentValue.Opposed);
-
-    //TODO
-    public static final int kMotor1ID = 0;
-    public static final int kMotor2ID = 1;
+    public static final int kMotor1ID = 35;
+    public static final int kMotor2ID = 36;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -415,8 +455,7 @@ public static final class ShooterConstants {
   }
 
   public static final class HoodConstants {
-    //TODO
-    public static final int kMotor1ID = 0;
+    public static final int kMotor1ID = 37;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -452,8 +491,7 @@ public static final class ShooterConstants {
   }
 
   public static final class IntakeSlideConstants {
-    //TODO
-    public static final int kMotor1ID = 0;
+    public static final int kMotor1ID = 17;
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -478,80 +516,6 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLmitsConfigs);
-  }
-
-  public static final class ChoreoConstants {
-    private final static NerdPIDConstants kXControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
-    private final static NerdPIDConstants kYControllerConstants = new NerdPIDConstants(10.0, 0.0, 0);
-    private final static NerdPIDConstants kRControllerConstants = new NerdPIDConstants(7.5, 10.0, 0).enableContinuousInput(-Math.PI, Math.PI);
-
-    public final static PIDController kXController = kXControllerConstants.getController();
-    public final static PIDController kYController = kYControllerConstants.getController();
-    public final static PIDController kRController = kRControllerConstants.getController();
-  }
-
-
-  public static final class PathPlannerConstants {
-    public static final double kPP_P = 5.0;
-    public static final double kPP_I = 0.0;
-    public static final double kPP_D = 0.0;
- 
-    public static final PIDConstants kPPTranslationPIDConstants = new PIDConstants(kPP_P, kPP_I, kPP_D);
-
-    public static final double kPP_ThetaP = 4.0;
-    public static final double kPP_ThetaI = 0.0;
-    public static final double kPP_ThetaD = 0.1;
- 
-    public static final PIDConstants kPPRotationPIDConstants = new PIDConstants(kPP_ThetaP, kPP_ThetaI, kPP_ThetaD);
-  }
-
-  public static final class LoggingConstants {
-    public static final double LOGGING_INTERVAL = 0.02; // seconds
-
-    public static final String kSubsystemTab = "SuperSystem/"; // ends with a /
-    public static final String kSupersystemTab = "SuperSystem";
-    public static final String kSwerveTab = "SwerveDrive";
-    public static final String kAutosTab = "Autos";
-  }
-
-  public static final class VisionConstants {
-    /** how many frames to skip in disabled, to prevent overheating */
-    public static final int kDisabledThrottle = 100;
-
-    public static double untrusted = PoseEstimateConfig.UNTRUSTED;
-    //TODO: check these configs
-    public static PoseEstimateConfig mt1Config = PoseEstimateConfig.defaultMT1() // starting with the safe default means you are not required to set every single configuration value
-            .withMinTagCount(1)
-            .withMaxSingleTagAmbiguity(0.7) // MT1 needs low-ambiguity perspectives
-            .withMaxSingleTagDistance(4.0) // If we only see one tag, don't trust it unless we are at most 4m away from it
-            .withMaxAvgTagDistance(6.0) // If we see multiple tags, max avg distance must be less than 6 meters.
-            .withMinAvgTagArea(0.02) // 0-100, percentage of image area. This is .02%, not 2%.
-            .withFieldBounds(16.541, 8.069) // Reject pose estimates that are out of bounds.
-            .withFieldBoundsMargin(0.5) // Add .5m margin around field.
-            .withStdDevXY(0.5, 0.05, 2.0) // .5 base, absolute min .05, absolute max 2.0. With scaling enabled, .5 at 1m distance
-            .withStdDevTheta(untrusted, untrusted, untrusted) // never incorporate pose estimate rotation. You may want to incorporate rotation by setting these to other values
-            .withStdDevDistanceScaling(1.0, 0.0, 6.0) // linear scaling, only scale between 0 and 6m.
-            .withStdDevTagCountDivision(0.5); // Enhance trust by square root of number of contributing tags
-
-    public static PoseEstimateConfig mt2Config = PoseEstimateConfig.defaultMT2()
-            .withMinTagCount(1)
-            .withMaxSingleTagAmbiguity(1.0) // MT2 can handle maximally ambiguous perspectives. Accept tags regardless of ambiguity value.
-            .withMaxSingleTagDistance(0.0) // 0 disables this check
-            .withMaxAvgTagDistance(8.0)
-            .withMinAvgTagArea(0.02) //0-100, percentage of image area
-            .withFieldBounds(16.541, 8.069)
-            .withFieldBoundsMargin(0.5)
-            .withStdDevXY(0.3, 0.0001, 2.0)
-            .withStdDevTheta(untrusted, untrusted, untrusted)
-            .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
-            .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
-    
-    @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
-    public static Limelight kLimelightMain = new Limelight(
-      "limelight-main", //TODO: name it right
-      new Pose3d(-0.279,0,0.521, new Rotation3d(0,20,0)) //TODO: make sure these are right; also the pose of the limelight will change as it is on the turret
-    ).withPoseEstimateConfig_MT1(mt1Config)
-    .withPoseEstimateConfig_MT2(mt2Config);
   }
 
 // Template for subsystem based constants
@@ -615,8 +579,7 @@ public static final class ShooterConstants {
       //     .configureMotors(ExampleConstants.kSubsystemConfiguration);
 
       public static final boolean useTurretSwivel = true;
-      public static final TurretSwivel turretSwivel =
-        (!USE_SUBSYSTEMS) ? null :
+      public static final TurretSwivel turretSwivel = (!USE_SUBSYSTEMS) ? null :
         (TurretSwivel) new TurretSwivel(
             "Turret",
             TurretSwivelConstants.kMotor1ID,
@@ -628,74 +591,74 @@ public static final class ShooterConstants {
 
       public static final boolean useShooter = true;
       public static final TemplateSubsystem shooter = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-        "Shooter", 
-        ShooterConstants.kMotor1ID, 
-        SubsystemMode.VELOCITY, 
-        0.0, 
-        useShooter)
-      .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
-      .configureMotors(ShooterConstants.kSubsystemConfiguration);
+        new TemplateSubsystem(
+          "Shooter", 
+          ShooterConstants.kMotor1ID, 
+          SubsystemMode.VELOCITY, 
+          0.0, 
+          useShooter)
+        .addMotor(ShooterConstants.kMotor2ID, MotorAlignmentValue.Opposed)
+        .configureMotors(ShooterConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeRoller = true;
       public static final TemplateSubsystem intakeRoller = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-          "Intake Roller", 
-          IntakeRollerConstants.kMotor1ID, 
-          SubsystemMode.VOLTAGE, 
-          0.0,
-          useIntakeRoller)
+        new TemplateSubsystem(
+            "Intake Roller", 
+            IntakeRollerConstants.kMotor1ID, 
+            SubsystemMode.VOLTAGE, 
+            0.0,
+            useIntakeRoller)
         .configureMotors(IntakeRollerConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeSlide = true;
       public static final TemplateSubsystem intakeSlide = (!USE_SUBSYSTEMS) ? null:
-      new TemplateSubsystem(
-        "Intake Slide", 
-        IntakeSlideConstants.kMotor1ID, 
-        SubsystemMode.VOLTAGE, 
-        0.0, 
-        useIntakeRoller)
-      .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
+        new TemplateSubsystem(
+          "Intake Slide", 
+          IntakeSlideConstants.kMotor1ID, 
+          SubsystemMode.VOLTAGE, 
+          0.0, 
+          useIntakeRoller)
+        .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
 
       public static final boolean useThroat = true;
       public static final TemplateSubsystem throat = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-          "Throat", 
-          ThroatConstants.kMotor1ID, 
-          SubsystemMode.VOLTAGE, 
-          0.0,
-          useThroat)
-        .configureMotors(ThroatConstants.kSubsystemConfiguration);
+        new TemplateSubsystem(
+            "Throat", 
+            ThroatConstants.kMotor1ID, 
+            SubsystemMode.VOLTAGE, 
+            0.0,
+            useThroat)
+          .configureMotors(ThroatConstants.kSubsystemConfiguration);
 
       public static final boolean useConveyorBelt = true;
       public static final TemplateSubsystem conveyorBelt = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-        "Conveyor Belt", 
-        ConveyorBeltConstants.kMotor1ID, 
-        SubsystemMode.VELOCITY, 
-        0.0, 
-      useConveyorBelt)
-      .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration);
+        new TemplateSubsystem(
+          "Conveyor Belt", 
+          ConveyorBeltConstants.kMotor1ID, 
+          SubsystemMode.VELOCITY, 
+          0.0, 
+        useConveyorBelt)
+        .configureMotors(ConveyorBeltConstants.kSubsystemConfiguration);
 
       public static final boolean useRollerFloor = true;
       public static final TemplateSubsystem rollerFloor = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-        "Roller Floor", 
-        RollerFloor.kMotor1ID, 
-        SubsystemMode.VELOCITY, 
-        0.0, 
-      useConveyorBelt)
-      .configureMotors(RollerFloor.kSubsystemConfiguration);
+        new TemplateSubsystem(
+          "Roller Floor", 
+          RollerFloor.kMotor1ID, 
+          SubsystemMode.VELOCITY, 
+          0.0, 
+        useConveyorBelt)
+        .configureMotors(RollerFloor.kSubsystemConfiguration);
 
       public static final boolean useHood = true;
       public static final TemplateSubsystem hood = (!USE_SUBSYSTEMS) ? null :
-      new TemplateSubsystem(
-        "Hood", 
-        HoodConstants.kMotor1ID, 
-        SubsystemMode.POSITION,
-        0.0, 
-        useHood)
-      .configureMotors(HoodConstants.kSubsystemConfiguration);
+        new TemplateSubsystem(
+          "Hood", 
+          HoodConstants.kMotor1ID, 
+          SubsystemMode.POSITION,
+          0.0, 
+          useHood)
+        .configureMotors(HoodConstants.kSubsystemConfiguration);
 
       public static void init() {}
   }

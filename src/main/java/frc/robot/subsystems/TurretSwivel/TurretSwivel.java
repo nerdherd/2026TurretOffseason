@@ -43,13 +43,14 @@ public class TurretSwivel extends TemplateSubsystem {
     /**
      * Get the angle for the turret in robot relative space given the robot heading in world space and the desired angle in world space
      * <p>
-     * {@code robotHeading} and {@code desiredAngle} must be in the same unit
-     * @param robotHeading Heading of the robot in world space
-     * @param desiredAngle Desired angle of the turret in world space
-     * @return Necessary angle for the turret in robot relative space, in the same unit as the inputs
+     * Essentially just turret angle (in world space) - robot heading
+     * @param robotHeading Heading of the robot in world space, rad
+     * @param desiredAngle Desired angle of the turret in turret space, rad
+     * @return Necessary angle for the turret in robot relative space, in radians
      */
     public static double getRobotRelativeAngle(double robotHeading, double desiredAngle) {
-        return desiredAngle - robotHeading;
+        // "turret space" is clockwise, but world space is counterclockwise
+        return ((2*Math.PI)-desiredAngle) - robotHeading;
     }
 
     /**
