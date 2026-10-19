@@ -33,6 +33,7 @@ import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Rotation3d;
 import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.trajectory.TrapezoidProfile.Constraints;
 import org.wpilib.math.util.Units;
 
@@ -172,10 +173,12 @@ public final class Constants {
             .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
             .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
     
+    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right
+    
     @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
     public static Limelight kLimelightMain = new Limelight(
       "limelight-main", //TODO: name it right
-      new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)) //TODO: make sure these are right; also the pose of the limelight will change as it is on the turret
+      kLimelightMainZeroPosition
     ).withPoseEstimateConfig_MT1(mt1Config)
     .withPoseEstimateConfig_MT2(mt2Config);
   }
@@ -298,12 +301,14 @@ public final class Constants {
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
 
+    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.5,0.5, Rotation2d.ZERO); //TODO: SET VALUES
+
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
       .setUpperAngleBound(313)
       .setMaxAngleTolerance(2)
       .setMaxVelocityTolerance(3)
-      .setRelativePosition(new Pose2d(-0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
+      .setRelativePosition(kTurretSwivelRelativePosition); 
   }
 
   public static final class IntakeRollerConstants {

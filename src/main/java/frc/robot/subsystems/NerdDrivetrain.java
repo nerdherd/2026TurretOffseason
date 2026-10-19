@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.limelightvision.Limelight;
+import com.limelightvision.PoseEstimate;
 import com.limelightvision.PoseEstimateType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
@@ -265,16 +266,17 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
       );
     }
 
-    private Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.ZERO);
+    private final Pose2d nullPose = new Pose2d(-100,-100, Rotation2d.ZERO);
     public void visionUpdateAll(Limelight... limelights) {
         if (!useMegaTag2) {
             double totalAngle = 0.0;
             double estimateCount = 0.0;
             for (Limelight limelight : limelights){
-                for (var estimate : limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE)){
-                    ++estimateCount;
+                PoseEstimate[] acceptedPoseEstimates = limelight.readAcceptedPoseEstimates(PoseEstimateType.MT1_WPIBLUE);
+                for (var estimate : acceptedPoseEstimates){
                     totalAngle += estimate.pose.getRotation().getRadians();
                 }
+                estimateCount += acceptedPoseEstimates.length;
             }
             if (estimateCount == 0) return;
             resetRotation(new Rotation2d(totalAngle/estimateCount));
@@ -284,10 +286,11 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
             Limelight.setSharedRobotOrientation(yaw);
             for (Limelight limelight : limelights) {
                 field.getObject(limelight.getName()).setPose(nullPose);
-                for (var estimate : limelight.readAcceptedPoseEstimates(PoseEstimateType.MT2_WPIBLUE)) {
+                PoseEstimate[] acceptedPoseEstimates = limelight.readAcceptedPoseEstimates(PoseEstimateType.MT2_WPIBLUE);
+                for (var estimate : acceptedPoseEstimates) {
                     addVisionMeasurement(estimate.pose, estimate.timestampSeconds, estimate.stdDevs);
-                    field.getObject(limelight.getName()).setPose(estimate.pose);;
                 }
+                if (acceptedPoseEstimates.length > 0) field.getObject(limelight.getName()).setPose(acceptedPoseEstimates[0].pose);
             }
         }
     }

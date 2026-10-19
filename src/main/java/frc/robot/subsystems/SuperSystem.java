@@ -26,6 +26,7 @@ import org.wpilib.telemetry.Telemetry;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.LoggingConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.nerd_logging.NerdLog;
@@ -478,6 +479,13 @@ public class SuperSystem extends SuperSystemBase {
      */
     public double getTurretDistanceTo(Pose2d target) {
         return getExpectedTurretPosition().getTranslation().getDistance(target.getTranslation());
+    }
+
+    public void updateTurretSwivelLimelight() {
+        VisionConstants.kLimelightMain.setCameraPose_RobotSpaceOverride(
+            turretSwivel.getRotatedPose3d(VisionConstants.kLimelightMainZeroPosition), 
+            true
+        );
     }
 
     // ------------------------------------ logging ------------------------------------ //

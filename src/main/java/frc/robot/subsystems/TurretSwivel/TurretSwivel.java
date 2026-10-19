@@ -5,6 +5,10 @@ import static frc.robot.Constants.LoggingConstants.kSubsystemTab;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Translation3d;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
@@ -90,6 +94,18 @@ public class TurretSwivel extends TemplateSubsystem {
      */
     public Command goToAngleCommand(double desiredAngle) {
         return Commands.runOnce(() -> goToAngle(desiredAngle));
+    }
+    
+    /**
+     * Given a point in robot space, return that point rotated around the turret origin by the current heading
+     * @param original The original point
+     * @return The rotated point
+     */
+    public Pose3d getRotatedPose3d(Pose3d original) {
+        return original.rotateAround(
+            new Translation3d(turretSwivelConfiguration.relativePosition().getTranslation()), 
+            new Rotation3d(Rotation2d.fromRotations(getCurrentPosition()))
+        );
     }
 
     /**
