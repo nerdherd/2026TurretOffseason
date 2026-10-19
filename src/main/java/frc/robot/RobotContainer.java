@@ -13,6 +13,8 @@ import dev.doglog.DogLog;
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
 
+import static frc.robot.Constants.Subsystems.turretSwivel;
+
 import java.util.NoSuchElementException;
 
 import org.wpilib.command2.Command;
@@ -165,6 +167,15 @@ public class RobotContainer {
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
+
+        testController.dpadUp()
+            .onTrue(turretSwivel.goToAngleCommand(0));
+        testController.dpadRight()
+            .onTrue(turretSwivel.goToAngleCommand(104));
+        testController.dpadDown()
+            .onTrue(turretSwivel.goToAngleCommand(208));
+        testController.dpadLeft()
+            .onTrue(turretSwivel.goToAngleCommand(313));
     }
 
     public Command getAutonomousCommand() {
