@@ -300,7 +300,7 @@ public final class Constants {
 
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
-      .setUpperAngleBound(270)
+      .setUpperAngleBound(313)
       .setMaxAngleTolerance(2)
       .setMaxVelocityTolerance(3)
       .setRelativePosition(new Pose2d(-0.5,0.5, Rotation2d.ZERO)); //TODO: SET VALUES
