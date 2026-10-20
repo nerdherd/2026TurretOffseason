@@ -72,7 +72,7 @@ public final class Constants {
   /**
    * controls whether vision should be initialized
    */
-  public static final boolean USE_VISION = false;
+  public static final boolean USE_VISION = true;
  
   public static class ControllerConstants {
     public static final int kDriverControllerPort = 0;
@@ -147,6 +147,7 @@ public final class Constants {
     /** how many frames to skip in disabled, to prevent overheating */
     public static final int kDisabledThrottle = 100;
 
+    // TODO set
     public static PoseEstimateConfig mt1Config = PoseEstimateConfig.defaultMT1() // starting with the safe default means you are not required to set every single configuration value
             .withMinTagCount(1)
             .withMaxSingleTagAmbiguity(0.7) // MT1 needs low-ambiguity perspectives
@@ -160,6 +161,7 @@ public final class Constants {
             .withStdDevDistanceScaling(1.0, 0.0, 6.0) // linear scaling, only scale between 0 and 6m.
             .withStdDevTagCountDivision(0.5); // Enhance trust by square root of number of contributing tags
 
+    // TODO set
     public static PoseEstimateConfig mt2Config = PoseEstimateConfig.defaultMT2()
             .withMinTagCount(1)
             .withMaxSingleTagAmbiguity(1.0) // MT2 can handle maximally ambiguous perspectives. Accept tags regardless of ambiguity value.

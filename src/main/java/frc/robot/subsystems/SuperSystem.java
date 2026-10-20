@@ -9,6 +9,7 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
+import java.text.FieldPosition;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
@@ -230,6 +231,18 @@ public class SuperSystem extends SuperSystemBase {
     }
 
     /** 
+     * Stops the roller floor, conveyor belt, and intake slide
+     * @see {@link #setRollerFloor(RollerFloorMode)} {@link RollerFloorMode#STOP}
+     * @see {@link #setConveyorBelt(ConveyorBeltMode)} {@link ConveyorBeltMode#STOP}
+     * @see {@link #setIntakeSlide(IntakeSlideMode)} {@link IntakeSlideMode#STOP}
+     */
+    public void stopIndexing() {
+        setRollerFloor(RollerFloorMode.STOP);
+        setConveyorBelt(ConveyorBeltMode.STOP);
+        setIntakeSlide(IntakeSlideMode.STOP);
+    }
+
+    /** 
      * Starts indexing, then stops indexing after finished
      * @return continuous 
      * @see {@link #startIndexing()}
@@ -261,7 +274,7 @@ public class SuperSystem extends SuperSystemBase {
      * Returns if the robot is on the side with its alliance's depot
      */
     public boolean onDepotSide(){
-        boolean onTop = swerveDrivetrain.getPose().getY() > 4.03;
+        boolean onTop = swerveDrivetrain.getPose().getY() > FieldPositions.HUB_CENTER.get().getY();
         var alliance = MatchState.getAlliance();
         if (alliance.isPresent() && alliance.get() == Alliance.BLUE){
             return onTop;
@@ -273,10 +286,13 @@ public class SuperSystem extends SuperSystemBase {
 
     /**
      * schedule during teleop
-     * TODO: Javadoc
-     * @param ejectBinding
-     * @param shootBinding
-     * @param passBinding
+     * <p>
+     * determines turret target based on bindings and runs {@link #prepTurret(Pose2d)} if any are true
+     * <p>
+     * calls {@link frc.robot.Constants.Subsystems#hood hood}{@link frc.robot.subsystems.template.TemplateSubsystem#setDesiredValue(double) .setDesiredValue()}
+     * using {@link frc.robot.Constants.HoodConstants#kHoodTable HoodConstants.kHoodTable} and {@link #startIndexing()} if ready to shoot
+     * @param shootBinding Supply true to shoot (takes priority over passing)
+     * @param passBinding Supply true to pass
      * @return continuous
      */
     public Command shootCommand(Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
@@ -297,6 +313,8 @@ public class SuperSystem extends SuperSystemBase {
             ) { 
                 hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                 startIndexing();
+            } else {
+                stopIndexing();
             };
         }, shooter, hood, turretSwivel, rollerFloor, throat)
             .andThen(Commands.parallel(
