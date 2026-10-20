@@ -38,12 +38,6 @@ public class TurretSwivel extends TemplateSubsystem {
         return this;
     }
 
-    // TODO: figure out if we need tihs
-    // public Pose2d getPose(Pose2d swervePosition, double heading) {
-    //     Translation2d translation = turretSwivelConfiguration.relativePosition().getTranslation().rotateBy(Rotation2d.fromDegrees(heading));
-    //     return swervePosition.transformBy(new Transform2d(translation, Rotation2d.ZERO));
-    // }
-
     /**
      * Get the angle for the turret in robot relative space given the robot heading in world space and the desired angle in world space
      * <p>
