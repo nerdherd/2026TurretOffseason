@@ -256,6 +256,7 @@ public class SuperSystem extends SuperSystemBase {
             setIntakeSlideCommand(IntakeSlideMode.STOP)
         );
     }
+    
     /**
      * Returns if the robot is on the side with its alliance's depot
      */
@@ -278,20 +279,22 @@ public class SuperSystem extends SuperSystemBase {
      * @param passBinding
      * @return continuous
      */
-    public Command shootCommand(Supplier<Boolean> ejectBinding, Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
+    public Command shootCommand(Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
         return Commands.run(() -> {
             Pose2d target = null;
-            if (shootBinding.get()) target = FieldPositions.HUB_CENTER.get();
+            if (shootBinding.get())       target = FieldPositions.HUB_CENTER.get();
             else if (passBinding.get()) {
-                if (onDepotSide()) target = FieldPositions.DEPOT_PASSING.get();
-                else target = FieldPositions.OUTPOST_PASSING.get();
+                if (onDepotSide())        target = FieldPositions.DEPOT_PASSING.get();
+                else                      target = FieldPositions.OUTPOST_PASSING.get();
             }
             if (target == null) return;
 
             prepTurret(target);
 
-            if (turretSwivel.isReadyToShoot(swerveDrivetrain) && 
-            (Math.abs(shooter.getCurrentVelocity() - shooter.getDesiredValue()) < ShooterConstants.kVelocityTolerance)){ 
+            if ( 
+                turretSwivel.isReadyToShoot(swerveDrivetrain) && 
+                shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance)
+            ) { 
                 hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                 startIndexing();
             };
@@ -307,8 +310,10 @@ public class SuperSystem extends SuperSystemBase {
             Pose2d target = FieldPositions.HUB_CENTER.get();
             prepTurret(target);
 
-            if (turretSwivel.isReadyToShoot(swerveDrivetrain) && 
-            (Math.abs(shooter.getCurrentVelocity() - shooter.getDesiredValue()) < ShooterConstants.kVelocityTolerance)){ 
+            if (
+                turretSwivel.isReadyToShoot(swerveDrivetrain) && 
+                shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance)
+            ) { 
                 hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                 startIndexing();
             };

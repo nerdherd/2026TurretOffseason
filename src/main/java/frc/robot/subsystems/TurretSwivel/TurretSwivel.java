@@ -54,7 +54,7 @@ public class TurretSwivel extends TemplateSubsystem {
      */
     public static double getRobotRelativeAngle(double robotHeading, double desiredAngle) {
         // "turret space" is clockwise, but world space is counterclockwise
-        return ((2*Math.PI)-desiredAngle) - robotHeading;
+        return (Math.TAU - desiredAngle) - robotHeading;
     }
 
     /**
@@ -64,9 +64,9 @@ public class TurretSwivel extends TemplateSubsystem {
      * @return Whether or not the turret is ready to shoot or not
      */
     public boolean isReadyToShoot(NerdDrivetrain drivetrain){
-        if (Math.abs(this.getCurrentVelocity() + (drivetrain.getRotationalVelocity() / (2 * Math.PI))) > turretSwivelConfiguration.maxVelocityTolerance())
+        if (Math.abs(this.getCurrentVelocity()*Math.TAU + drivetrain.getRotationalVelocity()) > turretSwivelConfiguration.maxVelocityTolerance())
             return false;
-        if (Math.abs(this.getCurrentPosition()-this.getDesiredValue())*360 > turretSwivelConfiguration.maxAngleTolerance())
+        if (isValueWithinTolerance(turretSwivelConfiguration.maxAngleTolerance()))
             return false;
         double angleDegrees = this.getCurrentPosition()*360;
         if (angleDegrees < turretSwivelConfiguration.lowerAngleBound() || angleDegrees > turretSwivelConfiguration.upperAngleBound())

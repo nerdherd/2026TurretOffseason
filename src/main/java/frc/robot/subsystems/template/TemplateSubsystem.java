@@ -320,6 +320,15 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 
 	/**
+	 * True if the current value is less than tolerance away from the desired value
+	 * @param tolerance the tolerance
+	 * @return if the current value is less than tolerance away from the desired value
+	 */
+	public boolean isValueWithinTolerance(double tolerance) {
+		return Math.abs(getCurrentValue().getValueAsDouble() - getDesiredValue()) < tolerance;
+	}
+
+	/**
 	 * @return temperature of {@link #primaryMotor}
 	 */
 	public double getCurrentTemp(){

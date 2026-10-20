@@ -28,7 +28,8 @@ public record TurretSwivelConfiguration(double lowerAngleBound, double upperAngl
      * @param maxAngleTolerance upper bound in degrees for the difference between the current angle and the angle to the hub
      */
     public TurretSwivelConfiguration setMaxAngleTolerance(double maxAngleTolerance){
-        return new TurretSwivelConfiguration(lowerAngleBound, upperAngleBound, relativePosition, maxAngleTolerance, maxVelocityTolerance);
+        // maxAngleTolerance is stored in rotations instead of degrees
+        return new TurretSwivelConfiguration(lowerAngleBound, upperAngleBound, relativePosition, maxAngleTolerance/360, maxVelocityTolerance);
     } 
     /** Set max velocity tolerance of the turret
      * @param maxVelocityTolerance upper bound in meters/second for how fast the turret can be spinning
