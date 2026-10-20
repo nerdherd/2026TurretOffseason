@@ -9,7 +9,6 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
-import java.text.FieldPosition;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
@@ -155,10 +154,18 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #setIntakeRoller(IntakeRollerMode)} {@link IntakeRollerMode#INTAKE}
      */
     public Command startIntakingCommand() {
-        return continuousParallelCommand(
-            setIntakeSlideCommand(IntakeSlideMode.HOLD),
-            setIntakeRollerCommand(IntakeRollerMode.INTAKE)
-        ).andThen(stopIntakeCommand());
+        // TODO test
+        return Commands.startEnd(
+            () -> {
+                setIntakeSlide(IntakeSlideMode.HOLD);
+                setIntakeRoller(IntakeRollerMode.INTAKE);
+            },
+            () -> {
+                setIntakeSlide(IntakeSlideMode.STOP);
+                setIntakeRoller(IntakeRollerMode.STOP);
+            },
+            intakeSlide, intakeRoller
+        );
     }
     
     /** 
@@ -171,13 +178,24 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #setThroat(ThroatMode)} {@link ThroatMode#OUT}
      */
     public Command startOuttakingCommand(){
-        return continuousParallelCommand(
-                setIntakeSlideCommand(IntakeSlideMode.HOLD),
-                setIntakeRollerCommand(IntakeRollerMode.OUTTAKE),
-                setRollerFloorCommand(RollerFloorMode.OUT),
-                setConveyorBeltCommand(ConveyorBeltMode.OUT),
-                setThroatCommand(ThroatMode.OUT)
-            ).andThen(stopIntakeCommand());
+        // TODO test
+        return Commands.startEnd(
+            () -> {
+                setIntakeSlide(IntakeSlideMode.HOLD);
+                setIntakeRoller(IntakeRollerMode.OUTTAKE);
+                setRollerFloor(RollerFloorMode.OUT);
+                setConveyorBelt(ConveyorBeltMode.OUT);
+                setThroat(ThroatMode.OUT);
+            },
+            () -> {
+                setIntakeSlide(IntakeSlideMode.STOP);
+                setIntakeRoller(IntakeRollerMode.STOP);
+                setRollerFloor(RollerFloorMode.STOP);
+                setConveyorBelt(ConveyorBeltMode.STOP);
+                setThroat(ThroatMode.STOP);
+            },
+            intakeSlide, intakeRoller, rollerFloor, conveyorBelt, throat
+        );
     }
 
     /** 
@@ -249,9 +267,13 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #stopIndexingCommand()}
      */
     public Command startIndexingCommand() {
+        // TODO test
         return Commands.runOnce(()->startShootTime = MathSharedStore.getTimestamp()).andThen(
-            Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
-            .andThen(stopIndexingCommand())
+            Commands.runEnd(
+                () -> startIndexing(), 
+                () -> stopIndexing(), 
+                rollerFloor, conveyorBelt, throat
+            )
         );
     }
 
@@ -296,31 +318,40 @@ public class SuperSystem extends SuperSystemBase {
      * @return continuous
      */
     public Command shootCommand(Supplier<Boolean> shootBinding, Supplier<Boolean> passBinding) {
-        return Commands.run(() -> {
-            Pose2d target = null;
-            if (shootBinding.get())       target = FieldPositions.HUB_CENTER.get();
-            else if (passBinding.get()) {
-                if (onDepotSide())        target = FieldPositions.DEPOT_PASSING.get();
-                else                      target = FieldPositions.OUTPOST_PASSING.get();
-            }
-            if (target == null) return;
+        // TODO test
+        return Commands.runEnd(
+            () -> {
+                Pose2d target = null;
+                
+                if (shootBinding.get())       target = FieldPositions.HUB_CENTER.get();
+                else if (passBinding.get()) {
+                    if (onDepotSide())        target = FieldPositions.DEPOT_PASSING.get();
+                    else                      target = FieldPositions.OUTPOST_PASSING.get();
+                }
 
-            prepTurret(target);
+                if (target == null) {
+                    stopIndexing();
+                    return;
+                }
 
-            if ( 
-                turretSwivel.isReadyToShoot(swerveDrivetrain) && 
-                shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance)
-            ) { 
-                hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
-                startIndexing();
-            } else {
+                prepTurret(target);
+
+                if ( 
+                    turretSwivel.isReadyToShoot(swerveDrivetrain) && 
+                    shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance)
+                ) { 
+                    hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
+                    startIndexing();
+                } else {
+                    stopIndexing();
+                };
+            }, 
+            () -> {
                 stopIndexing();
-            };
-        }, shooter, hood, turretSwivel, rollerFloor, throat)
-            .andThen(Commands.parallel(
-                stopIndexingCommand(),
-                stopFlywheelCommand()
-            ));
+                shooter.setDesiredValue(0.0);
+            }, 
+            shooter, hood, turretSwivel, rollerFloor, throat
+        );
     }
 
     public Command startShootAutoCommand() {
@@ -375,8 +406,12 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #prepTurret(Pose2d)}
      */
     public Command prepTurretCommand(Pose2d target) {
-        return Commands.run(() -> prepTurret(target), turretSwivel, shooter, hood)
-            .andThen(stopFlywheelCommand());
+        // TODO test
+        return Commands.runEnd(
+            () -> prepTurret(target), 
+            () -> shooter.setDesiredValue(0.0), 
+            turretSwivel, shooter, hood
+        );
     }
 
     /**
@@ -409,8 +444,12 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #shootWithDistance(Pose2d)}
      */
     public Command shootWithDistanceCommand(Pose2d target) {
-        return Commands.run(() -> shootWithDistance(target), shooter)
-            .andThen(stopFlywheelCommand());
+        // TODO test
+        return Commands.runEnd(
+            () -> shootWithDistance(target), 
+            () -> shooter.setDesiredValue(0.0), 
+            shooter
+        );
     }
 
     /**

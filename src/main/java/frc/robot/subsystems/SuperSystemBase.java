@@ -3,10 +3,6 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import org.wpilib.command2.Command;
-import org.wpilib.command2.Commands;
-import org.wpilib.command2.ParallelCommandGroup;
-
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.subsystems.template.TemplateSubsystem;
@@ -52,23 +48,6 @@ public class SuperSystemBase implements Reportable {
     }
 
     // ------ helper functions ------ //
-    /**
-     * UNTESTED
-     * <p>
-     * Groups all inputted commands into a {@link org.wpilib.command2.ParallelCommandGroup ParallelCommandGroup} along with a {@link org.wpilib.command2.Commands#idle() Commands.idle()}
-     * <p>
-     * Basically, converts a group of commands (e.g. runonce) into a command that can run continuously
-     * <p>
-     * Allows things like {@link org.wpilib.command2.Command#andThen(Command...) .andThen(...)}
-     * @param commands A collection of commands to group together
-     * @return A "continuous" command
-     */
-    public ParallelCommandGroup continuousParallelCommand(Command... commands) {
-        ParallelCommandGroup c2 = new ParallelCommandGroup(commands);
-        c2.addCommands(Commands.idle());
-        return c2;
-    }
-
     /**
      * Runs {@link frc.robot.subsystems.template.TemplateSubsystem#applyMotorConfigs() TemplateSubsystem.applyMotorConfigs()} on every registered subsystem
      * @see {@link #registerSubsystem(TemplateSubsystem)}

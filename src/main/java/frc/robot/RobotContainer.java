@@ -134,7 +134,7 @@ public class RobotContainer {
 
             CommandScheduler.getInstance().schedule(
                 superSystem.shootCommand(
-                    () -> operatorController.getBumperRight(),  // eject
+                    // () -> operatorController.getBumperRight(),  // eject
                     () -> operatorController.getTriggerRight(), // spin up shoot
                     () -> operatorController.getButtonUp()      // spin up pass
                 )
