@@ -9,7 +9,6 @@ import static frc.robot.Constants.Subsystems.shooter;
 import static frc.robot.Constants.Subsystems.throat;
 import static frc.robot.Constants.Subsystems.turretSwivel;
 
-import java.text.FieldPosition;
 import java.util.function.Supplier;
 
 import org.wpilib.command2.Command;
