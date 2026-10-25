@@ -174,7 +174,7 @@ public final class Constants {
             .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
             .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
     
-    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right
+    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right //forward robot is pos y, right is pos x
     
     @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
     public static Limelight kLimelightMain = new Limelight(
@@ -302,7 +302,7 @@ public final class Constants {
         .withMotionMagic(kMotionMagicConfigs)
         .withMotorOutput(kMotorOutputConfigs);
 
-    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.5,0.5, Rotation2d.ZERO); //TODO: SET VALUES
+    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.15875,-0.12065, Rotation2d.ZERO); //TODO: SET VALUES // forward is pos y, right is pos x
 
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
