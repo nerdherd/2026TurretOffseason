@@ -251,8 +251,8 @@ public class NerdDrivetrain extends TunerSwerveDrivetrain implements Subsystem, 
      * @param limelights which limelights to activate/deactivate
      */
     public void setVision(boolean activate, Limelight... limelights) {
-        int newPipeline = (activate) ? 0 : 1;
-        int newThrottle = (activate) ? 0 : 100; // TODO set this value
+        int newPipeline = (activate) ? 0 : 0;//1;
+        int newThrottle = (activate) ? 0 : 0;//VisionConstants.kDisabledThrottle;
         for (Limelight limelight : limelights) {
             limelight.setPipelineIndex(newPipeline);
             limelight.setThrottle(newThrottle);

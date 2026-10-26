@@ -248,10 +248,10 @@ public class SuperSystem extends SuperSystemBase {
      * @see {@link #stopIndexingCommand()}
      */
     public Command startIndexingCommand() {
-        return Commands.runOnce(()->startShootTime = MathSharedStore.getTimestamp()).andThen(
-            Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
+        return Commands.run(() -> startIndexing(), rollerFloor, conveyorBelt, throat)
+            .beforeStarting(() -> startShootTime = MathSharedStore.getTimestamp())
             .andThen(stopIndexingCommand())
-        );
+        ;
     }
 
     /** 
@@ -303,7 +303,6 @@ public class SuperSystem extends SuperSystemBase {
                 else                      target = FieldPositions.OUTPOST_PASSING.get();
             }
             if (target == null) return;
-
             prepTurret(target);
 
             if ( 
@@ -426,7 +425,6 @@ public class SuperSystem extends SuperSystemBase {
         );
         
         turretSwivel.goToAngle(NerdyMath.radiansToDegrees(angleToHubRad));
-
         if (RobotBase.isSimulation()) Telemetry.log("Turret Pose", new Pose2d(expectedTurretPose.getTranslation(), Rotation2d.fromDegrees(turretSwivel.getDesiredValue()*360 + expectedTurretPose.getRotation().getDegrees())));
     }
 

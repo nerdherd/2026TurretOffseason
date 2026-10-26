@@ -122,6 +122,7 @@ public class NerdyMath {
         return (a*a + b*b) < r*r;
     }
 
+    /** rad */
     public static double angleToPose(Pose2d from, Pose2d to) {
         return Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
     }

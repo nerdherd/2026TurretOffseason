@@ -7,13 +7,13 @@ import org.wpilib.hardware.bus.CANPort;
 import org.wpilib.hardware.power.PowerDistribution;
 import org.wpilib.system.RobotController;
 import org.wpilib.tunable.Tunable;
+import org.wpilib.tunable.TunableDouble;
+import org.wpilib.tunable.Tunables;
 
 import dev.doglog.DogLog;
 
 import org.wpilib.hardware.power.PowerDistribution.ModuleType;
 import org.wpilib.math.geometry.Translation2d;
-
-import static frc.robot.Constants.Subsystems.turretSwivel;
 
 import java.util.NoSuchElementException;
 
@@ -22,18 +22,22 @@ import org.wpilib.command2.CommandScheduler;
 import org.wpilib.command2.Commands;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.Subsystems;
 import frc.robot.commands.SwerveJoystickCommand;
 import frc.robot.Constants.SwerveDriveConstants;
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.commands.autos.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.subsystems.SuperSystem.HoodMode;
 import frc.robot.subsystems.SuperSystem.IntakeSlideMode;
+import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.util.nerd_controller.Controller;
 import frc.robot.util.nerd_logging.NerdLog;
 import frc.robot.util.nerd_logging.Reportable.LOG_LEVEL;
+import frc.robot.util.nerd_math.NerdyMath;
 
 
 public class RobotContainer {
@@ -166,15 +170,28 @@ public class RobotContainer {
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
+        TunableDouble speedTuner = TunableDouble.create();
 
-        testController.dpadUp()
-            .onTrue(turretSwivel.goToAngleCommand(0));
-        testController.dpadRight()
-            .onTrue(turretSwivel.goToAngleCommand(104));
-        testController.dpadDown()
-            .onTrue(turretSwivel.goToAngleCommand(208));
-        testController.dpadLeft()
-            .onTrue(turretSwivel.goToAngleCommand(313));
+        Tunables.publish("Test/speed", speedTuner);
+        operatorController.triggerRight()
+            .whileTrue(Commands.run(() -> Subsystems.shooter.setDesiredValue(NerdyMath.clamp(speedTuner.get(), 0.0, 55.0)), Subsystems.shooter));
+        
+        TunableDouble hoodTuner = TunableDouble.create();
+        Tunables.publish("Test/hood", hoodTuner);
+        operatorController.triggerLeft()
+            .whileTrue(Commands.run(() -> Subsystems.hood.setDesiredValue(NerdyMath.clamp(hoodTuner.get(), HoodConstants.kDownPos, HoodConstants.kUpPos)), Subsystems.hood));
+        
+        TunableDouble swivelTuner = TunableDouble.create();
+        Tunables.publish("Test/swivel", swivelTuner);
+        operatorController.buttonRight()
+            .whileTrue(Commands.run(() -> Subsystems.turretSwivel.goToAngle(swivelTuner.get()), Subsystems.turretSwivel));
+        operatorController.buttonLeft()
+            .whileTrue(Commands.run(() -> Subsystems.turretSwivel.goToAngle(TurretSwivel.getRobotRelativeAngle(swerveDrive.getSwerveHeadingDegrees(), swivelTuner.get())), Subsystems.turretSwivel));
+
+        operatorController.bumperRight()
+            .whileTrue(superSystem.startIndexingCommand());
+        operatorController.bumperLeft()
+            .whileTrue(superSystem.lookAtPointCommand(FieldPositions.HUB_CENTER.get()));
     }
 
     public Command getAutonomousCommand() {
