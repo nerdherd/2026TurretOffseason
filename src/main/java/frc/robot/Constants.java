@@ -179,8 +179,7 @@ public final class Constants {
             .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
             .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
     
-    // forward +x, left +y
-    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); 
+    public static Pose3d kLimelightMainZeroPosition = new Pose3d(0,0.279,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right //forward is pos x, left is pos y
     
     @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
     public static Limelight kLimelightMain = new Limelight(
@@ -330,7 +329,7 @@ public final class Constants {
       new FeedbackConfigs()
         .withFeedbackRemoteSensorID(kCANdiID)
         .withFeedbackRotorOffset(0.0)
-        .withSensorToMechanismRatio(1.0)
+        .withSensorToMechanismRatio(200.0/18.0)
       ;
 
     public static final TalonFXConfiguration kSubsystemConfiguration = 
@@ -341,8 +340,7 @@ public final class Constants {
         .withMotorOutput(kMotorOutputConfigs)
         .withFeedback(kFeedbackConfigs);
 
-    // forward is +x, left is +y
-    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.15875,-0.12065, Rotation2d.ZERO); 
+    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.12065,0.15875, Rotation2d.ZERO); //TODO: SET VALUES // forward is pos x, left is pos y
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
       .setUpperAngleBound(313)
