@@ -32,7 +32,7 @@ public record TurretSwivelConfiguration(double lowerAngleBound, double upperAngl
         return new TurretSwivelConfiguration(lowerAngleBound, upperAngleBound, relativePosition, maxAngleTolerance/360, maxVelocityTolerance);
     } 
     /** Set max velocity tolerance of the turret
-     * @param maxVelocityTolerance upper bound in meters/second for how fast the turret can be spinning
+     * @param maxVelocityTolerance upper bound in deg/second for how fast the turret can be spinning
      */
     public TurretSwivelConfiguration setMaxVelocityTolerance(double maxVelocityTolerance){
         return new TurretSwivelConfiguration(lowerAngleBound, upperAngleBound, relativePosition, maxAngleTolerance, maxVelocityTolerance);

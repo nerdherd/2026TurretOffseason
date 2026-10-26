@@ -13,7 +13,7 @@ import org.wpilib.math.geometry.Translation3d;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import dev.doglog.DogLog;
-import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_math.NerdyMath;
@@ -55,6 +55,15 @@ public class TurretSwivel extends TemplateSubsystem {
         return robotHeading - desiredAngle;
     }
 
+    @Override
+    public void periodic() {
+        super.periodic();
+        VisionConstants.kLimelightMain.setCameraPose_RobotSpaceOverride(
+            getRotatedPose3d(VisionConstants.kLimelightMainZeroPosition), 
+            true
+        ); 
+    }
+
     /**
      * Checks if the turret is currently ready to shoot
      * <p>
@@ -62,7 +71,7 @@ public class TurretSwivel extends TemplateSubsystem {
      * @return Whether or not the turret is ready to shoot or not
      */
     public boolean isReadyToShoot(NerdDrivetrain drivetrain){
-        if (Math.abs(getRobotRelativeAngle(drivetrain.getRotationalVelocity(), this.getCurrentVelocity()*Math.TAU)) > turretSwivelConfiguration.maxVelocityTolerance())
+        if (Math.abs(getRobotRelativeAngle(NerdyMath.radiansToDegrees(drivetrain.getRotationalVelocity()), this.getCurrentVelocity()*360.0)) > turretSwivelConfiguration.maxVelocityTolerance())
             return false;
         if (isValueWithinTolerance(turretSwivelConfiguration.maxAngleTolerance()))
             return false;
@@ -106,12 +115,6 @@ public class TurretSwivel extends TemplateSubsystem {
             new Rotation3d(Rotation2d.fromRotations(getCurrentPosition()))
         );
     }
-    public double getTurretEncoderPosition() {
-    return Constants.TurretSwivelConstants.kTurretCANdi
-        .getPWM1Position()
-        .getValueAsDouble();
-}
-
 
     /**
      * Gets the relative position of the turret to the center of the robot
@@ -138,15 +141,4 @@ public class TurretSwivel extends TemplateSubsystem {
 		applyMotorConfigs();
 		return this;
 	}
-    @Override
-    public double getCurrentPosition() {
-        return getTurretEncoderPosition();
-    }
-
-    @Override
-    public double getCurrentVelocity() {
-        return Constants.TurretSwivelConstants.kTurretCANdi
-            .getPWM1Velocity()
-            .getValueAsDouble();
-    }
 }

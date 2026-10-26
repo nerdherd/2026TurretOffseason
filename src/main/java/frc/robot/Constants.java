@@ -20,8 +20,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.*;
 import com.limelightvision.Limelight;
 import com.limelightvision.PoseEstimateConfig;
@@ -181,7 +179,8 @@ public final class Constants {
             .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
             .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
     
-    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right //forward robot is pos y, right is pos x
+    // forward +x, left +y
+    public static Pose3d kLimelightMainZeroPosition = new Pose3d(-0.279,0,0.521, Rotation3d.fromDegrees(0,-20,0)); 
     
     @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
     public static Limelight kLimelightMain = new Limelight(
@@ -305,9 +304,8 @@ public final class Constants {
   // ------------------------ subsystem constants ------------------------------- //
   public static final class TurretSwivelConstants {
     public static final int kMotor1ID = 45;
-    public static final int kCANdiID = 50; // TODO change to the real ID
-    public static final CANdi kTurretCANdi = new CANdi(kCANdiID, null); // TODO change
-    public static final CANdiConfiguration kCANdiConfiguration = new CANdiConfiguration();
+    public static final int kCANdiID = 50;
+
     private static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
         .withKP(0.5)
@@ -328,15 +326,23 @@ public final class Constants {
         .withMotionMagicCruiseVelocity(10)
         .withMotionMagicAcceleration(25);
     
+    private static final FeedbackConfigs kFeedbackConfigs = 
+      new FeedbackConfigs()
+        .withFeedbackRemoteSensorID(kCANdiID)
+        .withFeedbackRotorOffset(0.0)
+        .withSensorToMechanismRatio(1.0)
+      ;
+
     public static final TalonFXConfiguration kSubsystemConfiguration = 
       new TalonFXConfiguration()
         .withSlot0(kSlot0Configs)
         .withCurrentLimits(kMotorCurrentLimitsConfigs)
         .withMotionMagic(kMotionMagicConfigs)
-        .withMotorOutput(kMotorOutputConfigs);
+        .withMotorOutput(kMotorOutputConfigs)
+        .withFeedback(kFeedbackConfigs);
 
-    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.15875,-0.12065, Rotation2d.ZERO); //TODO: SET VALUES // forward is pos y, right is pos x
-
+    // forward is +x, left is +y
+    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.15875,-0.12065, Rotation2d.ZERO); 
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
       .setUpperAngleBound(313)
@@ -502,8 +508,7 @@ public static final class ShooterConstants {
   public static final class HoodConstants {
     public static final int kMotor1ID = 37;
     public static final int kCANcoderID = 40; // TODO change to the actual ID
-    public static final CANcoder kHoodCANcoder = new CANcoder(kCANcoderID, null); // TODO change the value to match 
-    public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration();
+
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
       //TODO
@@ -524,13 +529,17 @@ public static final class ShooterConstants {
     private static final FeedbackConfigs kFeedbackConfigs =
       new FeedbackConfigs()
           .withFeedbackRemoteSensorID(kCANcoderID)
-          .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder);
+          .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+          .withFeedbackRotorOffset(0.0)
+          .withSensorToMechanismRatio(1.0)
+        ;
     public static final TalonFXConfiguration kSubsystemConfiguration =
       new TalonFXConfiguration()
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs)
         .withFeedback(kFeedbackConfigs);
+    
     public static final double kUpPos = 1.0; 
     public static final double kDownPos = 0.0;
 
@@ -709,10 +718,7 @@ public static final class ShooterConstants {
           0.0, 
           useHood)
         .configureMotors(HoodConstants.kSubsystemConfiguration);
-      static {
-        TurretSwivelConstants.kTurretCANdi.getConfigurator().apply(TurretSwivelConstants.kCANdiConfiguration);
-        HoodConstants.kHoodCANcoder.getConfigurator().apply(HoodConstants.kCANcoderConfiguration);
-      }
+
       public static void init() {}
   }
 }
