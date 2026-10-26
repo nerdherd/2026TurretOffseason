@@ -1,16 +1,13 @@
 package frc.robot.commands.autos;
 
 import org.wpilib.tunable.Selectable;
-import org.wpilib.tunable.Tunable;
 import org.wpilib.tunable.Tunables;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.Commands;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.events.EventTrigger;
 
-import choreo.trajectory.EventMarker;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.subsystems.SuperSystem.IntakeRollerMode;
 import frc.robot.subsystems.SuperSystem.IntakeSlideMode;

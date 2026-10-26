@@ -6,7 +6,6 @@ package frc.robot;
  
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -24,6 +23,7 @@ import com.limelightvision.Limelight;
 import com.limelightvision.PoseEstimateConfig;
 import com.pathplanner.lib.config.PIDConstants;
 
+import frc.robot.Constants.SwerveDriveConstants.FieldPositions;
 import frc.robot.subsystems.TurretSwivel.TurretSwivel;
 import frc.robot.subsystems.TurretSwivel.TurretSwivelConfiguration;
 
@@ -45,6 +45,9 @@ import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
+import frc.robot.util.nerd_zones.NerdZone;
+import frc.robot.util.nerd_zones.RectangleZone;
+import frc.robot.util.nerd_zones.ZoneGroup;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -272,6 +275,30 @@ public final class Constants {
     }
   }
 
+  public static final class ZoneConstants {
+    public static final double kHubRadius = 4.5;
+    public static final double kTrenchWidth = 1.2;
+    public static final double kDistFromCenterLongPass = 0.0;
+
+    private static final NerdZone kBlueTrench = 
+      new RectangleZone(
+        new Pose2d(FieldPositions.HUB_CENTER.blue.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
+        new Pose2d(FieldPositions.HUB_CENTER.blue.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
+    private static final NerdZone kRedTrench = 
+      new RectangleZone(
+        new Pose2d(FieldPositions.HUB_CENTER.red.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
+        new Pose2d(FieldPositions.HUB_CENTER.red.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
+
+    // private static final NerdZone kBlueHub = new SemicircleZone(FieldPositions.HUB_CENTER.blue, ZoneConstants.kHubRadius);
+    // private static final NerdZone kRedHub = new SemicircleZone(FieldPositions.HUB_CENTER.red, ZoneConstants.kHubRadius);
+
+    public static final NerdZone kNoShootZone = new ZoneGroup(
+      kBlueTrench,
+      kRedTrench
+    );
+  }
+  
+  // ------------------------ subsystem constants ------------------------------- //
   public static final class TurretSwivelConstants {
     public static final int kMotor1ID = 45;
 
