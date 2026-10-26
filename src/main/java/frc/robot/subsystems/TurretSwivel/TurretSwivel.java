@@ -63,7 +63,7 @@ public class TurretSwivel extends TemplateSubsystem {
             return false;
         if (isValueWithinTolerance(turretSwivelConfiguration.maxAngleTolerance()))
             return false;
-        double angleDegrees = this.getTurretEncoderPosition()*360;
+        double angleDegrees = this.getCurrentPosition()*360;
         if (angleDegrees < turretSwivelConfiguration.lowerAngleBound() || angleDegrees > turretSwivelConfiguration.upperAngleBound())
             return false;
         return true;
@@ -102,11 +102,7 @@ public class TurretSwivel extends TemplateSubsystem {
             new Rotation3d(Rotation2d.fromRotations(getCurrentPosition()))
         );
     }
-    public double getTurretEncoderPosition() {
-    return Constants.TurretSwivelConstants.kTurretCANdi
-        .getPWM1Position()
-        .getValueAsDouble();
-}
+
 
 
     /**
@@ -134,15 +130,4 @@ public class TurretSwivel extends TemplateSubsystem {
 		applyMotorConfigs();
 		return this;
 	}
-    @Override
-    public double getCurrentPosition() {
-        return getTurretEncoderPosition();
-    }
-
-    @Override
-    public double getCurrentVelocity() {
-        return Constants.TurretSwivelConstants.kTurretCANdi
-            .getPWM1Velocity()
-            .getValueAsDouble();
-    }
 }
