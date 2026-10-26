@@ -12,10 +12,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -179,7 +175,7 @@ public final class Constants {
             .withStdDevDistanceScaling(0.5, 0.0, 8.0) // Less aggressive STDDev scaling for MT2. Scale by sqrt(distance) rather than distance^1.
             .withStdDevTagCountDivision(0.5); // Enhance trust by a factor equal to the square root of number of contributing tags
     
-    public static Pose3d kLimelightMainZeroPosition = new Pose3d(0,0.279,0.521, Rotation3d.fromDegrees(0,-20,0)); //TODO: make sure these are right //forward is pos x, left is pos y
+    public static Pose3d kLimelightMainZeroPosition = new Pose3d(0.0392176, 0.15875, 0.5426456, Rotation3d.fromDegrees(0,-35,0)); //TODO: make sure these are right //forward is pos x, left is pos y
     
     @SuppressWarnings("resource") //Limelight objects implement AutoClosable and the compiler hates method chaining but its fine
     public static Limelight kLimelightMain = new Limelight(
@@ -340,7 +336,7 @@ public final class Constants {
         .withMotorOutput(kMotorOutputConfigs)
         .withFeedback(kFeedbackConfigs);
 
-    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.12065,0.15875, Rotation2d.ZERO); //TODO: SET VALUES // forward is pos x, left is pos y
+    public static final Pose2d kTurretSwivelRelativePosition = new Pose2d(-0.1234186,0.15875, Rotation2d.ZERO); //TODO: SET VALUES // forward is pos x, left is pos y
     public static final TurretSwivelConfiguration kTurretSwivelConfiguration = new TurretSwivelConfiguration()
       .setLowerAngleBound(0)
       .setUpperAngleBound(313)
