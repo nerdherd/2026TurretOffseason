@@ -13,6 +13,7 @@ import org.wpilib.math.geometry.Translation3d;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 import dev.doglog.DogLog;
+import frc.robot.Constants;
 import frc.robot.subsystems.NerdDrivetrain;
 import frc.robot.subsystems.template.TemplateSubsystem;
 import frc.robot.util.nerd_math.NerdyMath;
@@ -105,6 +106,12 @@ public class TurretSwivel extends TemplateSubsystem {
             new Rotation3d(Rotation2d.fromRotations(getCurrentPosition()))
         );
     }
+    public double getTurretEncoderPosition() {
+    return Constants.TurretSwivelConstants.kTurretCANdi
+        .getPWM1Position()
+        .getValueAsDouble();
+}
+
 
     /**
      * Gets the relative position of the turret to the center of the robot
@@ -131,4 +138,15 @@ public class TurretSwivel extends TemplateSubsystem {
 		applyMotorConfigs();
 		return this;
 	}
+    @Override
+    public double getCurrentPosition() {
+        return getTurretEncoderPosition();
+    }
+
+    @Override
+    public double getCurrentVelocity() {
+        return Constants.TurretSwivelConstants.kTurretCANdi
+            .getPWM1Velocity()
+            .getValueAsDouble();
+    }
 }
