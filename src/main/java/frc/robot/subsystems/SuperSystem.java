@@ -65,7 +65,7 @@ public class SuperSystem extends SuperSystemBase {
     public void setIntakeRoller(IntakeRollerMode mode) {
         switch(mode) {
             case INTAKE:    intakeRoller.setDesiredValue(8); break;
-            case OUTTAKE:   intakeRoller.setDesiredValue(-8); break;
+            case OUTTAKE:   intakeRoller.setDesiredValue(-5); break;
             case STOP: default: intakeRoller.setDesiredValue(0); break;
         }
     }

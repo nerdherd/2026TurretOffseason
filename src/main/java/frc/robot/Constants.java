@@ -20,6 +20,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.hardware.*;
+import com.ctre.phoenix6.signals.*;
 import com.limelightvision.Limelight;
 import com.limelightvision.PoseEstimateConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -45,7 +48,6 @@ import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
- 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -314,12 +316,18 @@ public final class Constants {
 
   public static final class IntakeRollerConstants {
     public static final int kMotor1ID = 15;
+    public static final int kMotor2ID = 8;
 
     private static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
         .withKP(0.5)
         .withKI(0.0)
         .withKD(0.0);
+
+    public static final MotorOutputConfigs kMotorOutputConfigs = 
+      new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
 
     private static final CurrentLimitsConfigs kCurrentLimitsConfigs = 
       new CurrentLimitsConfigs()
@@ -462,6 +470,7 @@ public static final class ShooterConstants {
 
   public static final class HoodConstants {
     public static final int kMotor1ID = 37;
+    public static final CANcoder HOODCANcoder = new CANcoder(kMotor1ID, null)
 
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
@@ -486,7 +495,7 @@ public static final class ShooterConstants {
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs);
-    
+    CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
     public static final double kUpPos = 1.0; 
     public static final double kDownPos = 0.0;
 
