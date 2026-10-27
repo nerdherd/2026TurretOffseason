@@ -337,7 +337,7 @@ public class SuperSystem extends SuperSystemBase {
                     if (onDepotSide())        target = FieldPositions.DEPOT_PASSING.get();
                     else                      target = FieldPositions.OUTPOST_PASSING.get();
                 }
-                prepTurret(target);
+                if (target != null) prepTurret(target);
                 if (target != null && canShoot()) { 
                     hood.setDesiredValue(HoodConstants.kHoodTable.interpolate(lastCalculatedDistance));
                     startIndexing();

@@ -101,6 +101,28 @@ public class RobotContainer {
     public void configureBindings_teleop() {
         configureDriverBindings_teleop();
         configureOperatorBindings_teleop();
+
+        TunableDouble speedTuner = TunableDouble.create();
+        Tunables.publish("Test/speed", speedTuner);
+        testController.triggerRight()
+            .whileTrue(Commands.run(() -> Subsystems.shooter.setDesiredValue(NerdyMath.clamp(speedTuner.get(), 0.0, 55.0)), Subsystems.shooter));
+        
+        TunableDouble hoodTuner = TunableDouble.create();
+        Tunables.publish("Test/hood", hoodTuner);
+        testController.triggerLeft()
+            .whileTrue(Commands.run(() -> Subsystems.hood.setDesiredValue(NerdyMath.clamp(hoodTuner.get(), HoodConstants.kDownPos, HoodConstants.kUpPos)), Subsystems.hood));
+        
+        TunableDouble swivelTuner = TunableDouble.create();
+        Tunables.publish("Test/swivel", swivelTuner);
+        testController.buttonRight()
+            .onTrue(Commands.runOnce(() -> Subsystems.turretSwivel.goToAngle(swivelTuner.get())));
+        testController.buttonLeft()
+            .onTrue(Commands.runOnce(() -> Subsystems.turretSwivel.goToAngle(TurretSwivel.getRobotRelativeAngle(swerveDrive.getSwerveHeadingDegrees(), swivelTuner.get()))));
+
+        testController.bumperRight()
+            .whileTrue(superSystem.startIndexingCommand());
+        testController.bumperLeft()
+            .whileTrue(superSystem.lookAtPointCommand(FieldPositions.HUB_CENTER.get()));
     }
 
     ///////////////////////
@@ -171,28 +193,6 @@ public class RobotContainer {
 
     public void configureBindings_test() {
         Controller.configureDebugBindings(testController);
-        TunableDouble speedTuner = TunableDouble.create();
-
-        Tunables.publish("Test/speed", speedTuner);
-        operatorController.triggerRight()
-            .whileTrue(Commands.run(() -> Subsystems.shooter.setDesiredValue(NerdyMath.clamp(speedTuner.get(), 0.0, 55.0)), Subsystems.shooter));
-        
-        TunableDouble hoodTuner = TunableDouble.create();
-        Tunables.publish("Test/hood", hoodTuner);
-        operatorController.triggerLeft()
-            .whileTrue(Commands.run(() -> Subsystems.hood.setDesiredValue(NerdyMath.clamp(hoodTuner.get(), HoodConstants.kDownPos, HoodConstants.kUpPos)), Subsystems.hood));
-        
-        TunableDouble swivelTuner = TunableDouble.create();
-        Tunables.publish("Test/swivel", swivelTuner);
-        operatorController.buttonRight()
-            .whileTrue(Commands.run(() -> Subsystems.turretSwivel.goToAngle(swivelTuner.get()), Subsystems.turretSwivel));
-        operatorController.buttonLeft()
-            .whileTrue(Commands.run(() -> Subsystems.turretSwivel.goToAngle(TurretSwivel.getRobotRelativeAngle(swerveDrive.getSwerveHeadingDegrees(), swivelTuner.get())), Subsystems.turretSwivel));
-
-        operatorController.bumperRight()
-            .whileTrue(superSystem.startIndexingCommand());
-        operatorController.bumperLeft()
-            .whileTrue(superSystem.lookAtPointCommand(FieldPositions.HUB_CENTER.get()));
     }
 
     public Command getAutonomousCommand() {

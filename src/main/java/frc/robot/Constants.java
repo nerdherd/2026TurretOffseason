@@ -303,13 +303,15 @@ public final class Constants {
 
     private static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
-        .withKP(0.5)
+        .withKP(8)
         .withKI(0)
-        .withKD(0);
+        .withKD(0)
+        .withKV(0.228)
+        .withKS(0.5);
 
     public static final MotorOutputConfigs kMotorOutputConfigs = 
       new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive); // placeholder, but based on CAD, CW should move the hood up
+        .withInverted(InvertedValue.Clockwise_Positive); // placeholder, but based on CAD, CW should move the hood up
       
     public static final CurrentLimitsConfigs kMotorCurrentLimitsConfigs = 
       new CurrentLimitsConfigs()
@@ -319,13 +321,14 @@ public final class Constants {
     private static final MotionMagicConfigs kMotionMagicConfigs = 
       new MotionMagicConfigs()
         .withMotionMagicCruiseVelocity(10)
-        .withMotionMagicAcceleration(25);
+        .withMotionMagicAcceleration(4);
     
     private static final FeedbackConfigs kFeedbackConfigs = 
       new FeedbackConfigs()
         .withFeedbackRemoteSensorID(kCANdiID)
-        .withFeedbackRotorOffset(0.0)
-        .withSensorToMechanismRatio(200.0/18.0)
+        .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANdiQuadrature)
+        .withFeedbackRotorOffset(-0.1)
+        .withSensorToMechanismRatio(-200.0/18.0)
       ;
 
     public static final TalonFXConfiguration kSubsystemConfiguration = 
@@ -523,7 +526,7 @@ public static final class ShooterConstants {
     private static final FeedbackConfigs kFeedbackConfigs =
       new FeedbackConfigs()
           .withFeedbackRemoteSensorID(kCANcoderID)
-          .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+          .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
           .withFeedbackRotorOffset(0.0)
           .withSensorToMechanismRatio(1.0)
         ;
@@ -661,6 +664,7 @@ public static final class ShooterConstants {
             SubsystemMode.VOLTAGE, 
             0.0,
             useIntakeRoller)
+        .addMotor(IntakeRollerConstants.kMotor2ID, MotorAlignmentValue.Opposed)
         .configureMotors(IntakeRollerConstants.kSubsystemConfiguration);
 
       public static final boolean useIntakeSlide = true;

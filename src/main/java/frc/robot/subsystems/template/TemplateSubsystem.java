@@ -186,10 +186,10 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	 */
 	private static TalonFX getMotor(int id) {
 		TalonFX motor;
-
+		if (id == 45) return new TalonFX(id, new CANBus("can_s3"));
 		for (int i=0; i<5; i++) {
-			// NerdLog.reportInfo("Trying CANBus " + i);
 			motor = new TalonFX(id, new CANBus("can_s" + i));
+			NerdLog.reportInfo("Trying CANBus " + i);
 			if(motor.isConnected()) {
 				return motor;
 			}
