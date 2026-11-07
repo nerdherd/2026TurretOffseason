@@ -6,16 +6,23 @@ package frc.robot;
  
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.ctre.phoenix6.signals.*;
 import com.limelightvision.Limelight;
 import com.limelightvision.PoseEstimateConfig;
@@ -346,6 +353,10 @@ public final class Constants {
       .setMaxAngleTolerance(2)
       .setMaxVelocityTolerance(3)
       .setRelativePosition(kTurretSwivelRelativePosition); 
+
+    public static CANdi kTurretCANdi = TemplateSubsystem.getCANdi(kCANdiID);
+    public static final CANdiConfiguration kCANdiConfiguration = new CANdiConfiguration();
+    
   }
 
   public static final class IntakeRollerConstants {
@@ -544,6 +555,10 @@ public static final class ShooterConstants {
       new double[] {},
       new double[] {}
     );
+
+    public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
+    public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration();
+
   }
 
   public static final class IntakeSlideConstants {

@@ -18,9 +18,12 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 
 import dev.doglog.DogLog;
 import org.wpilib.command2.Command;
@@ -198,6 +201,32 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		
 		NerdLog.reportError("Motor (ID " + id + ") could not be found");
 		return new TalonFX(id, new CANBus());
+	}
+
+	public static CANdi getCANdi(int id) {
+		CANdi candi;
+		for (int i=0; i<5; i++) {
+			candi = new CANdi(id, new CANBus("can_s" +i));
+			NerdLog.reportInfo("Trying CANdi CANBus" + i);
+			if(candi.isConnected()){
+				return candi;
+			}
+			candi.close();
+		}
+		return new CANdi(id, new CANBus());
+	}
+
+	public static CANcoder getCANcoder(int id) {
+		CANcoder cancoder;
+		for (int i=0; i<5; i++) {
+			cancoder = new CANcoder(id, new CANBus("can_s" +i));
+			NerdLog.reportInfo("Trying CANconder CANBus" + i);
+			if(cancoder.isConnected()){
+				return cancoder;
+			}
+			cancoder.close();
+		}
+		return new CANcoder(id, new CANBus());
 	}
 
 	/** used for logging, essentially returns the subsystem mode in string form */
