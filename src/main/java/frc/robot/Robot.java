@@ -141,7 +141,7 @@ public class Robot extends TimedRobot {
     @Override
     public void utilityInit() {
         CommandScheduler.getInstance().cancelAll();
-        m_robotContainer.swerveDrive.setBrake(true);
+        m_robotContainer.swerveDrive.setBrake(false);
         
         if (Constants.USE_SUBSYSTEMS) {
         m_robotContainer.superSystem.setNeutralMode(NeutralModeValue.Coast);

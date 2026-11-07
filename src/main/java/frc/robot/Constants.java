@@ -22,7 +22,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.ctre.phoenix6.signals.*;
 import com.limelightvision.Limelight;
 import com.limelightvision.PoseEstimateConfig;
@@ -334,7 +333,7 @@ public final class Constants {
       new FeedbackConfigs()
         .withFeedbackRemoteSensorID(kCANdiID)
         .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANdiQuadrature)
-        .withFeedbackRotorOffset(-0.1)
+        .withFeedbackRotorOffset(0.01)
         .withSensorToMechanismRatio(-200.0/18.0)
       ;
 
@@ -484,7 +483,9 @@ public static final class ShooterConstants {
       //TODO
         .withKP(0.5)
         .withKI(0.0)
-        .withKD(0.0);
+        .withKD(0.0)
+        .withKS(0.258937)
+        .withKV(0.112992);
         
     public static final MotorOutputConfigs kMotorOutputConfigs = 
       new MotorOutputConfigs()
