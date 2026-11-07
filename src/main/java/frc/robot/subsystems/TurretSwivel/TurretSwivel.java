@@ -75,8 +75,8 @@ public class TurretSwivel extends TemplateSubsystem {
             return false;
         if (isValueWithinTolerance(turretSwivelConfiguration.maxAngleTolerance()))
             return false;
-        // double angleDegrees = this.getCurrentPosition()*360;
-        if (targetPos < turretSwivelConfiguration.lowerAngleBound() || targetPos > turretSwivelConfiguration.upperAngleBound())
+        double angleDegrees = this.getCurrentPosition()*360;
+        if (angleDegrees < turretSwivelConfiguration.lowerAngleBound() || angleDegrees > turretSwivelConfiguration.upperAngleBound())
             return false;
         return true;
     }
@@ -115,6 +115,8 @@ public class TurretSwivel extends TemplateSubsystem {
             new Rotation3d(Rotation2d.fromRotations(getCurrentPosition()))
         );
     }
+
+
 
     /**
      * Gets the relative position of the turret to the center of the robot

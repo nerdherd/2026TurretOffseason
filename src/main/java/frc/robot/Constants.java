@@ -716,7 +716,9 @@ public static final class ShooterConstants {
           0.0, 
           useHood)
         .configureMotors(HoodConstants.kSubsystemConfiguration);
-
-      public static void init() {}
+      public static void init() {
+        TurretSwivelConstants.kTurretCANdi.getConfigurator().apply(TurretSwivelConstants.kCANdiConfiguration);
+        HoodConstants.kHoodCANcoder.getConfigurator().apply(HoodConstants.kCANcoderConfiguration);
+      }
   }
 }
