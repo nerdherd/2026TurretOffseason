@@ -40,14 +40,16 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	public final TalonFX primaryMotor;
 
 	/** 
-	 * secondary motors that follow the primary<p></p>
-	 * use {@link #addMotor(int, MotorAlignmentValue)}<p></p>
+	 * secondary motors that follow the primary
+	 * <p>
+	 * use {@link #addMotor(int, MotorAlignmentValue)}
+	 * <p>
 	 * <strong>if multiple motors need independent and responsive motion, make multiple subsystem objects</strong><p></p>
 	 */
 	public final ArrayList<TalonFX> secondaryMotors = new ArrayList<>();
 	public final ArrayList<Follower> followRequests = new ArrayList<>();
 
-	/** holds the configuration for both {@link #primaryMotor} and {@link #motor2} */
+	/** holds the configuration for both {@link #primaryMotor} and all {@link #secondaryMotors} */
 	protected TalonFXConfiguration configuration;
 
 	/** position controller for {@link SubsystemMode#POSITION} */
@@ -63,7 +65,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	private final NeutralOut neutralRequest = new NeutralOut();
 	
 	/** 
-	 * target position or velocity depending on {@link SubsystemMode}
+	 * target position, velocity or voltage depending on {@link SubsystemMode}
 	 */
 	private double desiredValue; 
 
@@ -78,6 +80,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	/** name of the subsystem */
 	protected final String name;
 
+	/** default value of the subsystem (e.g. position, velocity, voltage) */
 	private final double defaultValue;
 
 	public enum SubsystemMode {
@@ -90,13 +93,13 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	private final SubsystemMode mode;
 
 	/**
+	 * Used to define a subsystem with one or more motors, providing easy functions to control it
 	 * 
-	 * @param name - used for {@link #shuffleboardTab}
-	 * @param motor1ID - used for {@link #primaryMotor}
-	 * @param motor2ID - used for {@link #motor2}
-	 * @param reverseMotor2 - whether to have {@link #motor2} oppose {@link #primaryMotor}
-	 * @param mode - the {@link SubsystemMode} for this subsystem
-	 * @param defaultValue - initial position or velocity depending on {@link SubsystemMode}
+	 * @param name - The name of the subsystem to be used for logging
+	 * @param motorID - The ID of the primary motor
+	 * @param mode - The {@link SubsystemMode} for this subsystem, defining the control type
+	 * @param defaultValue - Initial position, velocity or voltage depending on {@link SubsystemMode}
+	 * @param useSubsystem - Whether or not to use this subsystem
 	 */
 	public TemplateSubsystem(String name, int motorID, SubsystemMode mode, double defaultValue, boolean useSubsystem) {
 		this.primaryMotor = getMotor(motorID);
@@ -120,17 +123,30 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		SuperSystem.registerSubsystem(this);
 	}
 	
-	/** add a secondary motor to this subsystem */
-	public TemplateSubsystem addMotor(int motorID, MotorAlignmentValue reverse) {
+	/** 
+	 * Add a secondary motor to this subsystem
+	 * 
+	 * @param motorID The ID of the motor to add
+	 * @param alignment The {@link MotorAlignmentValue} of the motor, either aligned or opposed
+	 * 
+	 * @return this
+	 * */
+	public TemplateSubsystem addMotor(int motorID, MotorAlignmentValue alignment) {
 		TalonFX motor = getMotor(motorID);
 		secondaryMotors.add(motor);
-		Follower followRequest = new Follower(primaryMotor.getDeviceID(), reverse);
+		Follower followRequest = new Follower(primaryMotor.getDeviceID(), alignment);
 		followRequests.add(followRequest);
 		motor.setControl(followRequest);
 		return this;
 	}
 
-	/** applies configuration to motors; should be used on construction */
+	/** 
+	 * Applies a configuration to every current motor (any motors added afterwards do not get configured with this)
+	 * <p>
+	 * Should be used on construction
+	 * 
+	 * @param configuration The {@link TalonFXConfiguration} to apply to the motors
+	 * */
 	public TemplateSubsystem configureMotors(TalonFXConfiguration configuration){
 		this.configuration = configuration;
 		DogLog.log(kSubsystemTab + name + "/motor configs", configuration.toString());
@@ -139,8 +155,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 
 	/**
-	 * apply a consumer to all secondary motors
-	 * @param f - a function that takes the motor and its ID
+	 * Apply a consumer to all secondary motors
+	 * @param f - A function that takes the motor and its index
 	 */
 	public void applySecondaryMotors(BiConsumer<TalonFX, Integer> f) {
 		for (int i = 0; i < secondaryMotors.size(); i++) f.accept(secondaryMotors.get(i), i);
@@ -181,10 +197,10 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// ------------------------------------ Helper Functions ------------------------------------ //
 	
 	/**
-	 * gets a motor by trying to find it on the rio. if it isn't found, it tries again with the CANivore CANbus
-	 * relies on completely unique ids for the entire robot network
-	 * @param id - id of the motor to find
-	 * @return the found motor
+	 * Tries to get a motor by scanning CAN buses 0 through 4
+	 * 
+	 * @param id ID of the motor to check
+	 * @return The found motor, or a motor without a CANBus if not found
 	 */
 	private static TalonFX getMotor(int id) {
 		TalonFX motor;
@@ -229,7 +245,12 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// 	return new CANcoder(id, new CANBus());
 	// }
 
-	/** used for logging, essentially returns the subsystem mode in string form */
+	/**  
+	 * Returns the subsystem mode in string form
+	 * <p>
+	 * Used for logging
+	 * @return The subsystem mode in string form
+	 * */
 	public String getFlavorText() {
 		switch (mode) {
 			case POSITION: return "Position";
@@ -241,6 +262,12 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		return "";
 	}
 
+	/**  
+	 * Returns the unit used based on the subsystem mode in string form
+	 * <p>
+	 * Used for logging
+	 * @return The unit in string form
+	 * */
 	public String getUnit() {
 		switch (mode) {
 			case POSITION: return "rot";
@@ -252,38 +279,49 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		return null;
 	}
 
-	/** applies motor configurations based on {@link #configuration} */
+	/** 
+	 * Applies motor configurations to all motors based on {@link #configuration} 
+	 * */
 	public void applyMotorConfigs(){
 		primaryMotor.getConfigurator().apply(this.configuration);
 		applySecondaryMotors((motor, id) -> motor.getConfigurator().apply(this.configuration));
 	}
 	
-	/** sets and applies a {@link NeutralModeValue} to motors */
+	/** 
+	 * Sets and applies a {@link NeutralModeValue} to all motors
+	 * */
 	public void setNeutralMode(NeutralModeValue mode){
 		this.configuration.MotorOutput.NeutralMode = mode;
 		applyMotorConfigs();
 	}
 	
-	/** brake or coast depending on current {@link NeutralModeValue} */
+	/** 
+	 * Brake or coast depending on current {@link NeutralModeValue} and set {@link #enabled} to false
+	 * */
 	public void stop(){
 		this.enabled = false;
 		brake();
 	}
 	
-	/** sets all motors to neutral out */
+	/** 
+	 * Sets all motors to neutral out 
+	 * */
 	public void brake() {
 		primaryMotor.setControl(neutralRequest);
 		applySecondaryMotors((motor, i) -> motor.setControl(neutralRequest));
 	}
 
-	/** set secondary motors to follower */
+	/** 
+	 * Set the control of all secondary motors to follower
+	 * */
 	public void follow() {
 		applySecondaryMotors((motor, i) -> motor.setControl(followRequests.get(i)));
 	}
 
 	/** 
-	 * enables or disables the subsystem 
-	 * @see {@link #enabled} 
+	 * Enables or disables the subsystem 
+	 * @see #enabled
+	 * @param enabled Whether or not the subsystem should be enabled
 	 */
 	public void setEnabled(boolean enabled){
 		this.enabled = enabled;
@@ -291,28 +329,37 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 
 	/**
-	 * disables the subsystem
+	 * Disables the subsystem
+	 * @see #setEnabled(boolean)
 	 */
 	public void disable() {
 		this.setEnabled(false);
 	}
 	
 	/**
-	 * enables the subsystem
+	 * Enables the subsystem
+	 * @see #setEnabled(boolean)
 	 */
 	public void enable(){
 		this.setEnabled(true);
 	}
 
 	/**
-	 * sets {@link #desiredValue}
-	 * @param value - value to set
+	 * The main function to control the subsystem
+	 * <p>
+	 * Sets {@link #desiredValue}
+	 * <p>
+	 * Depending on {@link #mode}, this could be position, velocity, voltage, etc
+	 * 
+	 * @param value Value to set
 	 */
 	public void setDesiredValue(double value) {
 		this.desiredValue = value;
 	}
 
 	/**
+	 * Gets the desired value
+	 * 
 	 * @return {@link #desiredValue}
 	 */
 	public double getDesiredValue(){
@@ -321,8 +368,11 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 
 	/**
-	 * {@link #desiredValue}
-	 * @return the position or velocity based on motor1
+	 * Gets the current value of the subsystem
+	 * <p>
+	 * The unit depends on the {@link #mode}; it could be position, velocity, or voltage
+	 * 
+	 * @return The current value based on the primary motor
 	 */
 	public BaseStatusSignal getCurrentValue() {
 		switch (mode) {
@@ -337,33 +387,38 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 
 	/**
-	 * could be useful for atPoint checks
-	 * @return the current velocity of {@link #primaryMotor} 
+	 * @return The current velocity of {@link #primaryMotor} 
 	 */
 	public double getCurrentVelocity() {
 		return primaryMotor.getVelocity().getValueAsDouble();
 	}
 
+	/**
+	 * @return The current position of {@link #primaryMotor} 
+	 */
 	public double getCurrentPosition() { 
 		return primaryMotor.getPosition().getValueAsDouble();
 	}
 
 	/**
-	 * True if the current value is less than tolerance away from the desired value
+	 * True if {@link #getCurrentValue()} is less than {@code tolerance} away from {@link #desiredValue}
 	 * @param tolerance the tolerance
-	 * @return if the current value is less than tolerance away from the desired value
+	 * @return If the current value is within tolerance
 	 */
 	public boolean isValueWithinTolerance(double tolerance) {
 		return Math.abs(getCurrentValue().getValueAsDouble() - getDesiredValue()) < tolerance;
 	}
 
 	/**
-	 * @return temperature of {@link #primaryMotor}
+	 * @return Temperature of {@link #primaryMotor}
 	 */
 	public double getCurrentTemp(){
 		return primaryMotor.getDeviceTemp().getValueAsDouble();
 	}
 
+	/**
+	 * @return The {@link #defaultValue} of the subsystem
+	 */
 	public double getDefaultValue() {
 		return defaultValue;
 	}
@@ -378,16 +433,18 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// ------------------------------------ Command Functions ------------------------------------ //
 
 	/**
+	 * A command to set {@link #enabled}
 	 * @param newEnabled
-	 * @return {@link #enable()} in command form
+	 * @return A command that runs {@link #setEnabled(boolean)} with the value in {@code newEnabled}
 	 */
 	public Command setEnabledCommand(boolean newEnabled) {
 		return Commands.runOnce(() -> setEnabled(newEnabled));
 	}
 
 	/**
+	 * A command to set {@link #desiredValue}
 	 * @param newValue
-	 * @return {@link #setDesiredValue(double)} in command form
+	 * @return A command that runs {@link #setDesiredValue(double)} with the value in {@code newValue}
 	 */
 	public Command setDesiredValueCommand(double newValue) {
 		return Commands.runOnce(() -> setDesiredValue(newValue), this);
@@ -403,10 +460,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// ------------------------------------ Logging Functions ------------------------------------ //
 
 	/** 
-	 * intialize shuffleboard logging on {@link #shuffleboardTab}
-	 * @see {@link Reportable#addNumber(ShuffleboardTab, String, java.util.function.DoubleSupplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
-	 * @see {@link Reportable#addBoolean(ShuffleboardTab, String, java.util.function.BooleanSupplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
-	 * @see {@link Reportable#addString(ShuffleboardTab, String, java.util.function.Supplier, frc.robot.util.logging.Reportable.LOG_LEVEL)}
+	 * Registers subsystem values in NerdLog under {@link frc.robot.Constants.LoggingConstants#kSubsystemTab kSubsystemTab} + {@link #name}
 	 */
     public void initializeLogging(){
 		if (!useSubsystem) return;
@@ -424,8 +478,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Primary Motor", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		applySecondaryMotors((motor, i) -> {
-			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
-			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		});
 		
         NerdLog.logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
