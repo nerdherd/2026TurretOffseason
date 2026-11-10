@@ -494,8 +494,8 @@ public class SuperSystem extends SuperSystemBase {
     public boolean canShoot() {
         return 
             turretSwivel.isReadyToShoot(swerveDrivetrain) && 
-            shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance) &&
-            !ZoneConstants.kNoShootZone.check(swerveDrivetrain.getPose());
+            shooter.isValueWithinTolerance(ShooterConstants.kVelocityTolerance);
+            // !ZoneConstants.kNoShootZone.check(swerveDrivetrain.getPose());
 
     }
 

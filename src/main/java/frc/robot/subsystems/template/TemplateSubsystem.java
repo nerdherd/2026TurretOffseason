@@ -188,7 +188,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	 */
 	private static TalonFX getMotor(int id) {
 		TalonFX motor;
-		if (id == 45) return new TalonFX(id, new CANBus("can_s3"));
+		if (id == 45) return new TalonFX(id, new CANBus("can_s1"));
 		for (int i=0; i<5; i++) {
 			motor = new TalonFX(id, new CANBus("can_s" + i));
 			NerdLog.reportInfo("Trying CANBus " + i);
@@ -202,31 +202,32 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		return new TalonFX(id, new CANBus());
 	}
 
-	public static CANdi getCANdi(int id) {
-		CANdi candi;
-		for (int i=0; i<5; i++) {
-			candi = new CANdi(id, new CANBus("can_s" +i));
-			NerdLog.reportInfo("Trying CANdi CANBus" + i);
-			if(candi.isConnected()){
-				return candi;
-			}
-			candi.close();
-		}
-		return new CANdi(id, new CANBus());
-	}
+	// public static CANdi getCANdi(int id) {
+	// 	CANdi candi;
+	// 	for (int i=0; i<5; i++) {
+	// 		candi = new CANdi(id, new CANBus("can_s" +i));
+	// 		NerdLog.reportInfo("Trying CANdi CANBus" + i);
+	// 		if(candi.isConnected()){
+	// 			NerdLog.reportInfo("kahasdjhgald");
+	// 			return candi;
+	// 		}
+	// 		candi.close();
+	// 	}
+	// 	return new CANdi(id, new CANBus());
+	// }
 
-	public static CANcoder getCANcoder(int id) {
-		CANcoder cancoder;
-		for (int i=0; i<5; i++) {
-			cancoder = new CANcoder(id, new CANBus("can_s" +i));
-			NerdLog.reportInfo("Trying CANconder CANBus" + i);
-			if(cancoder.isConnected()){
-				return cancoder;
-			}
-			cancoder.close();
-		}
-		return new CANcoder(id, new CANBus());
-	}
+	// public static CANcoder getCANcoder(int id) {
+	// 	CANcoder cancoder;
+	// 	for (int i=0; i<5; i++) {
+	// 		cancoder = new CANcoder(id, new CANBus("can_s" +i));
+	// 		NerdLog.reportInfo("Trying CANconder CANBus" + i);
+	// 		if(cancoder.isConnected()){
+	// 			return cancoder;
+	// 		}
+	// 		cancoder.close();
+	// 	}
+	// 	return new CANcoder(id, new CANBus());
+	// }
 
 	/** used for logging, essentially returns the subsystem mode in string form */
 	public String getFlavorText() {

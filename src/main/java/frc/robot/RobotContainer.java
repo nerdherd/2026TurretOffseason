@@ -142,7 +142,7 @@ public class RobotContainer {
 
        driverController.controllerRight() // Set Pose Heading (pressed)
         .onTrue(Commands.runOnce(() -> swerveDrive.recalibrateGyroMT1()));
-
+        
         if (Constants.USE_SUBSYSTEMS) { /* bindings for subsystems */
             driverController.triggerRight()
                 .whileTrue(superSystem.startIntakingCommand());
@@ -180,7 +180,6 @@ public class RobotContainer {
             operatorController.triggerLeft()
                 .onTrue(Subsystems.shooter.setDesiredValueCommand(37))
                 .onFalse(superSystem.stopFlywheelCommand());
-
             operatorController.dpadUp()
                 .onTrue(superSystem.setHoodCommand(HoodMode.HIGH))
                 .onFalse(superSystem.setHoodCommand(HoodMode.LOW));

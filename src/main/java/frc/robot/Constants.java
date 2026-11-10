@@ -7,11 +7,12 @@ package frc.robot;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -49,9 +50,9 @@ import frc.robot.util.nerd_math.MultiProfiledPIDController;
 import frc.robot.util.nerd_math.NerdFlippingUtil;
 import frc.robot.util.nerd_math.NerdyMath;
 import frc.robot.util.nerd_math.Translation2dSlewRateLimiter;
-import frc.robot.util.nerd_zones.NerdZone;
-import frc.robot.util.nerd_zones.RectangleZone;
-import frc.robot.util.nerd_zones.ZoneGroup;
+// import frc.robot.util.nerd_zones.NerdZone;
+// import frc.robot.util.nerd_zones.RectangleZone;
+// import frc.robot.util.nerd_zones.ZoneGroup;
  
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -284,22 +285,22 @@ public final class Constants {
     public static final double kTrenchWidth = 1.2;
     public static final double kDistFromCenterLongPass = 0.0;
 
-    private static final NerdZone kBlueTrench = 
-      new RectangleZone(
-        new Pose2d(FieldPositions.HUB_CENTER.blue.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
-        new Pose2d(FieldPositions.HUB_CENTER.blue.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
-    private static final NerdZone kRedTrench = 
-      new RectangleZone(
-        new Pose2d(FieldPositions.HUB_CENTER.red.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
-        new Pose2d(FieldPositions.HUB_CENTER.red.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
+    // private static final NerdZone kBlueTrench = 
+    //   new RectangleZone(
+    //     new Pose2d(FieldPositions.HUB_CENTER.blue.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
+    //     new Pose2d(FieldPositions.HUB_CENTER.blue.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
+    // private static final NerdZone kRedTrench = 
+    //   new RectangleZone(
+    //     new Pose2d(FieldPositions.HUB_CENTER.red.getX() - (kTrenchWidth/2.0), -10, Rotation2d.ZERO), 
+    //     new Pose2d(FieldPositions.HUB_CENTER.red.getX() + (kTrenchWidth/2.0), 20, Rotation2d.ZERO));
 
-    // private static final NerdZone kBlueHub = new SemicircleZone(FieldPositions.HUB_CENTER.blue, ZoneConstants.kHubRadius);
-    // private static final NerdZone kRedHub = new SemicircleZone(FieldPositions.HUB_CENTER.red, ZoneConstants.kHubRadius);
+    // // private static final NerdZone kBlueHub = new SemicircleZone(FieldPositions.HUB_CENTER.blue, ZoneConstants.kHubRadius);
+    // // private static final NerdZone kRedHub = new SemicircleZone(FieldPositions.HUB_CENTER.red, ZoneConstants.kHubRadius);
 
-    public static final NerdZone kNoShootZone = new ZoneGroup(
-      kBlueTrench,
-      kRedTrench
-    );
+    // public static final NerdZone kNoShootZone = new ZoneGroup(
+    //   kBlueTrench,
+    //   kRedTrench
+    // );
   }
   
   // ------------------------ subsystem constants ------------------------------- //
@@ -353,8 +354,8 @@ public final class Constants {
       .setMaxVelocityTolerance(3)
       .setRelativePosition(kTurretSwivelRelativePosition); 
 
-    public static CANdi kTurretCANdi = TemplateSubsystem.getCANdi(kCANdiID);
-    public static final CANdiConfiguration kCANdiConfiguration = new CANdiConfiguration();
+    // public static CANdi kTurretCANdi = TemplateSubsystem.getCANdi(kCANdiID);
+    // public static final CANdiConfiguration kCANdiConfiguration = new CANdiConfiguration();
     
   }
 
@@ -517,13 +518,14 @@ public static final class ShooterConstants {
   public static final class HoodConstants {
     public static final int kMotor1ID = 37;
     public static final int kCANcoderID = 40; // TODO change to the actual ID
-
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
       //TODO
         .withKP(0.5)
         .withKI(0.0)
-        .withKD(0.0);
+        .withKD(0.0)
+        .withKS(0)
+        .withKV(0.15);
         
     public static final MotorOutputConfigs kMotorOutputConfigs = 
       new MotorOutputConfigs()
@@ -538,14 +540,20 @@ public static final class ShooterConstants {
     private static final FeedbackConfigs kFeedbackConfigs =
       new FeedbackConfigs()
           .withFeedbackRemoteSensorID(kCANcoderID)
-          .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-          .withFeedbackRotorOffset(0.0)
+          .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
+          .withFeedbackRotorOffset(0)
           .withSensorToMechanismRatio(1.0)
         ;
+    private static final MotionMagicConfigs kMotionMagicConfigs = 
+      new MotionMagicConfigs()
+        .withMotionMagicCruiseVelocity(10)
+        .withMotionMagicAcceleration(4);
+    
     public static final TalonFXConfiguration kSubsystemConfiguration =
       new TalonFXConfiguration()
         .withSlot0(kSlot0Configs)
         .withMotorOutput(kMotorOutputConfigs)
+        .withMotionMagic(kMotionMagicConfigs)
         .withCurrentLimits(kCurrentLimitsConfigs)
         .withFeedback(kFeedbackConfigs);
     
@@ -556,9 +564,12 @@ public static final class ShooterConstants {
       new double[] {},
       new double[] {}
     );
+    CANcoderConfiguration config = new CANcoderConfiguration();
 
-    public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
-    public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration();
+    public static final MagnetSensorConfigs kMagnetConfiguration = new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive);
+
+    // public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
+    public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration().withMagnetSensor(kMagnetConfiguration);
 
   }
 
@@ -690,7 +701,7 @@ public static final class ShooterConstants {
           IntakeSlideConstants.kMotor1ID, 
           SubsystemMode.VOLTAGE, 
           0.0, 
-          useIntakeRoller)
+          useIntakeSlide)
         .configureMotors(IntakeSlideConstants.kSubsystemConfiguraion);
 
       public static final boolean useThroat = true;
@@ -733,8 +744,8 @@ public static final class ShooterConstants {
           useHood)
         .configureMotors(HoodConstants.kSubsystemConfiguration);
       public static void init() {
-        TurretSwivelConstants.kTurretCANdi.getConfigurator().apply(TurretSwivelConstants.kCANdiConfiguration);
-        HoodConstants.kHoodCANcoder.getConfigurator().apply(HoodConstants.kCANcoderConfiguration);
+        // TurretSwivelConstants.kTurretCANdi.getConfigurator().apply(TurretSwivelConstants.kCANdiConfiguration);
+        // HoodConstants.kHoodCANcoder.getConfigurator().apply(HoodConstants.kCANcoderConfiguration);
       }
   }
 }
