@@ -40,14 +40,16 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	public final TalonFX primaryMotor;
 
 	/** 
-	 * secondary motors that follow the primary<p></p>
-	 * use {@link #addMotor(int, MotorAlignmentValue)}<p></p>
+	 * secondary motors that follow the primary
+	 * <p>
+	 * use {@link #addMotor(int, MotorAlignmentValue)}
+	 * <p>
 	 * <strong>if multiple motors need independent and responsive motion, make multiple subsystem objects</strong><p></p>
 	 */
 	public final ArrayList<TalonFX> secondaryMotors = new ArrayList<>();
 	public final ArrayList<Follower> followRequests = new ArrayList<>();
 
-	/** holds the configuration for both {@link #primaryMotor} and {@link #motor2} */
+	/** holds the configuration for both {@link #primaryMotor} and all {@link #secondaryMotors} */
 	protected TalonFXConfiguration configuration;
 
 	/** position controller for {@link SubsystemMode#POSITION} */
@@ -63,7 +65,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	private final NeutralOut neutralRequest = new NeutralOut();
 	
 	/** 
-	 * target position or velocity depending on {@link SubsystemMode}
+	 * target position, velocity or voltage depending on {@link SubsystemMode}
 	 */
 	private double desiredValue; 
 
@@ -93,10 +95,10 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	/**
 	 * Used to define a subsystem with one or more motors, providing easy functions to control it
 	 * 
-	 * @param name - The name of the subsystem to be used for {@link #shuffleboardTab}
+	 * @param name - The name of the subsystem to be used for logging
 	 * @param motorID - The ID of the primary motor
 	 * @param mode - The {@link SubsystemMode} for this subsystem, defining the control type
-	 * @param defaultValue - Initial position or velocity depending on {@link SubsystemMode}
+	 * @param defaultValue - Initial position, velocity or voltage depending on {@link SubsystemMode}
 	 * @param useSubsystem - Whether or not to use this subsystem
 	 */
 	public TemplateSubsystem(String name, int motorID, SubsystemMode mode, double defaultValue, boolean useSubsystem) {
@@ -125,19 +127,21 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	 * Add a secondary motor to this subsystem
 	 * 
 	 * @param motorID The ID of the motor to add
-	 * @param reverse The {@link MotorAlignmentValue} of the motor, either aligned or opposed
+	 * @param alignment The {@link MotorAlignmentValue} of the motor, either aligned or opposed
+	 * 
+	 * @return this
 	 * */
-	public TemplateSubsystem addMotor(int motorID, MotorAlignmentValue reverse) {
+	public TemplateSubsystem addMotor(int motorID, MotorAlignmentValue alignment) {
 		TalonFX motor = getMotor(motorID);
 		secondaryMotors.add(motor);
-		Follower followRequest = new Follower(primaryMotor.getDeviceID(), reverse);
+		Follower followRequest = new Follower(primaryMotor.getDeviceID(), alignment);
 		followRequests.add(followRequest);
 		motor.setControl(followRequest);
 		return this;
 	}
 
 	/** 
-	 * Applies a configuration to every motor
+	 * Applies a configuration to every current motor (any motors added afterwards do not get configured with this)
 	 * <p>
 	 * Should be used on construction
 	 * 
@@ -152,7 +156,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 	/**
 	 * Apply a consumer to all secondary motors
-	 * @param f - A function that takes the motor and its ID
+	 * @param f - A function that takes the motor and its index
 	 */
 	public void applySecondaryMotors(BiConsumer<TalonFX, Integer> f) {
 		for (int i = 0; i < secondaryMotors.size(); i++) f.accept(secondaryMotors.get(i), i);
@@ -193,12 +197,9 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// ------------------------------------ Helper Functions ------------------------------------ //
 	
 	/**
-	 * Tries to get a motor by trying to find it on the rio. 
-	 * If it isn't found, it tries again with the CANivore CANbus
-	 * <p>
-	 * Relies on completely unique ids for the entire robot network
+	 * Tries to get a motor by scanning CAN buses 0 through 4
 	 * 
-	 * @param id - ID of the motor to find
+	 * @param id ID of the motor to check
 	 * @return The found motor, or a motor without a CANBus if not found
 	 */
 	private static TalonFX getMotor(int id) {
@@ -218,7 +219,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 
 	/**
-	 * Tries to get a CANdi by trying to find it on the rio.
+	 * Tries to get a CANdi by scanning CAN buses 0 through 4
 	 * 
 	 * @param id - ID of the CANdi to find
 	 * @return The found CANdi, or a CANdi without a CANBus if not found
@@ -233,11 +234,12 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 			}
 			candi.close();
 		}
+		NerdLog.reportError("CANdi (ID " + id + ") could not be found");
 		return new CANdi(id, new CANBus());
 	}
 
 	/**
-	 * Tries to get a CANcoder by trying to find it on the rio.
+	 * Tries to get a CANcoder by scanning CAN buses 0 through 4
 	 * 
 	 * @param id - ID of the CANcoder to find
 	 * @return The found CANcoder, or a CANcoder without a CANBus if not found
@@ -246,12 +248,13 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		CANcoder cancoder;
 		for (int i=0; i<5; i++) {
 			cancoder = new CANcoder(id, new CANBus("can_s" +i));
-			NerdLog.reportInfo("Trying CANconder CANBus" + i);
+			NerdLog.reportInfo("Trying CANcoder CANBus" + i);
 			if(cancoder.isConnected()){
 				return cancoder;
 			}
 			cancoder.close();
 		}
+		NerdLog.reportError("CANcoder (ID " + id + ") could not be found");
 		return new CANcoder(id, new CANBus());
 	}
 
@@ -306,7 +309,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	}
 	
 	/** 
-	 * Brake or coast depending on current {@link NeutralModeValue} 
+	 * Brake or coast depending on current {@link NeutralModeValue} and set {@link #enabled} to false
 	 * */
 	public void stop(){
 		this.enabled = false;
@@ -330,7 +333,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 	/** 
 	 * Enables or disables the subsystem 
-	 * @see {@link #enabled}
+	 * @see #enabled
 	 * @param enabled Whether or not the subsystem should be enabled
 	 */
 	public void setEnabled(boolean enabled){
@@ -340,7 +343,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 
 	/**
 	 * Disables the subsystem
-	 * @see {@link #setEnabled(boolean)}
+	 * @see #setEnabled(boolean)
 	 */
 	public void disable() {
 		this.setEnabled(false);
@@ -348,7 +351,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	
 	/**
 	 * Enables the subsystem
-	 * @see {@link #setEnabled(boolean)}
+	 * @see #setEnabled(boolean)
 	 */
 	public void enable(){
 		this.setEnabled(true);
@@ -470,9 +473,7 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 	// ------------------------------------ Logging Functions ------------------------------------ //
 
 	/** 
-	 * Intialize shuffleboard logging on {@link #shuffleboardTab}
-	 * <p>
-	 * Logs values under {@link frc.robot.Constants.LoggingConstants#kSubsystemTab kSubsystemTab} + {@link #name}
+	 * Registers subsystem values in NerdLog under {@link frc.robot.Constants.LoggingConstants#kSubsystemTab kSubsystemTab} + {@link #name}
 	 */
     public void initializeLogging(){
 		if (!useSubsystem) return;
@@ -490,8 +491,8 @@ public class TemplateSubsystem extends SubsystemBase implements Reportable {
 		NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Primary Motor", primaryMotor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Primary Motor", primaryMotor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		applySecondaryMotors((motor, i) -> {
-			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
-			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), primaryMotor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Torque Current/Secondary Motor " + i, motor.getTorqueCurrent(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
+			NerdLog.logSignal(kSubsystemTab + name + "/Motor Voltage/Secondary Motor " + i, motor.getMotorVoltage(false), motor.getNetwork().getName(), LOG_LEVEL.MEDIUM);
 		});
 		
         NerdLog.logBoolean(kSubsystemTab + name + "/Enabled", () -> this.enabled, Reportable.LOG_LEVEL.MEDIUM);
