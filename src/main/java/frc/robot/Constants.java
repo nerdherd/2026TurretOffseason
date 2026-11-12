@@ -521,11 +521,11 @@ public static final class ShooterConstants {
     public static final Slot0Configs kSlot0Configs = 
       new Slot0Configs()
       //TODO
-        .withKP(0.5)
+        .withKP(0.25)
         .withKI(0.0)
-        .withKD(0.0)
-        .withKS(0)
-        .withKV(0.15);
+        .withKD(0.01)
+        .withKS(0.5)
+        .withKV(0.3164);
         
     public static final MotorOutputConfigs kMotorOutputConfigs = 
       new MotorOutputConfigs()
@@ -541,7 +541,6 @@ public static final class ShooterConstants {
       new FeedbackConfigs()
           .withFeedbackRemoteSensorID(kCANcoderID)
           .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder)
-          .withFeedbackRotorOffset(0)
           .withSensorToMechanismRatio(1.0)
         ;
     private static final MotionMagicConfigs kMotionMagicConfigs = 
@@ -557,8 +556,8 @@ public static final class ShooterConstants {
         .withCurrentLimits(kCurrentLimitsConfigs)
         .withFeedback(kFeedbackConfigs);
     
-    public static final double kUpPos = 1.0; 
-    public static final double kDownPos = 0.0;
+    public static final double kUpPos = 0.77; 
+    public static final double kDownPos = 0.0; // chnage later
 
     public static final LInTable kHoodTable = new LInTable(
       new double[] {},
@@ -570,7 +569,7 @@ public static final class ShooterConstants {
       new MagnetSensorConfigs()
         .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
         .withAbsoluteSensorDiscontinuityPoint(1.0)
-        .withMagnetOffset(0.0); //TODO change to real values
+        .withMagnetOffset(-0.75); //TODO change to real values
 
     //public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
     public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration().withMagnetSensor(kMagnetConfiguration);
