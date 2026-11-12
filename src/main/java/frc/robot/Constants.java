@@ -566,10 +566,16 @@ public static final class ShooterConstants {
     );
     CANcoderConfiguration config = new CANcoderConfiguration();
 
-    public static final MagnetSensorConfigs kMagnetConfiguration = new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.Clockwise_Positive);
+    public static final MagnetSensorConfigs kMagnetConfiguration = 
+      new MagnetSensorConfigs()
+        .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+        .withAbsoluteSensorDiscontinuityPoint(1.0)
+        .withMagnetOffset(0.0); //TODO change to real values
 
-    // public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
+    //public static CANcoder kHoodCANcoder= TemplateSubsystem.getCANcoder(kCANcoderID);
     public static final CANcoderConfiguration kCANcoderConfiguration = new CANcoderConfiguration().withMagnetSensor(kMagnetConfiguration);
+
+    public static final CANcoder kHoodCANcoder = new CANcoder(kCANcoderID, new CANBus("can_s4")); // change to the correct canbus
 
   }
 

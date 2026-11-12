@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.util.nerd_logging.NerdLog;
 
 import org.wpilib.command2.Command;
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
+        HoodConstants.kHoodCANcoder.getConfigurator().apply(HoodConstants.kCANcoderConfiguration);
 
         DogLog.setOptions(new DogLogOptions()
             .withCaptureConsole(true)
